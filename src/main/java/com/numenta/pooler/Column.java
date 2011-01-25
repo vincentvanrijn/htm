@@ -1,0 +1,84 @@
+package com.numenta.pooler;
+
+import java.util.ArrayList;
+import java.util.Vector;
+
+public class Column {
+	
+	
+	public static int CELLS_PER_COLUMN;
+	private int boost;
+	private int overlap;
+	public static  int MINIMAL_OVERLAP=2;//TODO choose reasonable overlap
+	private double minimalDesiredDutyCycle;
+
+	public double getMinimalDesiredDutyCycle() {
+		return minimalDesiredDutyCycle;
+	}
+
+	public void setMinimalDesiredDutyCycle(double minimalDesiredDutyCycle) {
+		this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
+	}
+
+	private Vector predictiveState;
+	public Vector getPredictiveState() {
+		return predictiveState;
+	}
+
+	public void setPredictiveState(Vector predictiveState) {
+		this.predictiveState = predictiveState;
+	}
+
+	private Column[] neigbours;
+	
+	
+	private Synapse[] potentialSynapses;
+
+	public int getOverlap() {
+		return overlap;
+	}
+
+	public void setOverlap(int overlap) {
+		this.overlap = overlap;
+	}
+
+	public Synapse[] getPotentialSynapses() {
+		return potentialSynapses;
+	}
+
+	public void setPotentialSynapses(Synapse[] potentialSynapses) {
+		this.potentialSynapses = potentialSynapses;
+	}
+
+	
+
+	public Column[] getNeigbours() {
+		return neigbours;
+	}
+
+	public void setNeigbours(Column[] neigbours) {
+		this.neigbours = neigbours;
+	}
+
+	public Synapse[] getConnectedSynapses() {
+		ArrayList<Synapse> connectedSynapses=new ArrayList<Synapse>();
+		for(int i=0;i<potentialSynapses.length;i++){
+			Synapse potentialSynapse=potentialSynapses[i];
+			if(potentialSynapse.isActive()){
+				connectedSynapses.add(potentialSynapse);
+			}
+		}
+		return (Synapse[])connectedSynapses.toArray();
+	}
+
+	
+
+	public int getBoost() {
+		return boost;
+	}
+
+	public void setBoost(int boost) {
+		this.boost = boost;
+	}
+
+}
