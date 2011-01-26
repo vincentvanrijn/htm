@@ -1,10 +1,8 @@
 package com.numenta.pooler;
-import java.util.HashMap;
-import java.util.Vector;
-
 import com.numenta.model.Cell;
 import com.numenta.model.Column;
 import com.numenta.model.Segment;
+import com.numenta.model.helper.CellHelper;
 
 public class TemporalPooler {
 	
@@ -21,7 +19,9 @@ public class TemporalPooler {
 				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
 					
 					int t =0;
-					if(predictiveState(activeColumn, j, t-1)){
+					CellHelper cellHelper=new CellHelper(j,t-1);
+					
+					if((Boolean)activeColumn.getPredictiveState().get(cellHelper)){
 						Segment segment=getActiveSegment(activeColumn,j,t-1, activeState);
 						if(segment.sequenceSegment()){
 							buPredicted=true;
@@ -36,6 +36,7 @@ public class TemporalPooler {
 				}
 			}
 		}
+		//tell me if on this column, the jth cell was predicting one timestep before
 		private boolean predictiveState(Column activeColumn, int j, int i) {
 			// TODO Auto-generated method stub
 			return false;
