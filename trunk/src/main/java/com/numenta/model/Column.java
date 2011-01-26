@@ -1,7 +1,11 @@
 package com.numenta.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
+
+import com.numenta.model.helper.CellHelper;
 
 
 public class Column {
@@ -12,6 +16,7 @@ public class Column {
 	private int overlap;
 	public static  int MINIMAL_OVERLAP=2;//TODO choose reasonable overlap
 	private double minimalDesiredDutyCycle;
+	private Map<CellHelper, Boolean> predictiveState=new HashMap<CellHelper, Boolean>();
 
 	public double getMinimalDesiredDutyCycle() {
 		return minimalDesiredDutyCycle;
@@ -21,14 +26,15 @@ public class Column {
 		this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
 	}
 
-	private Vector predictiveState;
-	public Vector getPredictiveState() {
+	
+	public Map getPredictiveState() {
 		return predictiveState;
 	}
 
-	public void setPredictiveState(Vector predictiveState) {
+	public void setPredictiveState(Map predictiveState) {
 		this.predictiveState = predictiveState;
 	}
+
 
 	private Column[] neigbours;
 	

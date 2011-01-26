@@ -44,8 +44,9 @@ public class SpatialPooler {
 			
 			for(int j=0;j<connectedSynapses.length;j++){
 				Synapse connectedSynapse=connectedSynapses[j];
-				//TODO overlap(c)=overlap(c) + input(t, s.ourceinput)
-				overlap+=connectedSynapse.getSourceInput();
+				int t=1;
+				overlap += input(t, connectedSynapse.getSourceInput());
+				
 			}			
 			
 			if(overlap<Column.MINIMAL_OVERLAP){
@@ -55,7 +56,16 @@ public class SpatialPooler {
 			}			
 		}
 	}	
-	
+	/*input(t,j)  The input to this level at time t. input(t, j) is 1 if the j'th 
+		input is on.
+		*/
+	private int input(int t, int sourceInput) {
+		
+		
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 	private void computeWinningColumsAfterInhibition(){
 		for (int i = 0; i < columns.length; i++) {
 			Column column=columns[i];
@@ -78,10 +88,10 @@ public class SpatialPooler {
 				if(potentialSynapse.isActive()){
 					
 					potentialSynapse.setPermanance(permanance++);
-					//TODO s.permanance= min(1.0, s.permanance)
+					potentialSynapse.setPermanance( min(1.0, potentialSynapse.getPermanance()));
 				} else{
 					potentialSynapse.setPermanance(permanance--);
-					//TODO s.permanance= max(0.0, s.permanance)
+					potentialSynapse.setPermanance( max(0.0, potentialSynapse.getPermanance()));
 				}
 			}
 			
@@ -109,6 +119,14 @@ public class SpatialPooler {
 		int inhibitionRadius=  averageReceptiveFieldSize;
 	}	
 	
+	private int max(double d, int permanance) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	private int min(double d, int permanance) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	private int updateOverlapDutyCycle(Column column) {
 		// TODO Auto-generated method stub
 		return 0;
