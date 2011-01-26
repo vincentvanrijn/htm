@@ -22,7 +22,7 @@ public class TemporalPooler {
 					
 					CellHelper cellHelper=new CellHelper(j,t-1);
 					
-					if((Boolean)(activeColumn.getPredictiveState().get(cellHelper))){
+					if(activeColumn.getPredictiveState().get(cellHelper)){
 						Segment segment=activeColumn.getActiveSegment(j,t-1, activeState);
 						if(segment.sequenceSegment()){
 							buPredicted=true;
