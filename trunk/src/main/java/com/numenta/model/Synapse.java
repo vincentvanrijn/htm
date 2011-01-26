@@ -1,4 +1,4 @@
-package com.numenta.pooler;
+package com.numenta.model;
 
 public class Synapse {
 	

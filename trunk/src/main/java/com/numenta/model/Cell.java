@@ -1,4 +1,5 @@
-package com.numenta.pooler;
+package com.numenta.model;
+
 
 public class Cell {
 	private Segment[] segments;

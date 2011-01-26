@@ -1,7 +1,8 @@
-package com.numenta.pooler;
+package com.numenta.model;
 
 import java.util.ArrayList;
 import java.util.Vector;
+
 
 public class Column {
 	
@@ -79,6 +80,16 @@ public class Column {
 
 	public void setBoost(int boost) {
 		this.boost = boost;
+	}
+
+	public double getConnectedPerm() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void increasePermanance(double d) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
