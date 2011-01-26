@@ -9,29 +9,32 @@ public class TemporalPooler {
 	
 	private Column[] activeColumns;
 	private Cell[] cells;
-
+	private String activeState="activeState";//learnState
 		private void computeActiveState(){
+			
 			
 			for (int i = 0; i < activeColumns.length; i++) {
 				Column activeColumn=activeColumns[i];
 				boolean buPredicted=false;
-				
+				int t =0;
 				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
 					
-					int t =0;
+					
 					CellHelper cellHelper=new CellHelper(j,t-1);
 					
-					if((Boolean)activeColumn.getPredictiveState().get(cellHelper)){
-						Segment segment=getActiveSegment(activeColumn,j,t-1, activeState);
+					if((Boolean)(activeColumn.getPredictiveState().get(cellHelper))){
+						Segment segment=activeColumn.getActiveSegment(j,t-1, activeState);
 						if(segment.sequenceSegment()){
 							buPredicted=true;
-							activeState(activeColumn,j,t)=1;
+							CellHelper cellHelper1=new CellHelper(j,t);
+							activeColumn.getActiveState().put(cellHelper1, true);
 						}
 					}
 				}
-				if(buPredicted){
+				if(!buPredicted){
 					for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
-						activeState(activeColumn,j,t)=1;
+						CellHelper cellHelper1=new CellHelper(j,t);
+						activeColumn.getActiveState().put(cellHelper1, true);
 					}
 				}
 			}
@@ -53,6 +56,7 @@ public class TemporalPooler {
 		public void setCells(Cell[] cells) {
 			this.cells = cells;
 		}
+		
 		private void calculatePredictedState(){
 			for (int i = 0; i < cells.length; i++) {
 				Cell cell=cells[i];
