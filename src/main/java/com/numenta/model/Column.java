@@ -3,7 +3,6 @@ package com.numenta.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 import com.numenta.model.helper.CellHelper;
 
@@ -17,6 +16,15 @@ public class Column {
 	public static  int MINIMAL_OVERLAP=2;//TODO choose reasonable overlap
 	private double minimalDesiredDutyCycle;
 	private Map<CellHelper, Boolean> predictiveState=new HashMap<CellHelper, Boolean>();
+	private Map<CellHelper, Boolean> activeState=new HashMap<CellHelper, Boolean>();
+
+	public Map<CellHelper, Boolean> getActiveState() {
+		return activeState;
+	}
+
+	public void setActiveState(Map<CellHelper, Boolean> activeState) {
+		this.activeState = activeState;
+	}
 
 	public double getMinimalDesiredDutyCycle() {
 		return minimalDesiredDutyCycle;
@@ -27,11 +35,11 @@ public class Column {
 	}
 
 	
-	public Map getPredictiveState() {
+	public Map<CellHelper, Boolean> getPredictiveState() {
 		return predictiveState;
 	}
 
-	public void setPredictiveState(Map predictiveState) {
+	public void setPredictiveState(Map<CellHelper, Boolean> predictiveState) {
 		this.predictiveState = predictiveState;
 	}
 
@@ -96,6 +104,11 @@ public class Column {
 	public void increasePermanance(double d) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Segment getActiveSegment(int cell, int time, String activeState) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
