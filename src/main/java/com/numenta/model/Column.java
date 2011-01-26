@@ -11,10 +11,20 @@ public class Column {
 	
 	
 	public static int CELLS_PER_COLUMN;
-	private int boost;
-	private int overlap;
+	private double boost;
+	private double overlap;
 	public static  int MINIMAL_OVERLAP=2;//TODO choose reasonable overlap
 	private double minimalDesiredDutyCycle;
+	private double activeDutyCycle;
+	public double getActiveDutyCycle() {
+		return activeDutyCycle;
+	}
+
+	public void setActiveDutyCycle(double activeDutyCycle) {
+		this.activeDutyCycle = activeDutyCycle;
+	}
+
+
 	private Map<CellHelper, Boolean> predictiveState=new HashMap<CellHelper, Boolean>();
 	private Map<CellHelper, Boolean> activeState=new HashMap<CellHelper, Boolean>();
 
@@ -49,12 +59,12 @@ public class Column {
 	
 	private Synapse[] potentialSynapses;
 
-	public int getOverlap() {
+	public double getOverlap() {
 		return overlap;
 	}
 
-	public void setOverlap(int overlap) {
-		this.overlap = overlap;
+	public void setOverlap(double d) {
+		this.overlap = d;
 	}
 
 	public Synapse[] getPotentialSynapses() {
@@ -88,11 +98,11 @@ public class Column {
 
 	
 
-	public int getBoost() {
+	public double getBoost() {
 		return boost;
 	}
 
-	public void setBoost(int boost) {
+	public void setBoost(double boost) {
 		this.boost = boost;
 	}
 
