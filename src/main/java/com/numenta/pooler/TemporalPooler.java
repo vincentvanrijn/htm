@@ -2,6 +2,10 @@ package com.numenta.pooler;
 import java.util.HashMap;
 import java.util.Vector;
 
+import com.numenta.model.Cell;
+import com.numenta.model.Column;
+import com.numenta.model.Segment;
+
 public class TemporalPooler {
 	
 	
@@ -15,18 +19,26 @@ public class TemporalPooler {
 				boolean buPredicted=false;
 				
 				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
-					Vector vector=activeColumn.getPredictiveState();
-					if(true){
-						buPredicted=true;
+					
+					int t =0;
+					if(predictiveState(activeColumn, j, t-1)){
+						Segment segment=getActiveSegment(activeColumn,j,t-1, activeState);
+						if(segment.sequenceSegment()){
+							buPredicted=true;
+							activeState(activeColumn,j,t)=1;
+						}
 					}
 				}
 				if(buPredicted){
 					for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
-						
+						activeState(activeColumn,j,t)=1;
 					}
 				}
 			}
-			
+		}
+		private boolean predictiveState(Column activeColumn, int j, int i) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 		public Column[] getActiveColumns() {
 			return activeColumns;
@@ -40,13 +52,14 @@ public class TemporalPooler {
 		public void setCells(Cell[] cells) {
 			this.cells = cells;
 		}
-		private void computePredictedState(){
+		private void calculatePredictedState(){
 			for (int i = 0; i < cells.length; i++) {
 				Cell cell=cells[i];
 				for (int j = 0; j < cell.getSegments().length; j++) {
-//					if(){
-//						
-//					}
+					if(segmentActive(cell, i,s,t)){
+						predictiveState(c,i,t)=1;
+						
+					}
 					
 				}
 				
@@ -54,6 +67,17 @@ public class TemporalPooler {
 			
 		}
 		private void updateSynapses(){
+			for(int c=0;c<cells.length;c++){
+				
+				if(learnState(s,i,y)==1){
+					adaptSegment(segmentUpdateList(c,i),true);
+					segmentUpdateList(c,i).delete();
+					
+				} else if(prdeictiveState(c,i,t)==0 and predictiveState(c,i,t-1==1)){
+					adaptSegments(segmentUpdateList(c,i),false);
+					segmentUpdateList(c,i).delete();
+				}
+			}
 			
 			
 		}

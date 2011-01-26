@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
+import com.numenta.model.Column;
+import com.numenta.model.Synapse;
+
 public class SpatialPooler {
 	
 	public SpatialPooler(){
@@ -43,20 +46,15 @@ public class SpatialPooler {
 				Synapse connectedSynapse=connectedSynapses[j];
 				//TODO overlap(c)=overlap(c) + input(t, s.ourceinput)
 				overlap+=connectedSynapse.getSourceInput();
-			}
-			
+			}			
 			
 			if(overlap<Column.MINIMAL_OVERLAP){
-				column.setOverlap(0);
-				
+				column.setOverlap(0);				
 			} else{
 				column.setOverlap(overlap*column.getBoost());
 			}			
 		}
-	}		
-		
-		
-	
+	}	
 	
 	private void computeWinningColumsAfterInhibition(){
 		for (int i = 0; i < columns.length; i++) {
@@ -67,10 +65,70 @@ public class SpatialPooler {
 			if((column.getOverlap()>0) && column.getOverlap()>= minimalLocalActivity){
 				activeColumns.add(column);
 			}
-		}
-		
+		}		
 	}
 	
+	private void updateSynapses(){
+		for (Iterator i = activeColumns.iterator(); i.hasNext();) {
+			Column activeColumn = (Column) i.next();
+			Synapse[] potentialSynapses=activeColumn.getPotentialSynapses();
+			for (int j = 0; j < potentialSynapses.length; j++) {
+				Synapse potentialSynapse=potentialSynapses[j];
+				int permanance=potentialSynapse.getPermanance();
+				if(potentialSynapse.isActive()){
+					
+					potentialSynapse.setPermanance(permanance++);
+					//TODO s.permanance= min(1.0, s.permanance)
+				} else{
+					potentialSynapse.setPermanance(permanance--);
+					//TODO s.permanance= max(0.0, s.permanance)
+				}
+			}
+			
+		}
+		for (int i = 0; i < columns.length; i++) {
+			Column column=columns[i];
+			
+			double minimalDutyCycle=(0.01 * (getMaxDutyCycle(column.getNeigbours())));
+			
+			int activeDutyCycle=updateActiveDutyCycle(column);
+			
+			int boost =calculateBoost(activeDutyCycle, minimalDutyCycle);
+			column.setBoost(boost);
+			
+			int overlapDutyCycle=updateOverlapDutyCycle(column);
+			
+			if(overlapDutyCycle<minimalDutyCycle){
+				column.increasePermanance(0.1*column.getConnectedPerm());
+			
+			}
+			
+
+		}		
+		int averageReceptiveFieldSize = 0;
+		int inhibitionRadius=  averageReceptiveFieldSize;
+	}	
+	
+	private int updateOverlapDutyCycle(Column column) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int calculateBoost(int activeDutyClycle,
+			double minimalDesiredDutyCycle) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int updateActiveDutyCycle(Column column) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int getMaxDutyCycle(Column[] neigbours){
+		// TODO Auto-generated method stub
+		return 0;		
+	}
 	private int kthScore(Column[] neigbours, int disiredLocalActivity) {
 		if(disiredLocalActivity> neigbours.length){
 			disiredLocalActivity=neigbours.length;
@@ -94,35 +152,6 @@ public class SpatialPooler {
 			}			
 		}
 		return orderedNeigbours.get(disiredLocalActivity-1).getOverlap();
-		
-	}
-
-	private void updateSynapses(){
-		for (Iterator i = activeColumns.iterator(); i.hasNext();) {
-			Column activeColumn = (Column) i.next();
-			Synapse[] potentialSynapses=activeColumn.getPotentialSynapses();
-			for (int j = 0; j < potentialSynapses.length; j++) {
-				Synapse potentialSynapse=potentialSynapses[j];
-				int permanance=potentialSynapse.getPermanance();
-				if(potentialSynapse.isActive()){
-					
-					potentialSynapse.setPermanance(permanance++);
-					//TODO s.permanance= min(1.0, s.permanance)
-				} else{
-					potentialSynapse.setPermanance(permanance--);
-					//TODO s.permanance= max(0.0, s.permanance)
-				}
-			}
-			
-		}
-		for (int i = 0; i < columns.length; i++) {
-			Column column=columns[i];
-			column.setMinimalDesiredDutyCycle(0.01 * (getMaxDutyClycle(column.getNeigbours())));
-			
-		}		
-	}	
-	private int getMaxDutyClycle(Column[] neigbours){
-		return 1;
 		
 	}
 }
