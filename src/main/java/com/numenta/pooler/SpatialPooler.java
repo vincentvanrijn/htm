@@ -54,6 +54,8 @@ public class SpatialPooler {
 				column.setOverlap(0);
 			} else {
 				column.setOverlap(overlap * column.getBoost());
+			
+				column.setGreaterThanMinimalOverlap(true);	
 			}
 		}
 	}
@@ -62,11 +64,7 @@ public class SpatialPooler {
 	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the
 	 * j'th input is on.
 	 */
-	private int input(int t, int sourceInput) {
-
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	
 
 	private void computeWinningColumsAfterInhibition() {
 		for (int i = 0; i < columns.length; i++) {
@@ -77,6 +75,8 @@ public class SpatialPooler {
 
 			if ((column.getOverlap() > 0)
 					&& column.getOverlap() >= minimalLocalActivity) {
+				
+				column.setActive(true);
 				activeColumns.add(column);
 			}
 		}
@@ -88,16 +88,26 @@ public class SpatialPooler {
 			Synapse[] potentialSynapses = activeColumn.getPotentialSynapses();
 			for (int j = 0; j < potentialSynapses.length; j++) {
 				Synapse potentialSynapse = potentialSynapses[j];
-				int permanance = potentialSynapse.getPermanance();
+				double permanance = potentialSynapse.getPermanance();
 				if (potentialSynapse.isActive()) {
 
 					potentialSynapse.setPermanance(permanance++);
-					potentialSynapse.setPermanance(min(1.0, potentialSynapse
-							.getPermanance()));
+					double returnValue=0;
+					if(potentialSynapse.getPermanance()>=1.0){
+						potentialSynapse.setPermanance( 1.0);
+					} else {
+						potentialSynapse.setPermanance(potentialSynapse.getPermanance());
+					}
 				} else {
 					potentialSynapse.setPermanance(permanance--);
-					potentialSynapse.setPermanance(max(0.0, potentialSynapse
-							.getPermanance()));
+					
+					if(potentialSynapse.getPermanance()<0.0){
+						potentialSynapse.setPermanance( 0.0);
+					} else {
+						potentialSynapse.setPermanance(potentialSynapse.getPermanance());
+					}
+					
+					
 				}
 			}
 
@@ -108,12 +118,12 @@ public class SpatialPooler {
 			double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column
 					.getNeigbours())));
 
-			double activeDutyCycle = updateActiveDutyCycle(column);
-			column.setActiveDutyCycle(activeDutyCycle);
+			double activeDutyCycle = column.updateActiveDutyCycle();
+			
 			double boost = calculateBoost(activeDutyCycle, minimalDutyCycle);
 			column.setBoost(boost);
 
-			int overlapDutyCycle = updateOverlapDutyCycle(column);
+			double overlapDutyCycle = column.updateOverlapDutyCycle();
 
 			if (overlapDutyCycle < minimalDutyCycle) {
 				column.increasePermanance(0.1 * column.getConnectedPerm());
@@ -125,20 +135,17 @@ public class SpatialPooler {
 		int inhibitionRadius = averageReceptiveFieldSize;
 	}
 
-	private int max(double d, int permanance) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	
+	private int input(int t, int sourceInput) {
 
-	private int min(double d, int permanance) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-	private int updateOverlapDutyCycle(Column column) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	//TODO updateOverlapDutyCycle(c)
+	//Computes a moving average of how often column c has overlap greater 
+	//than minOverlap.
+	//
+	
 
 	private double calculateBoost(double activeDutyClycle,
 			double minimalDesiredDutyCycle) {
@@ -153,10 +160,7 @@ public class SpatialPooler {
 		return boost;
 	}
 
-	private int updateActiveDutyCycle(Column column) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	
 
 	private double getMaxDutyCycle(Column[] neigbours){
 		

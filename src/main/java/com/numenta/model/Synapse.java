@@ -5,7 +5,7 @@ public class Synapse {
 	public static int CONECTED_PERMANANCE=5;
 	//is 0 or 1
 	private int sourceInput;
-	private int permanance;
+	private double permanance;
 
 	
 
@@ -24,12 +24,12 @@ public class Synapse {
 
 	
 
-	public int getPermanance() {
+	public double getPermanance() {
 		return this.permanance;
 	}
 
-	public void setPermanance(int permanance) {
-		this.permanance = permanance;
+	public void setPermanance(double d) {
+		this.permanance = d;
 	}
 
 }
