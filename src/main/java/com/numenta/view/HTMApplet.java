@@ -10,15 +10,19 @@ import java.awt.event.MouseMotionAdapter;
 
 public class HTMApplet extends Applet {
 
-	private boolean mouseDragged = false;
-	private boolean mousePressed = false;
-	private boolean black = true;
-	private boolean[] input = new boolean[144];
-	private static final long serialVersionUID = 1L;
+	private boolean				mouseDragged		= false;
 
-	private Graphics graphics;
+	private boolean				mousePressed		= false;
 
-	private Image image;
+	private boolean				black				= true;
+
+	private boolean[]			input				= new boolean[144];
+
+	private static final long	serialVersionUID	= 1L;
+
+	private Graphics			graphics;
+
+	private Image				image;
 
 	public void init() {
 
@@ -47,6 +51,7 @@ public class HTMApplet extends Applet {
 
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
+
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				mouseDragged = true;
@@ -70,20 +75,19 @@ public class HTMApplet extends Applet {
 	public void paint(Graphics graphics) {
 		graphics.drawImage(image, 0, 0, this);
 	}
-	
+
 	private void mouseOver(int x, int y) {
 
 		outer: for (int xx = 0; xx < 12; xx++) {
 			for (int yy = 0; yy < 12; yy++) {
-				if (x > 19 * xx && x < 19 * xx + 16 && y < 19 * yy + 116
-						&& y > 19 * yy + 100) {
+				if (x > 19 * xx && x < 19 * xx + 16 && y < 19 * yy + 116 && y > 19 * yy + 100) {
 					if (mousePressed) {
 						if (input[xx * yy]) {
 							black = false;
 						} else {
 							black = true;
 						}
-						mousePressed=false;
+						mousePressed = false;
 					} else {
 						if (mouseDragged) {
 
