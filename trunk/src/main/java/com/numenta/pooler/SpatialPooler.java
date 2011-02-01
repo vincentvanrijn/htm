@@ -20,8 +20,10 @@ public class SpatialPooler {
 			for (int j = 0; j < synapses.length; j++) {
 				synapses[j] = new Synapse();
 				// TODO impement better random value;
-				synapses[j].setPermanance(Synapse.CONECTED_PERMANANCE - 1
-						+ new Random().nextInt(3));
+				// int start = 12;
+				// int end = 15;
+				// int rnd = start + new Random().nextInt(end - start);
+				synapses[j].setPermanance(Synapse.CONECTED_PERMANANCE - 1 + new Random().nextInt(3));
 				// TODO synapse.setInput
 			}
 		}
@@ -30,12 +32,13 @@ public class SpatialPooler {
 
 	}
 
-	private int[] inputSpace;
+	private int[]				inputSpace;
 
-	private static int DISIRED_LOCAL_ACTIVITY;
+	private static int			DISIRED_LOCAL_ACTIVITY;
 
-	private Column[] columns;
-	private ArrayList<Column> activeColumns;
+	private Column[]			columns;
+
+	private ArrayList<Column>	activeColumns;
 
 	private void computOverlap() {
 		for (int i = 0; i < columns.length; i++) {
@@ -54,28 +57,24 @@ public class SpatialPooler {
 				column.setOverlap(0);
 			} else {
 				column.setOverlap(overlap * column.getBoost());
-			
-				column.setGreaterThanMinimalOverlap(true);	
+
+				column.setGreaterThanMinimalOverlap(true);
 			}
 		}
 	}
 
 	/*
-	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the
-	 * j'th input is on.
+	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the j'th input is on.
 	 */
-	
 
 	private void computeWinningColumsAfterInhibition() {
 		for (int i = 0; i < columns.length; i++) {
 			Column column = columns[i];
 
-			double minimalLocalActivity = kthScore(column.getNeigbours(),
-					DISIRED_LOCAL_ACTIVITY);
+			double minimalLocalActivity = kthScore(column.getNeigbours(), DISIRED_LOCAL_ACTIVITY);
 
-			if ((column.getOverlap() > 0)
-					&& column.getOverlap() >= minimalLocalActivity) {
-				
+			if ((column.getOverlap() > 0) && column.getOverlap() >= minimalLocalActivity) {
+
 				column.setActive(true);
 				activeColumns.add(column);
 			}
@@ -92,22 +91,21 @@ public class SpatialPooler {
 				if (potentialSynapse.isActive()) {
 
 					potentialSynapse.setPermanance(permanance++);
-					double returnValue=0;
-					if(potentialSynapse.getPermanance()>=1.0){
-						potentialSynapse.setPermanance( 1.0);
+					double returnValue = 0;
+					if (potentialSynapse.getPermanance() >= 1.0) {
+						potentialSynapse.setPermanance(1.0);
 					} else {
 						potentialSynapse.setPermanance(potentialSynapse.getPermanance());
 					}
 				} else {
 					potentialSynapse.setPermanance(permanance--);
-					
-					if(potentialSynapse.getPermanance()<0.0){
-						potentialSynapse.setPermanance( 0.0);
+
+					if (potentialSynapse.getPermanance() < 0.0) {
+						potentialSynapse.setPermanance(0.0);
 					} else {
 						potentialSynapse.setPermanance(potentialSynapse.getPermanance());
 					}
-					
-					
+
 				}
 			}
 
@@ -115,11 +113,10 @@ public class SpatialPooler {
 		for (int i = 0; i < columns.length; i++) {
 			Column column = columns[i];
 
-			double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column
-					.getNeigbours())));
+			double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column.getNeigbours())));
 
 			double activeDutyCycle = column.updateActiveDutyCycle();
-			
+
 			double boost = calculateBoost(activeDutyCycle, minimalDutyCycle);
 			column.setBoost(boost);
 
@@ -131,57 +128,54 @@ public class SpatialPooler {
 			}
 
 		}
+		// TODO implement this in a right way
 		int averageReceptiveFieldSize = 0;
 		int inhibitionRadius = averageReceptiveFieldSize;
 	}
 
-	
 	private int input(int t, int sourceInput) {
 
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	//TODO updateOverlapDutyCycle(c)
-	//Computes a moving average of how often column c has overlap greater 
-	//than minOverlap.
-	//
-	
 
-	private double calculateBoost(double activeDutyClycle,
-			double minimalDesiredDutyCycle) {
+	// TODO updateOverlapDutyCycle(c)
+	// Computes a moving average of how often column c has overlap greater
+	// than minOverlap.
+	//
+
+	private double calculateBoost(double activeDutyClycle, double minimalDesiredDutyCycle) {
 		// TODO Auto-generated method stub
-		double boost=0;
-		if(activeDutyClycle>minimalDesiredDutyCycle){
-			boost=1;			
-		} else{
-			boost=1/(activeDutyClycle/minimalDesiredDutyCycle);
+		double boost = 0;
+		if (activeDutyClycle > minimalDesiredDutyCycle) {
+			boost = 1;
+		} else {
+			boost = 1 / (activeDutyClycle / minimalDesiredDutyCycle);
 		}
-		
+
 		return boost;
 	}
 
-	
+	private double getMaxDutyCycle(Column[] neigbours) {
 
-	private double getMaxDutyCycle(Column[] neigbours){
-		
-		ArrayList<Column> orderedNeigbours =new ArrayList<Column>();		
-		
+		ArrayList<Column> orderedNeigbours = new ArrayList<Column>();
+
 		for (int i = 0; i < neigbours.length; i++) {
-			Column neigbour=neigbours[i];
-			if(i==0){
+			Column neigbour = neigbours[i];
+			if (i == 0) {
 				orderedNeigbours.add(neigbour);
-			}else{
-				for(int j=0;j<orderedNeigbours.size();j++){
-					Column orderedNeigbour=orderedNeigbours.get(j);
-					if(neigbour.getActiveDutyCycle()<=orderedNeigbour.getActiveDutyCycle()){
-						orderedNeigbours.add(j,neigbour);
+			} else {
+				for (int j = 0; j < orderedNeigbours.size(); j++) {
+					Column orderedNeigbour = orderedNeigbours.get(j);
+					if (neigbour.getActiveDutyCycle() <= orderedNeigbour.getActiveDutyCycle()) {
+						orderedNeigbours.add(j, neigbour);
 						break;
 					}
 				}
 			}
 		}
-		return orderedNeigbours.get(orderedNeigbours.size()-1).getActiveDutyCycle();		
-		
+		return orderedNeigbours.get(orderedNeigbours.size() - 1).getActiveDutyCycle();
+
 	}
 
 	private double kthScore(Column[] neigbours, int disiredLocalActivity) {
