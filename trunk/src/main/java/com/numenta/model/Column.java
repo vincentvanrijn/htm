@@ -8,10 +8,24 @@ import com.numenta.model.helper.CellHelper;
 
 
 public class Column {
-	
-	
-	
-		
+	private int xPos;
+	public int getxPos() {
+		return xPos;
+	}
+
+	public void setxPos(int xPos) {
+		this.xPos = xPos;
+	}
+
+	public int getyPos() {
+		return yPos;
+	}
+
+	public void setyPos(int yPos) {
+		this.yPos = yPos;
+	}
+
+	private int yPos;
 	///private double[] timesActive;
 	private ArrayList<Boolean> activeList= new ArrayList<Boolean>();
 
@@ -21,6 +35,27 @@ public class Column {
 
 	private boolean active=false;
 	private boolean greaterThanMinimalOverlap=false;
+	public static int CELLS_PER_COLUMN;
+	private double boost=1.0;//TODO choose reasonable boost
+	private double overlap;
+	public static  int MINIMAL_OVERLAP=3;//TODO choose reasonable overlap
+	private double minimalDesiredDutyCycle;
+/*	A sliding average representing how often column c has 
+	been active after inhibition (e.g. over the last 1000 
+	iterations).*/
+	private double activeDutyCycle;
+	
+	public void calculateBoost(double activeDutyCycle,
+			double minimalDesiredDutyCycle) {
+		
+		if (activeDutyCycle > minimalDesiredDutyCycle) {
+			this.boost = 1.0;
+		} else {
+			this.boost +=minimalDesiredDutyCycle ;
+		}
+		System.out.println("new calculated boost="+this.boost);
+	}
+	
 	public boolean isGreaterThanMinimalOverlap() {
 		return greaterThanMinimalOverlap;
 	}
@@ -28,16 +63,6 @@ public class Column {
 	public void setGreaterThanMinimalOverlap(boolean greaterThanMinimalOverlap) {
 		this.greaterThanMinimalOverlap = greaterThanMinimalOverlap;
 	}
-
-	public static int CELLS_PER_COLUMN;
-	private double boost;
-	private double overlap;
-	public static  int MINIMAL_OVERLAP=2;//TODO choose reasonable overlap
-	private double minimalDesiredDutyCycle;
-/*	A sliding average representing how often column c has 
-	been active after inhibition (e.g. over the last 1000 
-	iterations).*/
-	private double activeDutyCycle;
 public boolean isActive() {
 		return active;
 	}
@@ -125,7 +150,10 @@ public boolean isActive() {
 				connectedSynapses.add(potentialSynapse);
 			}
 		}
-		return (Synapse[])connectedSynapses.toArray();
+		Object[] objects=connectedSynapses.toArray();
+		Synapse[] synapses=new Synapse[objects.length];
+		System.arraycopy(objects, 0, synapses, 0, objects.length);
+		return synapses;
 	}
 
 	
@@ -138,13 +166,12 @@ public boolean isActive() {
 		this.boost = boost;
 	}
 
-	public double getConnectedPerm() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public void increasePermanance(double d) {
-		// TODO Auto-generated method stub
+	
+	public void increasePermanances(double d) {
+		for (int i = 0; i < this.potentialSynapses.length; i++) {
+			Synapse potenSynapse=potentialSynapses[i];
+			potenSynapse.setPermanance(potenSynapse.getPermanance()+d);
+		}
 		
 	}
 
@@ -153,7 +180,7 @@ public boolean isActive() {
 		return null;
 	}
 	public double updateOverlapDutyCycle() {
-		
+		System.out.println("timesGreate"+timesGreaterOverlapThanMinOverlap.size());
 		this.timesGreaterOverlapThanMinOverlap.add(0, this.isGreaterThanMinimalOverlap());
 		if(timesGreaterOverlapThanMinOverlap.size()>1000){
 			timesGreaterOverlapThanMinOverlap.remove(1000);
@@ -175,6 +202,7 @@ public boolean isActive() {
 	//inhibition.
 	
 	public double updateActiveDutyCycle() {
+		System.out.println("activeList"+activeList.size());
 		activeList.add(0, this.isActive());
 		if(activeList.size()>1000){
 			activeList.remove(1000);
