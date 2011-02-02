@@ -2,15 +2,18 @@ package com.numenta.model;
 
 public class Synapse {
 	
-	public static int CONECTED_PERMANANCE=5;
+	public static double CONECTED_PERMANANCE=5;
+	public static double PERMANENCE_DEC=0.1;
+	public static double PERMANENCE_INC=0.1;
 	//is 0 or 1
 	private int sourceInput;
 	private double permanance;
+	private int inputSpaceIndex;
 
 	
 
-	public boolean isActive() {
-		
+	public boolean isActive() {		
+		System.out.println("synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+ "input="+sourceInput);
 		return this.permanance>=CONECTED_PERMANANCE;
 	}
 
@@ -30,6 +33,16 @@ public class Synapse {
 
 	public void setPermanance(double d) {
 		this.permanance = d;
+	}
+
+	
+
+	public int getInputSpaceIndex() {
+		return inputSpaceIndex;
+	}
+
+	public void setInputSpaceIndex(int inputSpaceIndex) {
+		this.inputSpaceIndex = inputSpaceIndex;
 	}
 
 }
