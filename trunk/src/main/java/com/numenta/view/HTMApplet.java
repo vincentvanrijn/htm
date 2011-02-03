@@ -85,8 +85,7 @@ public class HTMApplet extends Applet {
 			public void actionPerformed(ActionEvent e) {
 				if(e.getActionCommand().equals("sparse"))
 						//logger.log(Level.INFO, "sparse");
-						createSparseDistributedRep();
-				
+						createSparseDistributedRep();				
 			}
 
 			
@@ -175,7 +174,6 @@ public class HTMApplet extends Applet {
 			}
 			
 		}
-		repaint();
-		
+		repaint();		
 	}
 }
