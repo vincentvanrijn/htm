@@ -76,6 +76,7 @@ public class HTMApplet extends Applet {
 		for (int x = 0; x < 12; x++) {
 			for (int y = 0; y < 12; y++) {
 				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
+				graphics.drawOval(19 * x+260, 100 + (19 * y), 16, 16);
 			}
 		}
 		Button submitButton=new Button("sparseDist");
@@ -129,12 +130,15 @@ public class HTMApplet extends Applet {
 					}
 					break outer;
 				}
+				
 			}
 		}
 	}
 
 	private void drawBlackOval(int x, int y) {
 		graphics.setColor(Color.black);
+		
+		//graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 
 		input[x * y] = 1;
@@ -155,8 +159,8 @@ public class HTMApplet extends Applet {
 		spat.computOverlap();
 		spat.computeWinningColumsAfterInhibition();
 		spat.updateSynapses();
-		logger.log(Level.INFO, ""+spat.activeColumns.size());
-		logger.log(Level.INFO, "end");
+//		logger.log(Level.INFO, ""+spat.activeColumns.size());
+//		logger.log(Level.INFO, "end");
 		
 		Column[] columns=spat.getColumns();
 		int j=0;
@@ -171,9 +175,10 @@ public class HTMApplet extends Applet {
 					graphics.drawOval(19 * x+260, 100 + (19 * y), 16, 16);
 				}
 				j++;
-			}
-			
+			}			
 		}
 		repaint();		
 	}
+	
+	
 }
