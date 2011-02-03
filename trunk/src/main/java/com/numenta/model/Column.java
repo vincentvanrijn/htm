@@ -38,7 +38,7 @@ public class Column {
 	public static int CELLS_PER_COLUMN;
 	private double boost = 1.0;// TODO choose reasonable boost
 	private double overlap;
-	public static int MINIMAL_OVERLAP = 3;// TODO choose reasonable overlap
+	public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
 	private double minimalDesiredDutyCycle;
 	/*
 	 * A sliding average representing how often column c has been active after
@@ -54,13 +54,13 @@ public class Column {
 		} else {
 			this.boost += minimalDesiredDutyCycle;
 		}
-		logger.log(Level.INFO, "new calculated boost=" + this.boost);
+//		logger.log(Level.INFO, "new calculated boost=" + this.boost);
 	}
 
 	public void addGreaterThanMinimalOverlap(boolean greaterThanMinimalOverlap) {
 
-		logger.log(Level.INFO, "timesGreate"
-				+ timesGreaterOverlapThanMinOverlap.size());
+//		logger.log(Level.INFO, "timesGreate"
+//				+ timesGreaterOverlapThanMinOverlap.size());
 		this.timesGreaterOverlapThanMinOverlap
 				.add(0, greaterThanMinimalOverlap);
 		if (timesGreaterOverlapThanMinOverlap.size() > 1000) {
@@ -75,7 +75,7 @@ public class Column {
 	
 
 	public void addActive(boolean active) {
-		logger.log(Level.INFO, "activeList" + activeList.size());
+//		logger.log(Level.INFO, "activeList" + activeList.size());
 		activeList.add(0, active);
 		if (activeList.size() > 1000) {
 			activeList.remove(1000);

@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 public class Synapse {
 	
-	public static double CONECTED_PERMANANCE=5;
+	public static double CONECTED_PERMANANCE=0.8;
 	public static double PERMANENCE_DEC=0.1;
 	public static double PERMANENCE_INC=0.1;
 	//is 0 or 1
@@ -16,7 +16,7 @@ public class Synapse {
 	
 
 	public boolean isActive() {		
-		logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+ "input="+sourceInput);
+		//logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+ "input="+sourceInput);
 		return this.permanance>=CONECTED_PERMANANCE;
 	}
 
