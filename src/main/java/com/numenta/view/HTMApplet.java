@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.numenta.model.Column;
 import com.numenta.pooler.SpatialPooler;
@@ -27,7 +29,7 @@ public class HTMApplet extends Applet {
 	private static final long	serialVersionUID	= 1L;
 
 	private Graphics			graphics;
-
+	private Logger logger=Logger.getLogger(this.getClass().getName());
 	private Image				image;
 	private SpatialPooler spat=new SpatialPooler();
 
@@ -82,7 +84,7 @@ public class HTMApplet extends Applet {
 			
 			public void actionPerformed(ActionEvent e) {
 				if(e.getActionCommand().equals("sparse"))
-						//System.out.println("sparse");
+						//logger.log(Level.INFO, "sparse");
 						createSparseDistributedRep();
 				
 			}
@@ -154,8 +156,8 @@ public class HTMApplet extends Applet {
 		spat.computOverlap();
 		spat.computeWinningColumsAfterInhibition();
 		spat.updateSynapses();
-		System.out.println(spat.activeColumns.size());
-		System.out.println("end");
+		logger.log(Level.INFO, ""+spat.activeColumns.size());
+		logger.log(Level.INFO, "end");
 		
 		Column[] columns=spat.getColumns();
 		int j=0;
