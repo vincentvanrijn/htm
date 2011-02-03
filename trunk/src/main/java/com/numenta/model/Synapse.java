@@ -1,5 +1,8 @@
 package com.numenta.model;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Synapse {
 	
 	public static double CONECTED_PERMANANCE=5;
@@ -9,11 +12,11 @@ public class Synapse {
 	private int sourceInput;
 	private double permanance;
 	private int inputSpaceIndex;
-
+	private Logger logger=Logger.getLogger(this.getClass().getName());
 	
 
 	public boolean isActive() {		
-		System.out.println("synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+ "input="+sourceInput);
+		logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+ "input="+sourceInput);
 		return this.permanance>=CONECTED_PERMANANCE;
 	}
 

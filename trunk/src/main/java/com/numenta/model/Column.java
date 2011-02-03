@@ -3,12 +3,15 @@ package com.numenta.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.numenta.model.helper.CellHelper;
 
 
 public class Column {
 	private int xPos;
+	private Logger logger=Logger.getLogger(this.getClass().getName());
 	public int getxPos() {
 		return xPos;
 	}
@@ -53,7 +56,7 @@ public class Column {
 		} else {
 			this.boost +=minimalDesiredDutyCycle ;
 		}
-		System.out.println("new calculated boost="+this.boost);
+		logger.log(Level.INFO,"new calculated boost="+this.boost);
 	}
 	
 	public boolean isGreaterThanMinimalOverlap() {
@@ -180,7 +183,7 @@ public boolean isActive() {
 		return null;
 	}
 	public double updateOverlapDutyCycle() {
-		System.out.println("timesGreate"+timesGreaterOverlapThanMinOverlap.size());
+		logger.log(Level.INFO, "timesGreate"+timesGreaterOverlapThanMinOverlap.size());
 		this.timesGreaterOverlapThanMinOverlap.add(0, this.isGreaterThanMinimalOverlap());
 		if(timesGreaterOverlapThanMinOverlap.size()>1000){
 			timesGreaterOverlapThanMinOverlap.remove(1000);
@@ -202,7 +205,7 @@ public boolean isActive() {
 	//inhibition.
 	
 	public double updateActiveDutyCycle() {
-		System.out.println("activeList"+activeList.size());
+		logger.log(Level.INFO, "activeList"+activeList.size());
 		activeList.add(0, this.isActive());
 		if(activeList.size()>1000){
 			activeList.remove(1000);
