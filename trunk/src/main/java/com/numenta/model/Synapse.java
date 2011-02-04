@@ -5,9 +5,27 @@ import java.util.logging.Logger;
 
 public class Synapse {
 	
-	public static double CONECTED_PERMANANCE=0.8;
-	public static double PERMANENCE_DEC=0.1;
-	public static double PERMANENCE_INC=0.1;
+	private int xPos;
+	private int yPos;
+	public int getxPos() {
+		return xPos;
+	}
+
+	public void setxPos(int xPos) {
+		this.xPos = xPos;
+	}
+
+	public int getyPos() {
+		return yPos;
+	}
+
+	public void setyPos(int yPos) {
+		this.yPos = yPos;
+	}
+
+	public static double CONECTED_PERMANANCE=0.7;
+	public static double PERMANENCE_DEC=0.05;
+	public static double PERMANENCE_INC=0.05;
 	//is 0 or 1
 	private int sourceInput;
 	private double permanance;
