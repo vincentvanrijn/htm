@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.numenta.model.Column;
@@ -24,17 +23,20 @@ public class HTMApplet extends Applet {
 
 	private boolean				black				= true;
 
-	private int[]			input				= new int[144];
+	private int[]				input				= new int[144];
 
 	private static final long	serialVersionUID	= 1L;
 
 	private Graphics			graphics;
-	private Logger logger=Logger.getLogger(this.getClass().getName());
+
+	private Logger				logger				= Logger.getLogger(this.getClass().getName());
+
 	private Image				image;
-	private SpatialPooler spat=new SpatialPooler();
+
+	private SpatialPooler		spat				= new SpatialPooler();
 
 	public void init() {
-		SpatialPooler spat=new SpatialPooler();
+		SpatialPooler spat = new SpatialPooler();
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
 		}
@@ -76,20 +78,19 @@ public class HTMApplet extends Applet {
 		for (int x = 0; x < 12; x++) {
 			for (int y = 0; y < 12; y++) {
 				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-				graphics.drawOval(19 * x+260, 100 + (19 * y), 16, 16);
+				graphics.drawOval(19 * x + 260, 100 + (19 * y), 16, 16);
 			}
 		}
-		Button submitButton=new Button("sparseDist");
+		Button submitButton = new Button("sparseDist");
 		submitButton.setActionCommand("sparse");
 		submitButton.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent e) {
-				if(e.getActionCommand().equals("sparse"))
-						//logger.log(Level.INFO, "sparse");
-						createSparseDistributedRep();				
+				if (e.getActionCommand().equals("sparse"))
+				// logger.log(Level.INFO, "sparse");
+					createSparseDistributedRep();
 			}
 
-			
 		});
 		add(submitButton);
 		repaint();
@@ -105,7 +106,7 @@ public class HTMApplet extends Applet {
 			for (int yy = 0; yy < 12; yy++) {
 				if (x > 19 * xx && x < 19 * xx + 16 && y < 19 * yy + 116 && y > 19 * yy + 100) {
 					if (mousePressed) {
-						if (input[xx * yy]==1) {
+						if (input[xx * yy] == 1) {
 							black = false;
 						} else {
 							black = true;
@@ -121,7 +122,7 @@ public class HTMApplet extends Applet {
 							}
 						} else {
 
-							if (input[xx * yy]==1) {
+							if (input[xx * yy] == 1) {
 								drawWhiteOval(xx, yy);
 							} else {
 								drawBlackOval(xx, yy);
@@ -130,15 +131,15 @@ public class HTMApplet extends Applet {
 					}
 					break outer;
 				}
-				
+
 			}
 		}
 	}
 
 	private void drawBlackOval(int x, int y) {
 		graphics.setColor(Color.black);
-		
-		//graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
+
+		// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 
 		input[x * y] = 1;
@@ -153,32 +154,44 @@ public class HTMApplet extends Applet {
 		input[x * y] = 0;
 		repaint();
 	}
+
 	public void createSparseDistributedRep() {
-		
+
 		spat.conectSynapsesToInputSpace(input);
 		spat.computOverlap();
 		spat.computeWinningColumsAfterInhibition();
 		spat.updateSynapses();
-//		logger.log(Level.INFO, ""+spat.activeColumns.size());
-//		logger.log(Level.INFO, "end");
-		
-		Column[] columns=spat.getColumns();
-		int j=0;
+		// logger.log(Level.INFO, ""+spat.activeColumns.size());
+		// logger.log(Level.INFO, "end");
+
+		Column[] columns = spat.getColumns();
+		int j = 0;
 		graphics.setColor(Color.WHITE);
-		graphics.fillRect(250, 0,270, 340);
-		graphics.setColor(Color.BLACK);
+		graphics.fillRect(250, 0, 270, 340);
+		Color color = Color.red;
+		graphics.setColor(color);
+		double conn = 5;
 		for (int x = 0; x < 12; x++) {
 			for (int y = 0; y < 12; y++) {
-				if(columns[j].isActive()){
-					graphics.fillOval(19 * x+260, 100 + (19 * y), 16, 16);
-				} else{
-					graphics.drawOval(19 * x+260, 100 + (19 * y), 16, 16);
+				if (columns[j].isActive()) {
+					if (columns[j].getConnectedSynapses().length > conn) {
+						color = color.darker();
+					} else {
+						if (columns[j].getConnectedSynapses().length < conn) {
+							color = color.brighter();
+						}
+					}
+					graphics.setColor(color);
+					conn = columns[j].getConnectedSynapses().length;
+					graphics.fillOval(19 * x + 260, 100 + (19 * y), 16, 16);
+				} else {
+					graphics.setColor(Color.BLACK);
+					graphics.drawOval(19 * x + 260, 100 + (19 * y), 16, 16);
 				}
 				j++;
-			}			
+			}
 		}
-		repaint();		
+		repaint();
 	}
-	
-	
+
 }
