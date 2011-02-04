@@ -56,7 +56,6 @@ public class SpatialPooler {
 			for (int x = 0; x < 12; x++) {
 
 				columns[i] = new Column();
-
 				columns[i].setyPos(y);
 				columns[i].setxPos(x);
 
@@ -67,46 +66,23 @@ public class SpatialPooler {
 					synapses[j] = new Synapse();
 					synapses[j].setPermanance(Synapse.CONECTED_PERMANANCE - 0.1
 							+ (((double)random.nextInt(3))/10));
-					logger.info(""+synapses[j].getPermanance());
+					//logger.info(""+synapses[j].getPermanance());
 					int inputSpaceIndex = 0;
 					do {
 						inputSpaceIndex = random.nextInt(144);
 					} while (!synapsesToInput.add(inputSpaceIndex));
 					synapses[j].setInputSpaceIndex(inputSpaceIndex);
-
+					
+					synapses[j].setyPos(inputSpaceIndex/12);
+					synapses[j].setxPos(inputSpaceIndex%12);
+					//logger.info(""+inputSpaceIndex+ " "+inputSpaceIndex/12 +" "+inputSpaceIndex%12);
 				}
+				
 				columns[i].setPotentialSynapses(synapses);
 				i++;
 			}
 		}
-		//set neighbors
-		for (int x = 0; x < this.columns.length; x++) {
-			ArrayList<Column> neigbors = new ArrayList<Column>();
-			Column column = this.columns[x];
-			for (int g = 0; g < this.columns.length; g++) {
-				Column potentialNeigbor = this.columns[g];
-				int xposColPlusIn = (int) (column.getxPos() + Math
-						.round(inhibitionRadius));
-				int yposColPlusIn = (int) (column.getyPos() + Math
-						.round(inhibitionRadius));
-				int xposColMinIn = (int) (column.getxPos() - Math
-						.round(inhibitionRadius));
-				int yposColMinIn = (int) (column.getyPos() - Math
-						.round(inhibitionRadius));
-				if ((xposColPlusIn >= potentialNeigbor.getxPos())
-						&& (yposColPlusIn >= potentialNeigbor.getyPos())
-						&& (xposColMinIn <= potentialNeigbor.getxPos())
-						&& (yposColMinIn <= potentialNeigbor.getyPos() && column != potentialNeigbor)) {
-					neigbors.add(potentialNeigbor);					
-				}
-			}
-
-			Object[] objects = neigbors.toArray();
-			Column[] neig = new Column[objects.length];
-			System.arraycopy(objects, 0, neig, 0, objects.length);
-			column.setNeigbours(neig);
-
-		}
+		
 		//log the brain
 //		for (int j = 0; j < columns.length; j++) {
 //			Column column = columns[j];
@@ -160,10 +136,12 @@ public class SpatialPooler {
 
 	public void computeWinningColumsAfterInhibition() {
 
-		logger.log(Level.FINE, "computeWinningColumsAfterInhibition");
+		//logger.log(Level.FINE, "computeWinningColumsAfterInhibition");
 		activeColumns=new ArrayList<Column>();
 		for (int i = 0; i < columns.length; i++) {
 			Column column = columns[i];
+
+			column.setNeigbours(getNeigbors(column));
 
 			double minimalLocalActivity = kthScore(column.getNeigbours(),
 					DISIRED_LOCAL_ACTIVITY);
@@ -195,17 +173,20 @@ public class SpatialPooler {
 					potentialSynapse.setPermanance(Math.min(potentialSynapse
 							.getPermanance(), 1.0));
 
+					//logger.info("plus "+potentialSynapse.getPermanance());
+
 				} else {
 					potentialSynapse.setPermanance(permanance-Synapse.PERMANENCE_DEC);
 					potentialSynapse.setPermanance(Math.max(potentialSynapse
 							.getPermanance(), 0.0));
+					//logger.info("min "+potentialSynapse.getPermanance());
 				}
 			}
 
 		}
+		ArrayList<Integer> inhibitionRadius=new ArrayList<Integer>();
 		for (int i = 0; i < columns.length; i++) {
 			Column column = columns[i];
-
 			double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column
 					.getNeigbours())));
 //			logger.log(Level.INFO, "minimalDutyCycle="+minimalDutyCycle);
@@ -220,13 +201,28 @@ public class SpatialPooler {
 
 			if (overlapDutyCycle < minimalDutyCycle) {
 				column.increasePermanances(0.1 * Synapse.CONECTED_PERMANANCE);
-
+				logger.info("increasePermanances of all synapses of the column");
 			}
-
+			for (int j = 0; j < column.getConnectedSynapses().length; j++) {
+				Synapse synapse=column.getConnectedSynapses()[j];
+				
+				inhibitionRadius.add(Math.max(Math.abs(column.getxPos()-synapse.getxPos()), Math.abs(column.getyPos()-synapse.getyPos())));
+				}
+			
 		}
-		// TODO implement this in a right way
-		int averageReceptiveFieldSize = 1;
+		
+		double averageReceptiveFieldSize=0;
+		
+		for (Iterator<Integer> iterator = inhibitionRadius.iterator(); iterator
+				.hasNext();) {
+			Integer integer = (Integer) iterator.next();
+			averageReceptiveFieldSize+=integer;
+		}
+		averageReceptiveFieldSize=averageReceptiveFieldSize/inhibitionRadius.size();
+		
+		
 		this.inhibitionRadius = averageReceptiveFieldSize;
+		//logger.info("new inhib fac="+this.inhibitionRadius);
 	}
 
 	private int input(int t, int sourceInput) {
@@ -290,5 +286,34 @@ public class SpatialPooler {
 		return orderedNeigbours.get(disiredLocalActivity - 1).getOverlap();
 
 	}
+	
+	private Column[] getNeigbors(Column column){		
+		
+		ArrayList<Column> neigbors = new ArrayList<Column>();
+		for (int g = 0; g < this.columns.length; g++) {
+			Column potentialNeigbor = this.columns[g];
+			int xposColPlusIn = (int) (column.getxPos() + Math
+					.round(inhibitionRadius));
+			int yposColPlusIn = (int) (column.getyPos() + Math
+					.round(inhibitionRadius));
+			int xposColMinIn = (int) (column.getxPos() - Math
+					.round(inhibitionRadius));
+			int yposColMinIn = (int) (column.getyPos() - Math
+					.round(inhibitionRadius));
+			if ((xposColPlusIn >= potentialNeigbor.getxPos())
+					&& (yposColPlusIn >= potentialNeigbor.getyPos())
+					&& (xposColMinIn <= potentialNeigbor.getxPos())
+					&& (yposColMinIn <= potentialNeigbor.getyPos() && column != potentialNeigbor)) {
+				neigbors.add(potentialNeigbor);					
+			}
+		}
 
+		Object[] objects = neigbors.toArray();
+		Column[] neig = new Column[objects.length];
+		System.arraycopy(objects, 0, neig, 0, objects.length);
+		column.setNeigbours(neig);
+		//logger.info("amount of neigbors="+neig.length);
+		
+		return neig;
+	}
 }
