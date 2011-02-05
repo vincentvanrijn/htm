@@ -1,89 +1,89 @@
 package com.numenta.pooler;
+import java.util.ArrayList;
+
 import com.numenta.model.Cell;
 import com.numenta.model.Column;
 import com.numenta.model.Segment;
-import com.numenta.model.helper.CellHelper;
 
 public class TemporalPooler {
 	
 	
 	private Column[] activeColumns;
-	private Cell[] cells;
 	private String activeState="activeState";//learnState
-		private void computeActiveState(){
-			
+		public void computeActiveState(){			
 			
 			for (int i = 0; i < activeColumns.length; i++) {
 				Column activeColumn=activeColumns[i];
 				boolean buPredicted=false;
-				int t =0;
-				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
-					
-					
-					CellHelper cellHelper=new CellHelper(j,t-1);
-					
-					if(activeColumn.getPredictiveState().get(cellHelper)){
-						Segment segment=activeColumn.getActiveSegment(j,t-1, activeState);
+				System.out.println("active column " +activeColumn.getOverlap());
+				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {					
+										
+					if(activeColumn.getPredictiveStatesBefore()[j]){
+						Cell cell=activeColumn.getCells()[j];
+						
+						Segment segment=cell.getActiveSegment(j, activeState);
 						if(segment.sequenceSegment()){
 							buPredicted=true;
-							CellHelper cellHelper1=new CellHelper(j,t);
-							activeColumn.getActiveState().put(cellHelper1, true);
+							
+							activeColumn.getActiveStatesNow()[j]=true;
 						}
 					}
 				}
 				if(!buPredicted){
 					for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
-						CellHelper cellHelper1=new CellHelper(j,t);
-						activeColumn.getActiveState().put(cellHelper1, true);
+						activeColumn.getPredictiveStatesNow()[j]=true;
 					}
 				}
 			}
 		}
-		//tell me if on this column, the jth cell was predicting one timestep before
-		private boolean predictiveState(Column activeColumn, int j, int i) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+		
 		public Column[] getActiveColumns() {
 			return activeColumns;
 		}
 		public void setActiveColumns(Column[] activeColumns) {
 			this.activeColumns = activeColumns;
 		}
-		public Cell[] getCells() {
-			return cells;
-		}
-		public void setCells(Cell[] cells) {
-			this.cells = cells;
-		}
 		
-		private void calculatePredictedState(){
-			for (int i = 0; i < cells.length; i++) {
-				Cell cell=cells[i];
-				for (int j = 0; j < cell.getSegments().length; j++) {
-					if(segmentActive(cell, i,s,t)){
-						predictiveState(c,i,t)=1;
+		
+		public void calculatePredictedState(){
+			for (int i = 0; i < activeColumns.length; i++) {
+				
+				Column activeColumn=activeColumns[i];
+				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {	
+					Cell cell=activeColumn.getCells()[j];
+					
+					for (int k= 0; k < cell.getSegments().length; j++) {
+						
+						if(cell.segmentActiveNow(k)){
+							activeColumn.getPredictiveStatesNow()[j]=true;
+							
+						}
 						
 					}
-					
 				}
-				
 			}
 			
 		}
-		private void updateSynapses(){
-			for(int c=0;c<cells.length;c++){
-				
-				if(learnState(s,i,y)==1){
-					adaptSegment(segmentUpdateList(c,i),true);
-					segmentUpdateList(c,i).delete();
-					
-				} else if(prdeictiveState(c,i,t)==0 and predictiveState(c,i,t-1==1)){
-					adaptSegments(segmentUpdateList(c,i),false);
-					segmentUpdateList(c,i).delete();
-				}
-			}
+//		private void updateSynapses(){
+//			for(int c=0;c<cells.length;c++){
+//				
+//				if(learnState(s,i,y)==1){
+//					adaptSegment(segmentUpdateList(c,i),true);
+//					segmentUpdateList(c,i).delete();
+//					
+//				} else if(prdeictiveState(c,i,t)==0 and predictiveState(c,i,t-1==1)){
+//					adaptSegments(segmentUpdateList(c,i),false);
+//					segmentUpdateList(c,i).delete();
+//				}
+//			}
+//			
+//			
+//		}
+		public void setActiveColumns(ArrayList<Column> activeColumns) {
 			
-			
+			Object[] objects=activeColumns.toArray();
+			Column[] actives=new Column[objects.length];
+			System.arraycopy(objects, 0, actives, 0, objects.length);
+			this.activeColumns=actives;
 		}
 }

@@ -1,9 +1,20 @@
 package com.numenta.model;
 
+import java.util.ArrayList;
+
 public class Cell {
+	
+
+	private ArrayList<Boolean> predictiveStatesBefore=new ArrayList<Boolean>();
+	private ArrayList<Boolean> activeStateNow=new ArrayList<Boolean>();
+	
+	
 	private int columnIndex;
 	private int cellIndex;
+	
+	
 	private Segment[] segments;
+	
 	private int[] segmentUpdateList;
 
 	public int[] getSegmentUpdateList() {
@@ -40,4 +51,16 @@ public class Cell {
 		this.segments = segments;
 	}
 
+	public Segment getActiveSegment(int j,  String activeState) {
+		Segment returnValue=null;
+		if(predictiveStatesBefore.get(j)){
+			returnValue= this.segments[j];
+		}
+		return returnValue;
+	}
+
+	public boolean segmentActiveNow(int k) {
+		return activeStateNow.get(k);
+			
+	}
 }
