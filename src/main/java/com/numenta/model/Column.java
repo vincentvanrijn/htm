@@ -2,15 +2,90 @@ package com.numenta.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.numenta.model.helper.CellHelper;
 
-public class Column {
-	private int xPos;
+public class Column implements Comparable<Column>{
+	
 	private Logger logger = Logger.getLogger(this.getClass().getName());
+	private int xPos;
+	private int yPos;
+	private double boost = 1.0;// TODO choose reasonable boost
+	private double overlap;
+	private boolean active;
+	public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
+	private double minimalDesiredDutyCycle;
+	private ArrayList<Boolean> activeList = new ArrayList<Boolean>();
+	private ArrayList<Boolean> timesGreaterOverlapThanMinOverlap = new ArrayList<Boolean>();
+	private List<Column> neigbours;
+	private Synapse[] potentialSynapses;
+	
+	/*
+	 * A sliding average representing how often column c has been active after
+	 * inhibition (e.g. over the last 1000 iterations).
+	 */
+	private double activeDutyCycle;
+	/*
+	 * A sliding average representing how often column c has had significant
+	 * overlap (i.e. greater than minOverlap) with its inputs (e.g. over the
+	 * last 1000 iterations).
+	 */
+	private double overlapDutyCycle;
+	
+	//for temoral pooler
+	public static int CELLS_PER_COLUMN=3;
+	private boolean[] predictiveStatesBefore=new boolean[CELLS_PER_COLUMN];
+	private boolean[] predictiveStatesNow=new boolean[CELLS_PER_COLUMN];
+//	private boolean[]activeStatesBefore=new boolean[CELLS_PER_COLUMN];
+	private boolean[] activeStatesNow=new boolean[CELLS_PER_COLUMN];
+	
+//	public boolean[] getActiveStatesBefore() {
+//		return activeStatesBefore;
+//	}
+//
+//	public void setActiveStatesBefore(boolean[] activeStatesBefore) {
+//		this.activeStatesBefore = activeStatesBefore;
+//	}
+
+	public boolean[] getActiveStatesNow() {
+		return activeStatesNow;
+	}
+
+	public void setActiveStatesNow(boolean[] activeStatesNow) {
+		this.activeStatesNow = activeStatesNow;
+	}
+
+	public boolean[] getPredictiveStatesNow() {
+		return predictiveStatesNow;
+	}
+
+	public void setPredictiveStatesNow(boolean[] predictiveStatesNow) {
+		this.predictiveStatesNow = predictiveStatesNow;
+	}
+
+	private Cell[] cells;
+	
+	//for temoral pooler
+	
+	
+	
+	public static int getCELLS_PER_COLUMN() {
+		return CELLS_PER_COLUMN;
+	}
+
+	public static void setCELLS_PER_COLUMN(int cELLSPERCOLUMN) {
+		CELLS_PER_COLUMN = cELLSPERCOLUMN;
+	}
+
+	public boolean[] getPredictiveStatesBefore() {
+		return predictiveStatesBefore;
+	}
+
+	public void setPredictiveStatesBefore(boolean[] predictiveStatesBefore) {
+		this.predictiveStatesBefore = predictiveStatesBefore;
+	}
 
 	public int getxPos() {
 		return xPos;
@@ -27,29 +102,9 @@ public class Column {
 	public void setyPos(int yPos) {
 		this.yPos = yPos;
 	}
-
-	private int yPos;
-	// /private double[] timesActive;
-	private ArrayList<Boolean> activeList = new ArrayList<Boolean>();
-
-	private ArrayList<Boolean> timesGreaterOverlapThanMinOverlap = new ArrayList<Boolean>();
-
-	// private boolean active=false;
-	public static int CELLS_PER_COLUMN;
-	private double boost = 1.0;// TODO choose reasonable boost
-	private double overlap;
-	public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
-	private double minimalDesiredDutyCycle;
-	/*
-	 * A sliding average representing how often column c has been active after
-	 * inhibition (e.g. over the last 1000 iterations).
-	 */
-	private double activeDutyCycle;
-
-	public void calculateBoost(double activeDutyCycle,
-			double minimalDesiredDutyCycle) {
-
-		if (activeDutyCycle > minimalDesiredDutyCycle) {
+	public void calculateBoost(double minimalDesiredDutyCycle) {
+		
+		if (this.getActiveDutyCycle() > minimalDesiredDutyCycle) {
 			this.boost = 1.0;
 		} else {
 			this.boost += minimalDesiredDutyCycle;
@@ -82,12 +137,7 @@ public class Column {
 		}
 	}
 
-	/*
-	 * A sliding average representing how often column c has had significant
-	 * overlap (i.e. greater than minOverlap) with its inputs (e.g. over the
-	 * last 1000 iterations).
-	 */
-	private double overlapDutyCycle;
+	
 
 	public double getOverlapDutyCycle() {
 		return overlapDutyCycle;
@@ -97,16 +147,8 @@ public class Column {
 		return activeDutyCycle;
 	}
 
-	private Map<CellHelper, Boolean> predictiveState = new HashMap<CellHelper, Boolean>();
-	private Map<CellHelper, Boolean> activeState = new HashMap<CellHelper, Boolean>();
 
-	public Map<CellHelper, Boolean> getActiveState() {
-		return activeState;
-	}
 
-	public void setActiveState(Map<CellHelper, Boolean> activeState) {
-		this.activeState = activeState;
-	}
 
 	public double getMinimalDesiredDutyCycle() {
 		return minimalDesiredDutyCycle;
@@ -116,18 +158,6 @@ public class Column {
 		this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
 	}
 
-	public Map<CellHelper, Boolean> getPredictiveState() {
-		return predictiveState;
-	}
-
-	public void setPredictiveState(Map<CellHelper, Boolean> predictiveState) {
-		this.predictiveState = predictiveState;
-	}
-
-	private Column[] neigbours;
-
-	private Synapse[] potentialSynapses;
-	private boolean active;
 
 	public double getOverlap() {
 		return overlap;
@@ -145,11 +175,11 @@ public class Column {
 		this.potentialSynapses = potentialSynapses;
 	}
 
-	public Column[] getNeigbours() {
+	public List<Column> getNeigbours() {
 		return neigbours;
 	}
 
-	public void setNeigbours(Column[] neigbours) {
+	public void setNeigbours(List<Column> neigbours) {
 		this.neigbours = neigbours;
 	}
 
@@ -164,6 +194,7 @@ public class Column {
 		Object[] objects = connectedSynapses.toArray();
 		Synapse[] synapses = new Synapse[objects.length];
 		System.arraycopy(objects, 0, synapses, 0, objects.length);
+		connectedSynapses=null;
 		return synapses;
 	}
 
@@ -237,5 +268,26 @@ public class Column {
 	public boolean isActive() {
 		// TODO Auto-generated method stub
 		return this.active;
+	}
+
+	public int compareTo(Column column) {
+		int returnValue=0;
+		if(this.getOverlap()>column.getOverlap()){
+			returnValue= -1;
+		}else{
+			if(this.getOverlap()==column.getOverlap()){
+				returnValue=0;
+			} else{
+				if(this.getOverlap()<column.getOverlap()){
+					returnValue=1;
+				}				
+			}
+		}
+		return returnValue;
+	}
+
+	public  Cell[] getCells() {
+		
+		return this.cells;
 	}
 }

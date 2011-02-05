@@ -10,10 +10,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import com.numenta.model.Column;
 import com.numenta.pooler.SpatialPooler;
+import com.numenta.pooler.TemporalPooler;
 
 public class HTMApplet extends Applet {
 
@@ -34,6 +36,7 @@ public class HTMApplet extends Applet {
 	private Image				image;
 
 	private SpatialPooler		spat				= new SpatialPooler();
+	private TemporalPooler      tempo=new TemporalPooler();
 
 	public void init() {
 		SpatialPooler spat = new SpatialPooler();
@@ -101,12 +104,14 @@ public class HTMApplet extends Applet {
 	}
 
 	private void mouseOver(int x, int y) {
-
-		outer: for (int xx = 0; xx < 12; xx++) {
-			for (int yy = 0; yy < 12; yy++) {
+		int index=-1;
+		outer: for (int yy = 0; yy < 12; yy++) {
+			
+			for (int xx = 0; xx < 12; xx++) {
+				index++;
 				if (x > 19 * xx && x < 19 * xx + 16 && y < 19 * yy + 116 && y > 19 * yy + 100) {
 					if (mousePressed) {
-						if (input[xx * yy] == 1) {
+						if (input[index] == 1) {
 							black = false;
 						} else {
 							black = true;
@@ -117,15 +122,22 @@ public class HTMApplet extends Applet {
 
 							if (black) {
 								drawBlackOval(xx, yy);
+								setInputValue(index, 1);
 							} else {
 								drawWhiteOval(xx, yy);
+
+								setInputValue(index, 0);
 							}
 						} else {
 
-							if (input[xx * yy] == 1) {
+							if (input[index] == 1) {
 								drawWhiteOval(xx, yy);
+
+								setInputValue(index, 0);
 							} else {
 								drawBlackOval(xx, yy);
+
+								setInputValue(index, 1);
 							}
 						}
 					}
@@ -142,8 +154,11 @@ public class HTMApplet extends Applet {
 		// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 
-		input[x * y] = 1;
+		
 		repaint();
+	}
+	private void setInputValue(int index, int value){
+		input[index]=value;
 	}
 
 	private void drawWhiteOval(int x, int y) {
@@ -151,7 +166,6 @@ public class HTMApplet extends Applet {
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 		graphics.setColor(Color.black);
 		graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-		input[x * y] = 0;
 		repaint();
 	}
 
@@ -165,12 +179,14 @@ public class HTMApplet extends Applet {
 		// logger.log(Level.INFO, "end");
 
 		Column[] columns = spat.getColumns();
+		//ArrayList<Column> active= spat.getActiveColumns();
+		
 		int j = 0;
 		graphics.setColor(Color.WHITE);
 		graphics.fillRect(250, 0, 270, 340);
 		Color color = Color.red;
 		graphics.setColor(color);
-		double conn = 5;
+		double conn = 0;
 		for (int x = 0; x < 12; x++) {
 			for (int y = 0; y < 12; y++) {
 				if (columns[j].isActive()) {
@@ -191,7 +207,11 @@ public class HTMApplet extends Applet {
 				j++;
 			}
 		}
+
 		repaint();
+		tempo.setActiveColumns(spat.getActiveColumns());
+		tempo.computeActiveState();
+		tempo.computeActiveState();
 	}
 
 }
