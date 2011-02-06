@@ -78,7 +78,7 @@ public class SpatialPooler {
 	public SpatialPooler() {// 144
 		init();
 	}
-	private void init(){
+	public void init(){
 System.out.println("ok");
 //		logger.log(Level.INFO, "SpatialPooler");
 		columns = new Column[144];
@@ -118,6 +118,10 @@ System.out.println("ok");
 				i++;//next column
 			}
 		}
+	}
+
+	public double getInhibitionRadius() {
+		return inhibitionRadius;
 	}
 
 	public void computOverlap() {
