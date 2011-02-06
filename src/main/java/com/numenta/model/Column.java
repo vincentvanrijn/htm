@@ -15,7 +15,7 @@ public class Column implements Comparable<Column>{
 	private double boost = 1.0;// TODO choose reasonable boost
 	private double overlap;
 	private boolean active;
-	public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
+	//public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
 	private double minimalDesiredDutyCycle;
 	private ArrayList<Boolean> activeList = new ArrayList<Boolean>();
 	private ArrayList<Boolean> timesGreaterOverlapThanMinOverlap = new ArrayList<Boolean>();
@@ -40,7 +40,9 @@ public class Column implements Comparable<Column>{
 	private boolean[] predictiveStatesNow=new boolean[CELLS_PER_COLUMN];
 //	private boolean[]activeStatesBefore=new boolean[CELLS_PER_COLUMN];
 	private boolean[] activeStatesNow=new boolean[CELLS_PER_COLUMN];
+	private Cell[] cells;
 	
+	//for temoral pooler
 //	public boolean[] getActiveStatesBefore() {
 //		return activeStatesBefore;
 //	}
@@ -65,9 +67,7 @@ public class Column implements Comparable<Column>{
 		this.predictiveStatesNow = predictiveStatesNow;
 	}
 
-	private Cell[] cells;
 	
-	//for temoral pooler
 	
 	
 	
@@ -183,11 +183,11 @@ public class Column implements Comparable<Column>{
 		this.neigbours = neigbours;
 	}
 
-	public Synapse[] getConnectedSynapses() {
+	public Synapse[] getConnectedSynapses(double connectedPermanance) {
 		ArrayList<Synapse> connectedSynapses = new ArrayList<Synapse>();
 		for (int i = 0; i < potentialSynapses.length; i++) {
 			Synapse potentialSynapse = potentialSynapses[i];
-			if (potentialSynapse.isActive()) {
+			if (potentialSynapse.isActive(connectedPermanance)) {
 				connectedSynapses.add(potentialSynapse);
 			}
 		}

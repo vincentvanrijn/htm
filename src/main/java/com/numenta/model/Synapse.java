@@ -4,7 +4,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Synapse {
-	
+
+	private int sourceInput;
+	private double permanance;
+	private int inputSpaceIndex;
+	private Logger logger=Logger.getLogger(this.getClass().getName());
 	private int xPos;
 	private int yPos;
 	public int getxPos() {
@@ -23,19 +27,11 @@ public class Synapse {
 		this.yPos = yPos;
 	}
 
-	public static double CONECTED_PERMANANCE=0.7;
-	public static double PERMANENCE_DEC=0.05;
-	public static double PERMANENCE_INC=0.05;
-	//is 0 or 1
-	private int sourceInput;
-	private double permanance;
-	private int inputSpaceIndex;
-	private Logger logger=Logger.getLogger(this.getClass().getName());
 	
 
-	public boolean isActive() {		
+	public boolean isActive(double connectedPermanance) {		
 		//logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+ "input="+sourceInput);
-		return this.permanance>=CONECTED_PERMANANCE;
+		return this.permanance>=connectedPermanance;
 	}
 
 	public int getSourceInput() {
