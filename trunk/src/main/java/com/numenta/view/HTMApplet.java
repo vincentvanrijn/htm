@@ -36,7 +36,7 @@ public class HTMApplet extends Applet {
 	private Logger				logger				= Logger.getLogger(this.getClass().getName());
 
 	private Image				image;
-	private Column[] columns;
+//	private Column[] columns;
 	private SpatialPooler		spat				= new SpatialPooler();
 	private TemporalPooler      tempo=new TemporalPooler();
 	
@@ -53,9 +53,12 @@ public class HTMApplet extends Applet {
 	private int loggedColomX=-1;
 
 	private int loggedColomY=-1;
+	private Column loggedColum=null;
 
 	public void init() {
 		SpatialPooler spat = new SpatialPooler();
+		spat.init();
+//		this.columns = spat.getColumns();
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
 		}
@@ -97,7 +100,7 @@ public class HTMApplet extends Applet {
 		for (int i = 0; i < input.length; i++) {
 			input[i]=0;
 		}
-		columns=null;
+//		columns=null;
 		draw();
 	}
 	public void draw() {
@@ -147,19 +150,19 @@ public class HTMApplet extends Applet {
 					reset();
 			}
 		});
-		add(new Label("dla"));
+		add(new Label("desi.loc.act"));
 		add(desiredLocalActivity);
-		add(new Label("cp"));
+		add(new Label("con.perm"));
 		add(connectedPermanance);
-		add(new Label("mo"));
+		add(new Label("min.ov"));
 		add(minimalOverlap);
-		add(new Label("pd"));
+		add(new Label("perm.dec"));
 		add(permananceDec);
-		add(new Label("pi"));
+		add(new Label("perm.inc"));
 		add(permananceInc);
-		add(new Label("as"));
+		add(new Label("amount.syn"));
 		add(amountOfSynapses);
-		add(new Label("ir"));
+		add(new Label("inhib.rad"));
 		add(inhibitionRadius);
 		add(reset);
 		
@@ -212,17 +215,13 @@ public class HTMApplet extends Applet {
 								}
 							}
 						}
+						
 						break outer;
 					}
 					else{
 						
 						if (x > 19 * xx+ 260 && x < 19 * xx + 260+ 16) {
-							System.out.println("mp "+mousePressed +" md "+mouseDragged);
-							
-							if(this.columns!=null ){
-								logColumn(this.columns[index])	;
-							}
-							
+							logColumn(spat.getColumns()[index],xx,yy)	;				
 							
 							break outer;
 						}
@@ -232,20 +231,48 @@ public class HTMApplet extends Applet {
 		}
 	}
 
-	private void logColumn(Column column) {
+	private void logColumn(Column column, int xx, int yy) {
 		reDraw();
 		if(!mousePressed){
-			if(this.loggedColomX==column.getxPos() && this.loggedColomY==column.getyPos()){
+			if(this.loggedColomX==column.getxPos() && this.loggedColomY==column.getyPos()&&loggedColum!=null){
+				
+				graphics.setColor(Color.WHITE);
+				
+				graphics.fillOval(19 * xx+5+ 260,99 + 19 * yy+6, 6, 6);
+				if(loggedColum.isActive()){
+					graphics.setColor(Color.RED);
+					graphics.fillOval(19 * loggedColomX + 260, 100 + (19 * loggedColomY), 16, 16);
+				}
 				this.loggedColomX=-1;
 				this.loggedColomY=-1;
-				reDraw();
+				this.loggedColum=null;
+				
+				
+		//		reDraw();
 			}
 			else{
+				if(this.loggedColomX!=-1 && this.loggedColomY!=-1 && loggedColum!=null){
+					graphics.setColor(Color.WHITE);
+					graphics.fillOval(19 * loggedColomX+5+ 260,99 + 19 * loggedColomY+6, 6, 6);
+					if(loggedColum.isActive()){
+						graphics.setColor(Color.RED);
+						graphics.fillOval(19 * loggedColomX + 260, 100 + (19 * loggedColomY), 16, 16);
+					}
+				}
+				
+				graphics.setColor(Color.blue);
+				graphics.fillOval(19 * xx+5+ 260,99 + 19 * yy+6, 6, 6);
+//				graphics.drawOval(19 * xx+5+254, 99 + (19 * yy), 18, 18);
+				graphics.setColor(Color.black);
 				this.loggedColomX=column.getxPos();
 				this.loggedColomY=column.getyPos();
+				this.loggedColum=column;
+				
 				for (int i = 0; i < column.getPotentialSynapses().length; i++) {
 					Synapse potentialSynapse=column.getPotentialSynapses()[i];
-					System.out.println("potsyn "+potentialSynapse.getxPos()+" "+potentialSynapse.getyPos()+" "+potentialSynapse.getSourceInput()+" "+potentialSynapse.getPermanance());
+					graphics.setColor(Color.BLACK);
+					graphics.drawString("synapse "+potentialSynapse.getxPos()+" "+potentialSynapse.getyPos()+" "+ potentialSynapse.getPermanance()+" "+potentialSynapse.getSourceInput()+" "+potentialSynapse.isActive(spat.getConnectedPermanance()), 0 ,  354 + 16 * i);
+					//System.out.println("potsyn "+potentialSynapse.getxPos()+" "+potentialSynapse.getyPos()+" "+potentialSynapse.getSourceInput()+" "+potentialSynapse.getPermanance());
 					
 					graphics.setColor(Color.RED);
 		
@@ -262,7 +289,7 @@ public class HTMApplet extends Applet {
 	}
 	
 	private void reDraw(){
-		graphics.clearRect(0, 0, 260, 330);
+		graphics.clearRect(0, 100, 260, 530);
 		int j=0;
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
@@ -277,6 +304,7 @@ public class HTMApplet extends Applet {
 				}
 				j++;
 			}
+			
 			
 		}
 		repaint();
@@ -313,40 +341,39 @@ public class HTMApplet extends Applet {
 		// logger.log(Level.INFO, ""+spat.activeColumns.size());
 		// logger.log(Level.INFO, "end");
 
-		this.columns = spat.getColumns();
+		
 		//ArrayList<Column> active= spat.getActiveColumns();
 		
 		int j = 0;
-		graphics.setColor(Color.WHITE);
-		graphics.fillRect(250, 0, 270, 340);
+		//graphics.clearRect(250, 0, 270, 340);
 		Color color = Color.red;
 		graphics.setColor(color);
-		double conn = 0;
-		for (int x = 0; x < 12; x++) {
-			for (int y = 0; y < 12; y++) {
-				if (columns[j].isActive()) {
-					if (columns[j].getConnectedSynapses(spat.getConnectedPermanance()).length > conn) {
-						color = color.darker();
-					} else {
-						if (columns[j].getConnectedSynapses(spat.getConnectedPermanance()).length < conn) {
-							color = color.brighter();
-						}
-					}
+		
+		Column[] columns=spat.getColumns();
+		graphics.clearRect(0, 60, 260, 40);
+		graphics.drawString("new inhibitian radius "+spat.getInhibitionRadius(), 0 ,  80 );
+		for (int y = 0; y < 12; y++) {
+			for (int x = 0; x < 12; x++) {
+				if (columns[j].isActive()) {					
 					graphics.setColor(color);
-					conn = columns[j].getConnectedSynapses(spat.getConnectedPermanance()).length;
 					graphics.fillOval(19 * x + 260, 100 + (19 * y), 16, 16);
 				} else {
+					graphics.setColor(Color.WHITE);
+					graphics.fillOval(19 * x + 260, 100 + (19 * y), 16, 16);
 					graphics.setColor(Color.BLACK);
 					graphics.drawOval(19 * x + 260, 100 + (19 * y), 16, 16);
 				}
 				j++;
 			}
 		}
-
+		if(this.loggedColomX!=-1 && this.loggedColomY!=-1){
+			graphics.setColor(Color.BLUE);
+			graphics.fillOval(19 * loggedColomX+5+ 260,99 + 19 * loggedColomY+6, 6, 6);
+		}
 		repaint();
-		tempo.setActiveColumns(spat.getActiveColumns());
-		tempo.computeActiveState();
-		tempo.computeActiveState();
+//		tempo.setActiveColumns(spat.getActiveColumns());
+//		tempo.computeActiveState();
+//		tempo.computeActiveState();
 	}
 
 }
