@@ -311,7 +311,7 @@ public class HTMApplet extends Applet {
 
 	private void reDraw() {
 		graphics.clearRect(0, 100, 260, 230);
-		graphics.clearRect(0, 330, 400, 650);
+		graphics.clearRect(0, 330, 500, 750);
 		int j = 0;
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
