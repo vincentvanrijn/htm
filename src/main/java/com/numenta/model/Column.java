@@ -1,55 +1,72 @@
 package com.numenta.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
+public class Column implements Comparable<Column> {
 
-public class Column implements Comparable<Column>{
-	
-	private Logger logger = Logger.getLogger(this.getClass().getName());
-	private int xPos;
-	private int yPos;
-	private double boost = 1.0;// TODO choose reasonable boost
-	private double overlap;
-	private boolean active;
-	//public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
-	private double minimalDesiredDutyCycle;
-	private ArrayList<Boolean> activeList = new ArrayList<Boolean>();
-	private ArrayList<Boolean> timesGreaterOverlapThanMinOverlap = new ArrayList<Boolean>();
-	private List<Column> neigbours;
-	private Synapse[] potentialSynapses;
-	
+	private Logger				logger								= Logger.getLogger(this.getClass().getName());
+
+	private int					xPos;
+
+	private int					yPos;
+
+	private double				boost								= 1.0;											// TODO
+
+	// choose
+	// reasonable
+	// boost
+
+	private double				overlap;
+
+	private boolean				active;
+
+	// public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
+	private double				minimalDesiredDutyCycle;
+
+	private ArrayList<Boolean>	activeList							= new ArrayList<Boolean>();
+
+	private ArrayList<Boolean>	timesGreaterOverlapThanMinOverlap	= new ArrayList<Boolean>();
+
+	private List<Column>		neigbours;
+
+	private Synapse[]			potentialSynapses;
+
 	/*
-	 * A sliding average representing how often column c has been active after
-	 * inhibition (e.g. over the last 1000 iterations).
+	 * A sliding average representing how often column c has been active after inhibition (e.g. over the last 1000
+	 * iterations).
 	 */
-	private double activeDutyCycle;
+	private double				activeDutyCycle;
+
 	/*
-	 * A sliding average representing how often column c has had significant
-	 * overlap (i.e. greater than minOverlap) with its inputs (e.g. over the
-	 * last 1000 iterations).
+	 * A sliding average representing how often column c has had significant overlap (i.e. greater than minOverlap) with
+	 * its inputs (e.g. over the last 1000 iterations).
 	 */
-	private double overlapDutyCycle;
-	
-	//for temoral pooler
-	public static int CELLS_PER_COLUMN=3;
-	private boolean[] predictiveStatesBefore=new boolean[CELLS_PER_COLUMN];
-	private boolean[] predictiveStatesNow=new boolean[CELLS_PER_COLUMN];
-//	private boolean[]activeStatesBefore=new boolean[CELLS_PER_COLUMN];
-	private boolean[] activeStatesNow=new boolean[CELLS_PER_COLUMN];
-	private Cell[] cells;
-	
-	//for temoral pooler
-//	public boolean[] getActiveStatesBefore() {
-//		return activeStatesBefore;
-//	}
-//
-//	public void setActiveStatesBefore(boolean[] activeStatesBefore) {
-//		this.activeStatesBefore = activeStatesBefore;
-//	}
+	private double				overlapDutyCycle;
+
+	// for temoral pooler
+	public static int			CELLS_PER_COLUMN					= 3;
+
+	private boolean[]			predictiveStatesBefore				= new boolean[CELLS_PER_COLUMN];
+
+	private boolean[]			predictiveStatesNow					= new boolean[CELLS_PER_COLUMN];
+
+	// private boolean[]activeStatesBefore=new boolean[CELLS_PER_COLUMN];
+	private boolean[]			activeStatesNow						= new boolean[CELLS_PER_COLUMN];
+
+	private Cell[]				cells;
+
+	private double				minimalLocalActivity;
+
+	// for temoral pooler
+	// public boolean[] getActiveStatesBefore() {
+	// return activeStatesBefore;
+	// }
+	//
+	// public void setActiveStatesBefore(boolean[] activeStatesBefore) {
+	// this.activeStatesBefore = activeStatesBefore;
+	// }
 
 	public boolean[] getActiveStatesNow() {
 		return activeStatesNow;
@@ -67,10 +84,6 @@ public class Column implements Comparable<Column>{
 		this.predictiveStatesNow = predictiveStatesNow;
 	}
 
-	
-	
-	
-	
 	public static int getCELLS_PER_COLUMN() {
 		return CELLS_PER_COLUMN;
 	}
@@ -102,22 +115,22 @@ public class Column implements Comparable<Column>{
 	public void setyPos(int yPos) {
 		this.yPos = yPos;
 	}
+
 	public void calculateBoost(double minimalDesiredDutyCycle) {
-		
+
 		if (this.getActiveDutyCycle() > minimalDesiredDutyCycle) {
 			this.boost = 1.0;
 		} else {
 			this.boost += minimalDesiredDutyCycle;
 		}
-//		logger.log(Level.INFO, "new calculated boost=" + this.boost);
+		// logger.log(Level.INFO, "new calculated boost=" + this.boost);
 	}
 
 	public void addGreaterThanMinimalOverlap(boolean greaterThanMinimalOverlap) {
 
-//		logger.log(Level.INFO, "timesGreate"
-//				+ timesGreaterOverlapThanMinOverlap.size());
-		this.timesGreaterOverlapThanMinOverlap
-				.add(0, greaterThanMinimalOverlap);
+		// logger.log(Level.INFO, "timesGreate"
+		// + timesGreaterOverlapThanMinOverlap.size());
+		this.timesGreaterOverlapThanMinOverlap.add(0, greaterThanMinimalOverlap);
 		if (timesGreaterOverlapThanMinOverlap.size() > 1000) {
 			timesGreaterOverlapThanMinOverlap.remove(1000);
 		}
@@ -127,17 +140,13 @@ public class Column implements Comparable<Column>{
 		return timesGreaterOverlapThanMinOverlap;
 	}
 
-	
-
 	public void addActive(boolean active) {
-//		logger.log(Level.INFO, "activeList" + activeList.size());
+		// logger.log(Level.INFO, "activeList" + activeList.size());
 		activeList.add(0, active);
 		if (activeList.size() > 1000) {
 			activeList.remove(1000);
 		}
 	}
-
-	
 
 	public double getOverlapDutyCycle() {
 		return overlapDutyCycle;
@@ -147,9 +156,6 @@ public class Column implements Comparable<Column>{
 		return activeDutyCycle;
 	}
 
-
-
-
 	public double getMinimalDesiredDutyCycle() {
 		return minimalDesiredDutyCycle;
 	}
@@ -157,7 +163,6 @@ public class Column implements Comparable<Column>{
 	public void setMinimalDesiredDutyCycle(double minimalDesiredDutyCycle) {
 		this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
 	}
-
 
 	public double getOverlap() {
 		return overlap;
@@ -194,7 +199,7 @@ public class Column implements Comparable<Column>{
 		Object[] objects = connectedSynapses.toArray();
 		Synapse[] synapses = new Synapse[objects.length];
 		System.arraycopy(objects, 0, synapses, 0, objects.length);
-		connectedSynapses=null;
+		connectedSynapses = null;
 		return synapses;
 	}
 
@@ -227,8 +232,7 @@ public class Column implements Comparable<Column>{
 				totalGt++;
 			}
 		}
-		this.overlapDutyCycle = (double) totalGt
-				/ timesGreaterOverlapThanMinOverlap.size();
+		this.overlapDutyCycle = (double) totalGt / timesGreaterOverlapThanMinOverlap.size();
 
 		return overlapDutyCycle;
 
@@ -261,8 +265,8 @@ public class Column implements Comparable<Column>{
 
 	public void setActive(boolean active) {
 		addActive(active);
-		this.active=active;
-		
+		this.active = active;
+
 	}
 
 	public boolean isActive() {
@@ -271,23 +275,32 @@ public class Column implements Comparable<Column>{
 	}
 
 	public int compareTo(Column column) {
-		int returnValue=0;
-		if(this.getOverlap()>column.getOverlap()){
-			returnValue= -1;
-		}else{
-			if(this.getOverlap()==column.getOverlap()){
-				returnValue=0;
-			} else{
-				if(this.getOverlap()<column.getOverlap()){
-					returnValue=1;
-				}				
+		int returnValue = 0;
+		if (this.getOverlap() > column.getOverlap()) {
+			returnValue = -1;
+		} else {
+			if (this.getOverlap() == column.getOverlap()) {
+				returnValue = 0;
+			} else {
+				if (this.getOverlap() < column.getOverlap()) {
+					returnValue = 1;
+				}
 			}
 		}
 		return returnValue;
 	}
 
-	public  Cell[] getCells() {
-		
+	public Cell[] getCells() {
+
 		return this.cells;
+	}
+
+	public void setMinimalLocalActivity(double minimalLocalActivity) {
+		this.minimalLocalActivity = minimalLocalActivity;
+
+	}
+
+	public double getMinimalLocalActivity() {
+		return minimalLocalActivity;
 	}
 }
