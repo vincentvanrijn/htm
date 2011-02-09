@@ -78,7 +78,6 @@ public class SpatialPooler {
 	}
 
 	public void init() {
-		System.out.println("ok");
 		// logger.log(Level.INFO, "SpatialPooler");
 		columns = new Column[144];
 
@@ -123,7 +122,6 @@ public class SpatialPooler {
 	}
 
 	public void computOverlap() {
-		System.out.println(minimalOverlap);
 		// logger.log(Level.FINE, "computOverlap");
 		for (int i = 0; i < this.columns.length; i++) {
 			double overlap = 0.0;
@@ -218,7 +216,6 @@ public class SpatialPooler {
 						.getyPos()
 						- synapse.getyPos())));
 			}
-
 		}
 
 		double averageReceptiveFieldSize = 0;
@@ -233,7 +230,8 @@ public class SpatialPooler {
 		this.inhibitionRadius = averageReceptiveFieldSize;
 		logger.info("new inhib fac=" + this.inhibitionRadius);
 	}
-
+	
+	
 	public double getConnectedPermanance() {
 		return connectedPermanance;
 	}
@@ -270,28 +268,9 @@ public class SpatialPooler {
 		// logger.log(Level.INFO, "amountofNeigbors="+neigbours.length);
 
 		Collections.sort(neighbors);
-		// if(parent.getxPos()==5 && parent.getyPos()==5){
-		// for (Iterator<Column> iterator = neighbors.iterator(); iterator.hasNext();) {
-		// Column column = (Column) iterator.next();
-		// //
-		// logger.info("amount of neighbors "+
-		// neighbors.size()+" "+parent.getxPos()+" "+parent.getyPos()+" overlap="+column.getOverlap());
-		// if(column.getOverlap()>0.0){
-		// for (int i = 0; i < column.getPotentialSynapses().length; i++) {
-		// Synapse syn=column.getPotentialSynapses()[i];
-		// logger.info("synapse+ "+syn.getxPos()+" "+syn.getyPos()+" "+syn.getPermanance()+" "+syn.getSourceInput());
-		// }
-		//					
-		// }
-		// }
-		//			
-		// logger.info(parent.getxPos()+" "+parent.getyPos()+" chosen overlap="+neighbors.get(disiredLocalActivity-1).getOverlap());
-		//			
-		// }
 		double ktScore = neighbors.get(disiredLocalActivity - 1).getOverlap();
 
 		return ktScore;
-
 	}
 
 	private List<Column> getNeigbors(Column column) {

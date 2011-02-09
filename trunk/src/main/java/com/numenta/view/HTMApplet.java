@@ -226,7 +226,8 @@ public class HTMApplet extends Applet {
 	}
 
 	private void logColumn(Column column, int xx, int yy) {
-			
+		
+
 			//delete the blue dot if there is one
 			if(loggedColum!=null){
 				if (loggedColum.isActive()) {
@@ -239,6 +240,8 @@ public class HTMApplet extends Applet {
 			
 			if (loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum.getyPos() == column.getyPos() ) {
 				this.loggedColum = null;
+				reDraw();
+				repaint();
 				// we click on a new column
 			} else {
 				this.loggedColum = column;			
@@ -374,9 +377,9 @@ public class HTMApplet extends Applet {
 		}
 		
 		repaint();
-		// tempo.setActiveColumns(spat.getActiveColumns());
-		// tempo.computeActiveState();
-		// tempo.computeActiveState();
+		 tempo.setActiveColumns(spat.getActiveColumns());
+		 tempo.computeActiveState();
+		 tempo.computeActiveState();
 	}
 
 }
