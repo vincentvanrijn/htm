@@ -242,6 +242,8 @@ public class Column implements Comparable<Column> {
 	// Computes a moving average of how often column c has been active after
 	// inhibition.
 
+	
+
 	public double updateActiveDutyCycle() {
 
 		int totalActive = 0;

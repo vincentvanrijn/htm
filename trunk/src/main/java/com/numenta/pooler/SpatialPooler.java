@@ -49,13 +49,7 @@ public class SpatialPooler {
 	}
 
 	public void conectSynapsesToInputSpace(int[] inputSpace) {
-		for (int i = 0; i < inputSpace.length; i++) {
-			// if(inputSpace[i]==0){
-			// logger.info("hij is nu 0 "+i );
-			// }
-		}
-		// logger.log(Level.FINE, "conecting synapsesToInputSpace");
-		// this.inputSpace = inputSpace;
+		
 		for (int i = 0; i < columns.length; i++) {
 			Column column = columns[i];
 			for (int j = 0; j < column.getPotentialSynapses().length; j++) {

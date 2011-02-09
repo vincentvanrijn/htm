@@ -78,10 +78,8 @@ public class HTMApplet extends Applet {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("sparse"))
-				// logger.log(Level.INFO, "sparse");
 					createSparseDistributedRep();
 			}
-
 		});
 		add(submitButton);	
 
@@ -116,7 +114,7 @@ public class HTMApplet extends Applet {
 		add(reset);
 		SpatialPooler spat = new SpatialPooler();
 		spat.init();
-		// this.columns = spat.getColumns();
+
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
 		}
@@ -258,10 +256,14 @@ public class HTMApplet extends Applet {
 
 			String minimalLocalActivity =df2.format(column.getMinimalLocalActivity());
 			String overlap =df2.format(column.getOverlap());
+			String overlapDutyCycle =df2.format(column.getOverlapDutyCycle());
+			String activeDutyCycle =df2.format(column.getActiveDutyCycle());
 
-			graphics.drawString("Column " + column.getxPos() + " " + column.getyPos() + " " + " boost=" + columnBoost
-					+ " amt of nghbors=" + column.getNeigbours().size() + " overlap=" + overlap
-					+ " min.loc.act=" + minimalLocalActivity, 0, 340);
+			graphics.drawString("Col " + column.getxPos() + "," + column.getyPos() +" bst=" + columnBoost
+					+ " nghbrs=" + column.getNeigbours().size() + " ovl=" + overlap
+					+ " min.loc.act=" + minimalLocalActivity
+					+" ovl.dut.cy="+overlapDutyCycle
+					+" act.dut.cy="+activeDutyCycle, 0, 340);
 		}
 		for (int i = 0; i < column.getPotentialSynapses().length; i++) {
 			Synapse potentialSynapse = column.getPotentialSynapses()[i];
@@ -278,9 +280,7 @@ public class HTMApplet extends Applet {
 			// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5,
 					6, 6);
-
-		}
-		
+		}		
 		repaint();
 	}
 		
