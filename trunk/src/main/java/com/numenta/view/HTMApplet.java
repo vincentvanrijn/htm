@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.lang.annotation.Inherited;
 import java.text.DecimalFormat;
 import java.util.logging.Logger;
 
@@ -59,15 +60,60 @@ public class HTMApplet extends Applet {
 
 	private TextField			boost					= new TextField("1.0");
 
-	private int					loggedColomX			= -1;
-
-	private int					loggedColomY			= -1;
-
 	private Column				loggedColum				= null;
 
 	DecimalFormat				df2						= new DecimalFormat("#,###,###,##0.00");
 
 	public void init() {
+		desiredLocalActivity.setName("desiredLocalActivity");
+		connectedPermanance.setName("connectedPermanance");
+		minimalOverlap.setName("minimalOverlap");
+		permananceDec.setName("permananceDec");
+		permananceInc.setName("permananceInc");
+		amountOfSynapses.setName("amountOfSynapses");
+		inhibitionRadius.setName("inhibitionRadius");
+		Button submitButton = new Button("sparseDist");
+		submitButton.setActionCommand("sparse");
+		submitButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("sparse"))
+				// logger.log(Level.INFO, "sparse");
+					createSparseDistributedRep();
+			}
+
+		});
+		add(submitButton);	
+
+		Button reset = new Button("reset");
+		reset.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("reset"))
+				// logger.log(Level.INFO, "sparse");
+					// createSparseDistributedRep();
+					spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()), new Double(
+							connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
+							permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
+							.getText()), new Double(inhibitionRadius.getText()));
+				reset();
+			}
+		});
+		add(new Label("desi.loc.act"));
+		add(desiredLocalActivity);
+		add(new Label("con.perm"));
+		add(connectedPermanance);
+		add(new Label("min.ov"));
+		add(minimalOverlap);
+		add(new Label("perm.dec"));
+		add(permananceDec);
+		add(new Label("perm.inc"));
+		add(permananceInc);
+		add(new Label("amount.syn"));
+		add(amountOfSynapses);
+		add(new Label("inhib.rad"));
+		add(inhibitionRadius);
+		add(reset);
 		SpatialPooler spat = new SpatialPooler();
 		spat.init();
 		// this.columns = spat.getColumns();
@@ -112,79 +158,17 @@ public class HTMApplet extends Applet {
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
 		}
-		// columns=null;
+		this.loggedColum=null;
 		draw();
 	}
-
-	public void draw() {
-		graphics.setColor(Color.BLACK);
-		for (int x = 0; x < 12; x++) {
-			for (int y = 0; y < 12; y++) {
-				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-				graphics.drawOval(19 * x + 260, 100 + (19 * y), 16, 16);
-			}
-		}
-		Button submitButton = new Button("sparseDist");
-		submitButton.setActionCommand("sparse");
-		submitButton.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("sparse"))
-				// logger.log(Level.INFO, "sparse");
-					createSparseDistributedRep();
-			}
-
-		});
-		add(submitButton);
-
-		desiredLocalActivity.setName("desiredLocalActivity");
-		connectedPermanance.setName("connectedPermanance");
-		minimalOverlap.setName("minimalOverlap");
-		permananceDec.setName("permananceDec");
-		permananceInc.setName("permananceInc");
-		amountOfSynapses.setName("amountOfSynapses");
-		inhibitionRadius.setName("inhibitionRadius");
-
-		Button reset = new Button("reset");
-		reset.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("reset"))
-				// logger.log(Level.INFO, "sparse");
-					// createSparseDistributedRep();
-					spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()), new Double(
-							connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
-							permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
-							.getText()), new Double(inhibitionRadius.getText()));
-				reset();
-			}
-		});
-		add(new Label("desi.loc.act"));
-		add(desiredLocalActivity);
-		add(new Label("con.perm"));
-		add(connectedPermanance);
-		add(new Label("min.ov"));
-		add(minimalOverlap);
-		add(new Label("perm.dec"));
-		add(permananceDec);
-		add(new Label("perm.inc"));
-		add(permananceInc);
-		add(new Label("amount.syn"));
-		add(amountOfSynapses);
-		add(new Label("inhib.rad"));
-		add(inhibitionRadius);
-		add(reset);
-
-		// TODO create input for connectedPermananceMarge
-		repaint();
-	}
-
+	
+	@Override
 	public void paint(Graphics graphics) {
 		graphics.drawImage(image, 0, 0, this);
 	}
 
 	private void mouseOver(int x, int y) {
-		// TODO mouse over on a column will show it's synapses and display all infos
+		
 		int index = -1;
 		outer: for (int yy = 0; yy < 12; yy++) {
 
@@ -229,8 +213,12 @@ public class HTMApplet extends Applet {
 					} else {
 
 						if (x > 19 * xx + 260 && x < 19 * xx + 260 + 16) {
+							if (!mousePressed) {
 							logColumn(spat.getColumns()[index], xx, yy);
-
+							}
+							if (mousePressed) {
+								mousePressed = false;
+							}
 							break outer;
 						}
 					}
@@ -240,75 +228,75 @@ public class HTMApplet extends Applet {
 	}
 
 	private void logColumn(Column column, int xx, int yy) {
-		reDraw();
-		if (!mousePressed) {
-			if (this.loggedColomX == column.getxPos() && this.loggedColomY == column.getyPos() && loggedColum != null) {
-
-				graphics.setColor(Color.WHITE);
-
-				graphics.fillOval(19 * xx + 5 + 260, 99 + 19 * yy + 6, 6, 6);
+			
+			//delete the blue dot if there is one
+			if(loggedColum!=null){
 				if (loggedColum.isActive()) {
 					graphics.setColor(Color.RED);
-					graphics.fillOval(19 * loggedColomX + 260, 100 + (19 * loggedColomY), 16, 16);
-				}
-				this.loggedColomX = -1;
-				this.loggedColomY = -1;
-				this.loggedColum = null;
-
-				// reDraw();
-			} else {
-				if (this.loggedColomX != -1 && this.loggedColomY != -1 && loggedColum != null) {
+				} else{
 					graphics.setColor(Color.WHITE);
-					graphics.fillOval(19 * loggedColomX + 5 + 260, 99 + 19 * loggedColomY + 6, 6, 6);
-					if (loggedColum.isActive()) {
-						graphics.setColor(Color.RED);
-						graphics.fillOval(19 * loggedColomX + 260, 100 + (19 * loggedColomY), 16, 16);
-					}
 				}
-
+				graphics.fillOval(19 * this.loggedColum.getxPos() + 5 + 260, 99 + 19 * this.loggedColum.getyPos() + 6, 6, 6);
+			}
+			
+			if (loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum.getyPos() == column.getyPos() ) {
+				this.loggedColum = null;
+				// we click on a new column
+			} else {
+				this.loggedColum = column;			
 				graphics.setColor(Color.blue);
 				graphics.fillOval(19 * xx + 5 + 260, 99 + 19 * yy + 6, 6, 6);
-				// graphics.drawOval(19 * xx+5+254, 99 + (19 * yy), 18, 18);
-				graphics.setColor(Color.black);
-				this.loggedColomX = column.getxPos();
-				this.loggedColomY = column.getyPos();
-				this.loggedColum = column;
-				if (column.getNeigbours() != null) {
-					String columnBoost = df2.format(column.getBoost());
-
-					String minimalLocalActivity =df2.format(column.getMinimalLocalActivity());
-					String overlap =df2.format(column.getOverlap());
-
-					graphics.drawString("Column " + column.getxPos() + " " + column.getyPos() + " " + " boost=" + columnBoost
-							+ " amt of nghbors=" + column.getNeigbours().size() + " overlap=" + overlap
-							+ " min.loc.act=" + minimalLocalActivity, 0, 340);
-				}
-				for (int i = 0; i < column.getPotentialSynapses().length; i++) {
-					Synapse potentialSynapse = column.getPotentialSynapses()[i];
-					if (potentialSynapse.isActive(spat.getConnectedPermanance())) {
-						graphics.setColor(Color.GREEN);
-					} else {
-						graphics.setColor(Color.RED);
-					}
-					String permanance = df2.format(potentialSynapse.getPermanance());
-					System.out.println("hallo");
-					graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos()
-							+ " perm=" + permanance + " input=" + potentialSynapse.getSourceInput() + " active="
-							+ potentialSynapse.isActive(spat.getConnectedPermanance()), 0, 354 + 16 * i);
-					// String
-					// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
-					graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5,
-							6, 6);
-
-				}
+				logSynapses(column);
 			}
-			repaint();
-		}
-		if (mousePressed) {
-			mousePressed = false;
-		}
 	}
+	
+	private void logSynapses(Column column){
+		reDraw();
+		graphics.setColor(Color.black);				
+		if (column.getNeigbours() != null) {
+			String columnBoost = df2.format(column.getBoost());
 
+			String minimalLocalActivity =df2.format(column.getMinimalLocalActivity());
+			String overlap =df2.format(column.getOverlap());
+
+			graphics.drawString("Column " + column.getxPos() + " " + column.getyPos() + " " + " boost=" + columnBoost
+					+ " amt of nghbors=" + column.getNeigbours().size() + " overlap=" + overlap
+					+ " min.loc.act=" + minimalLocalActivity, 0, 340);
+		}
+		for (int i = 0; i < column.getPotentialSynapses().length; i++) {
+			Synapse potentialSynapse = column.getPotentialSynapses()[i];
+			if (potentialSynapse.isActive(spat.getConnectedPermanance())) {
+				graphics.setColor(Color.GREEN);
+			} else {
+				graphics.setColor(Color.RED);
+			}
+			String permanance = df2.format(potentialSynapse.getPermanance());
+			
+			graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos()
+					+ " perm=" + permanance + " input=" + potentialSynapse.getSourceInput() + " active="
+					+ potentialSynapse.isActive(spat.getConnectedPermanance()), 0, 354 + 16 * i);
+			// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
+			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5,
+					6, 6);
+
+		}
+		
+		repaint();
+	}
+		
+	/**
+	 * Draws the inputspace and columns.Without input/output
+	 */
+	public void draw() {
+		graphics.setColor(Color.BLACK);
+		for (int x = 0; x < 12; x++) {
+			for (int y = 0; y < 12; y++) {
+				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
+				graphics.drawOval(19 * x + 260, 100 + (19 * y), 16, 16);
+			}
+		}
+		repaint();
+	}
 	private void reDraw() {
 		graphics.clearRect(0, 100, 260, 230);
 		graphics.clearRect(0, 330, 500, 750);
@@ -326,9 +314,7 @@ public class HTMApplet extends Applet {
 				}
 				j++;
 			}
-
 		}
-		repaint();
 	}
 
 	private void drawBlackOval(int x, int y) {
@@ -358,13 +344,8 @@ public class HTMApplet extends Applet {
 		spat.computOverlap();
 		spat.computeWinningColumsAfterInhibition();
 		spat.updateSynapses();
-		// logger.log(Level.INFO, ""+spat.activeColumns.size());
-		// logger.log(Level.INFO, "end");
-
-		// ArrayList<Column> active= spat.getActiveColumns();
 
 		int j = 0;
-		// graphics.clearRect(250, 0, 270, 340);
 		Color color = Color.red;
 		graphics.setColor(color);
 
@@ -385,10 +366,13 @@ public class HTMApplet extends Applet {
 				j++;
 			}
 		}
-		if (this.loggedColomX != -1 && this.loggedColomY != -1) {
+		//if we are currently logging a column
+		if (this.loggedColum!=null) {
+			logSynapses(loggedColum);
 			graphics.setColor(Color.BLUE);
-			graphics.fillOval(19 * loggedColomX + 5 + 260, 99 + 19 * loggedColomY + 6, 6, 6);
+			graphics.fillOval(19 * loggedColum.getxPos() + 5 + 260, 99 + 19 * loggedColum.getyPos() + 6, 6, 6);
 		}
+		
 		repaint();
 		// tempo.setActiveColumns(spat.getActiveColumns());
 		// tempo.computeActiveState();
