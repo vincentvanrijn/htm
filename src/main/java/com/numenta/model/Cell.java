@@ -13,9 +13,10 @@ public class Cell {
 	private int cellIndex;
 	
 	
-	private Segment[] segments;
+	private ArrayList<Segment> segments;
 	
 	private int[] segmentUpdateList;
+	private boolean learnState;
 
 	public int[] getSegmentUpdateList() {
 		return segmentUpdateList;
@@ -43,18 +44,16 @@ public class Cell {
 
 	
 
-	public Segment[] getSegments() {
+	public ArrayList<Segment> getSegments() {
 		return segments;
 	}
 
-	public void setSegments(Segment[] segments) {
-		this.segments = segments;
-	}
+	
 
 	public Segment getActiveSegment(int j,  String activeState) {
 		Segment returnValue=null;
 		if(predictiveStatesBefore.get(j)){
-			returnValue= this.segments[j];
+			returnValue= this.segments.get(j);
 		}
 		return returnValue;
 	}
@@ -62,5 +61,14 @@ public class Cell {
 	public boolean segmentActiveNow(int k) {
 		return activeStateNow.get(k);
 			
+	}
+
+	public void setLearnState(boolean learnState) {
+		this.learnState=learnState;
+		
+	}
+
+	public boolean isLearnState() {
+		return this.learnState;
 	}
 }
