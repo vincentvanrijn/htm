@@ -274,13 +274,12 @@ public class HTMApplet extends Applet {
 				this.loggedColomY = column.getyPos();
 				this.loggedColum = column;
 				if (column.getNeigbours() != null) {
-					double boost = new Double(df2.format(column.getBoost())).doubleValue();
+					String columnBoost = df2.format(column.getBoost());
 
-					double minimalLocalActivity = new Double(df2.format(column.getMinimalLocalActivity()))
-							.doubleValue();
-					double overlap = new Double(df2.format(column.getOverlap())).doubleValue();
+					String minimalLocalActivity =df2.format(column.getMinimalLocalActivity());
+					String overlap =df2.format(column.getOverlap());
 
-					graphics.drawString("Column " + column.getxPos() + " " + column.getyPos() + " " + " boost=" + boost
+					graphics.drawString("Column " + column.getxPos() + " " + column.getyPos() + " " + " boost=" + columnBoost
 							+ " amt of nghbors=" + column.getNeigbours().size() + " overlap=" + overlap
 							+ " min.loc.act=" + minimalLocalActivity, 0, 340);
 				}
@@ -291,7 +290,8 @@ public class HTMApplet extends Applet {
 					} else {
 						graphics.setColor(Color.RED);
 					}
-					double permanance = new Double(df2.format(potentialSynapse.getPermanance())).doubleValue();
+					String permanance = df2.format(potentialSynapse.getPermanance());
+					System.out.println("hallo");
 					graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos()
 							+ " perm=" + permanance + " input=" + potentialSynapse.getSourceInput() + " active="
 							+ potentialSynapse.isActive(spat.getConnectedPermanance()), 0, 354 + 16 * i);
