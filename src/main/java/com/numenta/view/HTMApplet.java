@@ -396,6 +396,7 @@ public class HTMApplet extends Applet {
 //		 tempo.setActiveColumns(spat.getActiveColumns());
 //		 tempo.computeActiveState();
 //		 tempo.computeActiveState();
+		 
 	}
 
 }
