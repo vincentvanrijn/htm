@@ -6,6 +6,15 @@ public class Cell {
 	
 
 	private ArrayList<Boolean> predictiveStatesBefore=new ArrayList<Boolean>();
+	public ArrayList<Boolean> getPredictiveStatesBefore() {
+		return predictiveStatesBefore;
+	}
+
+	private ArrayList<Boolean> predictiveStatesNow=new ArrayList<Boolean>();
+	public ArrayList<Boolean> getPredictiveStatesNow() {
+		return predictiveStatesNow;
+	}
+
 	private ArrayList<Boolean> activeStateNow=new ArrayList<Boolean>();
 	
 	
