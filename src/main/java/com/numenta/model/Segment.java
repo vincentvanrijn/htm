@@ -1,14 +1,16 @@
 package com.numenta.model;
 
+import java.util.List;
+
 public class Segment {
 
 	private int[] permananceValueBySynapseNumber;
-	private Synapse[] synapses;
+	private List<Synapse> synapses;
 	private boolean sequenceSegment;
-	public Synapse[] getSynapses() {
+	public List<Synapse> getSynapses() {
 		return synapses;
 	}
-	public void setSynapses(Synapse[] synapses) {
+	public void setSynapses(List <Synapse> synapses) {
 		this.synapses = synapses;
 	}
 	public boolean isSsequenceSegment() {
