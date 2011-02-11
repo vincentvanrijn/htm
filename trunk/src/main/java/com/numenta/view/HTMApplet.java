@@ -1,3 +1,4 @@
+
 package com.numenta.view;
 
 import java.applet.Applet;
@@ -182,6 +183,7 @@ public class HTMApplet extends Applet {
 								black = true;
 							}
 							mousePressed = false;
+							
 						} else {
 							if (mouseDragged) {
 
@@ -193,6 +195,7 @@ public class HTMApplet extends Applet {
 
 									setInputValue(index, 0);
 								}
+								
 							} else {
 
 								if (input[index] == 1) {
@@ -204,7 +207,10 @@ public class HTMApplet extends Applet {
 
 									setInputValue(index, 1);
 								}
+								
 							}
+
+							repaint();
 						}
 
 						break outer;
@@ -225,10 +231,11 @@ public class HTMApplet extends Applet {
 		}
 	}
 
-	private void logColumn(Column column, int xx, int yy) {
-		
+	private void logColumn(Column column, int xx, int yy) {		
 
 			//delete the blue dot if there is one
+		if (!(mouseDragged && loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum.getyPos() == column.getyPos())) {
+		
 			if(loggedColum!=null){
 				if (loggedColum.isActive()) {
 					graphics.setColor(Color.RED);
@@ -247,12 +254,16 @@ public class HTMApplet extends Applet {
 				this.loggedColum = column;			
 				graphics.setColor(Color.blue);
 				graphics.fillOval(19 * xx + 5 + 260, 99 + 19 * yy + 6, 6, 6);
+				reDraw();
 				logSynapses(column);
+				
 			}
+		}
+		
 	}
 	
 	private void logSynapses(Column column){
-		reDraw();
+		
 		graphics.setColor(Color.black);				
 		if (column.getNeigbours() != null) {
 			String columnBoost = df2.format(column.getBoost());
@@ -306,13 +317,14 @@ public class HTMApplet extends Applet {
 		int j = 0;
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
-				graphics.setColor(Color.white);
-				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-
-				graphics.setColor(Color.black);
+				
 				if (input[j] == 0) {
+					graphics.setColor(Color.black);
 					graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
 				} else {
+
+					graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
+					graphics.setColor(Color.black);
 					graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 				}
 				j++;
@@ -322,15 +334,11 @@ public class HTMApplet extends Applet {
 
 	private void drawBlackOval(int x, int y) {
 		graphics.setColor(Color.black);
-
 		// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
-
-		repaint();
-	}
-
-	private void setInputValue(int index, int value) {
-		input[index] = value;
+		if(loggedColum!=null){
+			logSynapses(loggedColum);
+		}
 	}
 
 	private void drawWhiteOval(int x, int y) {
@@ -338,9 +346,16 @@ public class HTMApplet extends Applet {
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 		graphics.setColor(Color.black);
 		graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-		repaint();
-	}
 
+		if(loggedColum!=null){
+			logSynapses(loggedColum);
+		}
+	}
+		
+	private void setInputValue(int index, int value) {
+			input[index] = value;
+	}
+	
 	public void createSparseDistributedRep() {
 
 		spat.conectSynapsesToInputSpace(input);
@@ -371,15 +386,16 @@ public class HTMApplet extends Applet {
 		}
 		//if we are currently logging a column
 		if (this.loggedColum!=null) {
+			reDraw();
 			logSynapses(loggedColum);
 			graphics.setColor(Color.BLUE);
 			graphics.fillOval(19 * loggedColum.getxPos() + 5 + 260, 99 + 19 * loggedColum.getyPos() + 6, 6, 6);
 		}
 		
 		repaint();
-		 tempo.setActiveColumns(spat.getActiveColumns());
-		 tempo.computeActiveState();
-		 tempo.computeActiveState();
+//		 tempo.setActiveColumns(spat.getActiveColumns());
+//		 tempo.computeActiveState();
+//		 tempo.computeActiveState();
 	}
 
 }
