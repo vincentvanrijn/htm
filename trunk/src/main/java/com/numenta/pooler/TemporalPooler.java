@@ -15,7 +15,6 @@ public class TemporalPooler {
 	private static double activeTresHold;
 	private Column[] activeColumns;
 	private String activeState="activeState";//learnState
-	private List<SegmentUpdate> segmentUpdateList;
 	
 	private void computeNextTimeStep(){
 		for (int i = 0; i < activeColumns.length; i++) {
@@ -42,12 +41,13 @@ public class TemporalPooler {
 					if(activeColumn.getPredictiveStatesBefore()[j]){
 						Cell cell=activeColumn.getCells()[j];
 						System.out.println("predicted before ");
-						//TODO implement this
+						//TODO implement getActiveSegment
 						Segment segment=cell.getActiveSegment(j, activeState);
 						if(segment.isSsequenceSegment()){
 							buPredicted=true;							
 							activeColumn.getActiveStatesNow()[j]=true;
-							if( segmentActive(segment, cell.isLearnState())){
+							//TODO implement segmentActive this is also in cell which one to choose?
+							if( segmentActive(segment,-1, cell.isLearnState())){
 								lcChosen=true;
 								cell.setLearnState(true);
 							}
@@ -62,65 +62,43 @@ public class TemporalPooler {
 					System.out.println("all cells active");
 				}
 				if(!lcChosen){
+					//TODO implement getBestMatchingCell
 					Cell cell=getBestMatchingCell(activeColumn);
 					Segment segment=getBestMatchingSegment(cell);
 					cell.setLearnState(true);
+					//TODO implementgetSegmentActiveSynapses
 					SegmentUpdate sUpdate=getSegmentActiveSynapses(activeColumn,cell,-1,segment, true);
 					sUpdate.setSequenceSegment(true);
-					segmentUpdateList.add(sUpdate);
+					cell.getSegmentUpdateList().add(sUpdate);
 				}
 			}
 		}
 		
-		private SegmentUpdate getSegmentActiveSynapses(Column activeColumn, Cell cell,
-			int i, Segment segment, boolean b) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-		private Segment getBestMatchingSegment(Cell cell) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-		private boolean segmentActive(Segment segment, boolean learnState) {
-			
-			List synapses=segment.getSynapses();
-			int ammountConnected=0;
-			for (Iterator iterator = synapses.iterator(); iterator.hasNext();) {
-				Synapse synapse = (Synapse) iterator.next();
-				if(synapse.isActive(12)){
-					ammountConnected++;
-				}							
-			}
-			return ammountConnected>TemporalPooler.activeTresHold;
-		
-		}
-		public Column[] getActiveColumns() {
-			return activeColumns;
-		}
-		public void setActiveColumns(Column[] activeColumns) {
-			this.activeColumns = activeColumns;
-		}
+
 		
 		
 		public void calculatePredictedState(){
-			for (int i = 0; i < activeColumns.length; i++) {
+			for (int i = 0; i < activeColumns.length; i++) {//or do I need all columns?
 				
 				Column activeColumn=activeColumns[i];
 				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {	
 					Cell cell=activeColumn.getCells()[j];
 					
 					for (int k= 0; k < cell.getSegments().size(); j++) {
-						
-						if(cell.segmentActiveNow(k)){
+						Segment segment=cell.getSegments().get(k);
+						//TODO implement segmentActive 
+						if(segmentActive(segment,-1, cell.isLearnState())){
 							activeColumn.getPredictiveStatesNow()[j]=true;
-							
+							//TODO implement getSegmentActiveSynapses
 							SegmentUpdate activeUpdate=getSegmentActiveSynapses(activeColumn, cell, 1, segment, false);
-							segmentUpdateList.add(activeUpdate);
-							
+							cell.getSegmentUpdateList().add(activeUpdate);
+							//TODO implement getBestMatchingSegment
 							Segment predSegment=getBestMatchingSegment(cell);
+
+							//TODO implement getSegmentActiveSynapses
 							SegmentUpdate predUpdate=getSegmentActiveSynapses(activeColumn, cell, -1, segment, true);
 							
-							segmentUpdateList.add(predUpdate);
+							cell.getSegmentUpdateList().add(predUpdate);
 						}
 						
 					}
@@ -131,30 +109,27 @@ public class TemporalPooler {
 		
 		public void updateSynapses(){
 			
-			for (int i = 0; i < activeColumns.length; i++) {
+			for (int i = 0; i < activeColumns.length; i++) {//or do I need all columns?
 				
 				Column activeColumn=activeColumns[i];
 				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
 
 					Cell cell=activeColumn.getCells()[j];
-					for (Iterator iterator = cell.getSegments().iterator(); iterator
-							.hasNext();) {
-						Segment segment = (Segment) iterator.next();
-						
 					
 						if(cell.isLearnState()){
-							adaptSegments(segmentUpdateList ,true);
-							segmentUpdateList.remove(segment);
+							//TODO implement adaptSegments
+							adaptSegments(cell.getSegmentUpdateList() ,true);
+							cell.setSegmentUpdateList(null);
 							
-						} else if(cell.getPredictiveStatesNow().get(0).equals(null)
-								&&cell.getPredictiveStatesBefore().get(0).equals(null)) {
-							adaptSegments(segmentUpdateList ,false);
-							segmentUpdateList.remove(segment);
+						} else if(!activeColumn.getPredictiveStatesNow()[j]
+								&&activeColumn.getPredictiveStatesBefore()[j]) {
+
+							//TODO implement adaptSegments
+							adaptSegments(cell.getSegmentUpdateList() ,false);
+							cell.setSegmentUpdateList(null);
 							
 						}
 						
-						
-					}
 				}
 			}
 		}
@@ -181,6 +156,33 @@ public class TemporalPooler {
 			System.arraycopy(objects, 0, actives, 0, objects.length);
 			this.activeColumns=actives;
 		}
-		
+		private SegmentUpdate getSegmentActiveSynapses(Column activeColumn, Cell cell,
+				int i, Segment segment, boolean b) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+			private Segment getBestMatchingSegment(Cell cell) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+			private boolean segmentActive(Segment segment,int  time, boolean learnState) {
+				
+				List synapses=segment.getSynapses();
+				int ammountConnected=0;
+				for (Iterator iterator = synapses.iterator(); iterator.hasNext();) {
+					Synapse synapse = (Synapse) iterator.next();
+					if(synapse.isActive(12)){
+						ammountConnected++;
+					}							
+				}
+				return ammountConnected>TemporalPooler.activeTresHold;
+			
+			}
+			public Column[] getActiveColumns() {
+				return activeColumns;
+			}
+			public void setActiveColumns(Column[] activeColumns) {
+				this.activeColumns = activeColumns;
+			}	
 		
 }
