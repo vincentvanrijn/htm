@@ -1,7 +1,9 @@
 package com.numenta.pooler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,14 +43,11 @@ public class TemporalPooler {
 
 				if (cells[c][i][Cell.BEFORE].hasPredictiveState()) {
 					System.out.println("predicted before ");
-					// TODO implement getActiveSegment
 					Segment segment = getActiveSegment(c, i, Cell.BEFORE,
 							Cell.ACTIVE_STATE);
 					if (segment.isSsequenceSegment()) {
 						buPredicted = true;
 						cells[c][i][Cell.NOW].seActiveState(true);
-					// TODO implement segmentActive this is also in cell
-						// which one to choose?
 						if (segmentActive(segment, Cell.BEFORE, Cell.LEARN_STATE)) {
 							lcChosen = true;
 							cells[c][i][Cell.NOW].setLearnState(true);
@@ -150,9 +149,12 @@ public class TemporalPooler {
 		Cell cell = cells[c][i][time];
 		List<Segment> activeSegments=new ArrayList<Segment>();
 		List<Segment> segments = cell.getSegments();
-		Collections.sort(segments);
-		
-		
+		for (Segment segment : segments) {
+			if(segmentActive(segment, time, state)){
+				activeSegments.add(segment);
+			}
+		}
+		Collections.sort(segments);		
 		return segments.get(0);
 	}
 /**
@@ -181,12 +183,19 @@ If no cell has a matching segment, then return the cell with the fewest number o
  * @return
  */
 	private Cell getBestMatchingCell(int c, int time) {
-		Cell cell = null;
+		
+		Cell[] cellsToCompare=new Cell[Column.CELLS_PER_COLUMN];
 		for (int j = 0; j < Column.CELLS_PER_COLUMN - 1; j++) {
-			cell = cells[c][j][time];
-			System.out.println(cell.getSegments().size());
+			cellsToCompare[j]=this.cells[c][j][time];
 		}
-		return cell;
+		Arrays.sort(cellsToCompare, new Comparator<Cell>() {
+
+			public int compare(Cell cell, Cell toCampare) {
+				return 0;
+			}
+		});
+			
+		return cellsToCompare[0];
 	}
 
 	
@@ -225,13 +234,14 @@ The routine returns the segment index. If no segments are found, then an index o
 	private Segment getBestMatchingSegment(int c, int i,int time) {
 		Cell cell=cells[c][i][time];
 		List<Segment> segments =cell.getSegments();
-		for (Segment segment : segments) {
-			segment.getSynapses().size();
-			
-			//TemporalPooler.MIN_TRESHOLD;
+		Collections.sort(segments);
+		Segment returnValue=null;
+		if(segments!=null){
+			if(segments.get(0).getSynapses().size()>TemporalPooler.MIN_TRESHOLD){
+				returnValue=	segments.get(0);
+			}
 		}
-		// TODO Auto-generated method stub
-		return null;
+		return returnValue;
 	}
 
 	/**
@@ -247,9 +257,7 @@ The routine returns the segment index. If no segments are found, then an index o
 	 * @return
 	 */
 	private boolean segmentActive(Segment segment, int time, boolean learnState) {
-		//ignoring the state. That comes from the cell!!or from the cell that makes the cynapse(NOT THIS ONE)
-		//also ignoring time. We already have a segment from a cell at the right time
-		List<LateralSynapse> synapses = segment.getSynapses();
+			List<LateralSynapse> synapses = segment.getSynapses();
 		int ammountConnected = 0;
 		for (Iterator<LateralSynapse> iterator = synapses.iterator(); iterator
 				.hasNext();) {
