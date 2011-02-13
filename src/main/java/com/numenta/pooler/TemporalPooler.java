@@ -1,188 +1,272 @@
 package com.numenta.pooler;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.numenta.model.Cell;
 import com.numenta.model.Column;
+import com.numenta.model.LateralSynapse;
 import com.numenta.model.Segment;
 import com.numenta.model.Synapse;
 import com.numenta.model.helper.SegmentUpdate;
 
 public class TemporalPooler {
-	
-	
-	private static double activeTresHold;
+
+	private static final int CONNECTED_PERM = 0;
+	private static final int MIN_TRESHOLD = 0;
+	private static int ACTIVATION_TRESHOLD=0;
+	private static int AMMOUNT_TIME=2;
 	private Column[] activeColumns;
-	private String activeState="activeState";//learnState
+	private Cell[][][] cells = new Cell[SpatialPooler.AMMOUNT_OF_COLLUMNS][Column.CELLS_PER_COLUMN][TemporalPooler.AMMOUNT_TIME];
 	
-	private void computeNextTimeStep(){
-		for (int i = 0; i < activeColumns.length; i++) {
-			Column activeColumn=activeColumns[i];
-			activeColumn.setActiveStatesNow(new boolean[Column.CELLS_PER_COLUMN]);
-			//activeColumn.getPredictiveStatesNow();
-			for (int j = 0; j < activeColumn.getPredictiveStatesNow().length; j++) {
-				activeColumn.getPredictiveStatesBefore()[j]=activeColumn.getPredictiveStatesNow()[j];
+
+	public void init() {
+		for (int i = 0; i < SpatialPooler.AMMOUNT_OF_COLLUMNS; i++){
+			for (int j = 0; j < Column.CELLS_PER_COLUMN; j++) {
+				for(int t=0;t<TemporalPooler.AMMOUNT_TIME;t++){
+
+					cells[i][j][t] = new Cell(i, j, 1);
+				}
 			}
-			activeColumn.setPredictiveStatesBefore(activeColumn.getPredictiveStatesNow());
-			activeColumn.setPredictiveStatesBefore(new boolean[Column.CELLS_PER_COLUMN]);
-			
 		}
 	}
-	public void computeActiveState(){			
-		computeNextTimeStep();
-			for (int i = 0; i < activeColumns.length; i++) {
-				Column activeColumn=activeColumns[i];
-				boolean buPredicted=false;
-				boolean lcChosen=false;
-				System.out.println("active column " +activeColumn.getOverlap());
-				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {					
-										
-					if(activeColumn.getPredictiveStatesBefore()[j]){
-						Cell cell=activeColumn.getCells()[j];
-						System.out.println("predicted before ");
-						//TODO implement getActiveSegment
-						Segment segment=cell.getActiveSegment(j, activeState);
-						if(segment.isSsequenceSegment()){
-							buPredicted=true;							
-							activeColumn.getActiveStatesNow()[j]=true;
-							//TODO implement segmentActive this is also in cell which one to choose?
-							if( segmentActive(segment,-1, cell.isLearnState())){
-								lcChosen=true;
-								cell.setLearnState(true);
-							}
+
+	public void computeActiveState() {
+		for (int c = 0; c < activeColumns.length; c++) {
+			boolean buPredicted = false;
+			boolean lcChosen = false;
+			for (int i = 0; i < Column.CELLS_PER_COLUMN ; i++) {
+
+				if (cells[c][i][Cell.BEFORE].hasPredictiveState()) {
+					System.out.println("predicted before ");
+					// TODO implement getActiveSegment
+					Segment segment = getActiveSegment(c, i, Cell.BEFORE,
+							Cell.ACTIVE_STATE);
+					if (segment.isSsequenceSegment()) {
+						buPredicted = true;
+						cells[c][i][Cell.NOW].seActiveState(true);
+					// TODO implement segmentActive this is also in cell
+						// which one to choose?
+						if (segmentActive(segment, Cell.BEFORE, Cell.LEARN_STATE)) {
+							lcChosen = true;
+							cells[c][i][Cell.NOW].setLearnState(true);
 						}
 					}
 				}
-				if(!buPredicted){
-					for (int j = 0; j < Column.CELLS_PER_COLUMN; j++) {
-						activeColumn.getActiveStatesNow()[j]=true;
+			}
+			if (!buPredicted) {
+				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
+					cells[c][i][Cell.NOW].seActiveState(true);
+				}
+
+				System.out.println("all cells active");
+			}
+			if (!lcChosen) {
+				// TODO implement getBestMatchingCell
+				Cell cell = getBestMatchingCell(c, Cell.BEFORE);
+				Segment segment = getBestMatchingSegment(c,cell.getCellIndex(), Cell.BEFORE);
+				
+				cells[c][cell.getCellIndex()][Cell.NOW].setLearnState(true);
+				// TODO implementgetSegmentActiveSynapses
+				SegmentUpdate sUpdate = getSegmentActiveSynapses(c, cell
+						.getCellIndex(), segment, 0, true);
+				sUpdate.setSequenceSegment(true);
+				cell.getSegmentUpdateList().add(sUpdate);
+			}
+		}
+	}
+
+	
+
+	public void calculatePredictedState() {
+		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++)
+			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
+
+				Cell cell = cells[c][i][Cell.NOW];
+
+				for (int s = 0; s < cell.getSegments().size(); s++) {
+					Segment segment = cell.getSegments().get(s);
+					// TODO implement segmentActive
+					if (segmentActive(segment, Cell.NOW, Cell.ACTIVE_STATE)) {
+						cells[c][i][Cell.NOW].setPredictiveState(true);
+						// TODO implement getSegmentActiveSynapses
+						SegmentUpdate activeUpdate = getSegmentActiveSynapses(
+								c, i, segment, Cell.NOW, Segment.GETS_NO_NEW_SYNAPSE);
+						cell.getSegmentUpdateList().add(activeUpdate);
+						// TODO implement getBestMatchingSegment
+
+						Segment predSegment = getBestMatchingSegment(c, i , Cell.BEFORE);
+						// TODO implement getSegmentActiveSynapses
+						SegmentUpdate predUpdate = getSegmentActiveSynapses(c,
+								i, predSegment, Cell.BEFORE, Segment.GETS_NEW_SYNAPSE);
+
+						cell.getSegmentUpdateList().add(predUpdate);
 					}
 
-					System.out.println("all cells active");
-				}
-				if(!lcChosen){
-					//TODO implement getBestMatchingCell
-					Cell cell=getBestMatchingCell(activeColumn);
-					Segment segment=getBestMatchingSegment(cell);
-					cell.setLearnState(true);
-					//TODO implementgetSegmentActiveSynapses
-					SegmentUpdate sUpdate=getSegmentActiveSynapses(activeColumn,cell,-1,segment, true);
-					sUpdate.setSequenceSegment(true);
-					cell.getSegmentUpdateList().add(sUpdate);
 				}
 			}
-		}
-		
+	}
 
-		
-		
-		public void calculatePredictedState(){
-			for (int i = 0; i < activeColumns.length; i++) {//or do I need all columns?
-				
-				Column activeColumn=activeColumns[i];
-				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {	
-					Cell cell=activeColumn.getCells()[j];
-					
-					for (int k= 0; k < cell.getSegments().size(); j++) {
-						Segment segment=cell.getSegments().get(k);
-						//TODO implement segmentActive 
-						if(segmentActive(segment,-1, cell.isLearnState())){
-							activeColumn.getPredictiveStatesNow()[j]=true;
-							//TODO implement getSegmentActiveSynapses
-							SegmentUpdate activeUpdate=getSegmentActiveSynapses(activeColumn, cell, 1, segment, false);
-							cell.getSegmentUpdateList().add(activeUpdate);
-							//TODO implement getBestMatchingSegment
-							Segment predSegment=getBestMatchingSegment(cell);
+	public void updateSynapses() {
 
-							//TODO implement getSegmentActiveSynapses
-							SegmentUpdate predUpdate=getSegmentActiveSynapses(activeColumn, cell, -1, segment, true);
-							
-							cell.getSegmentUpdateList().add(predUpdate);
-						}
-						
-					}
+		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++)
+			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
+
+				Cell cell = cells[c][i][Cell.NOW];
+
+				if (cells[c][i][1].hasLearnState()) {
+					// TODO implement adaptSegments
+					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.POSITIVE_REINFORCEMENT);
+					cell.setSegmentUpdateList(null);
+
+				} else if (!cells[c][i][Cell.NOW].hasPredictiveState()
+						&& cells[c][i][Cell.BEFORE].hasPredictiveState()) {
+
+					// TODO implement adaptSegments
+					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.NO_POSITIVE_REINFORCEMENT);
+					cell.setSegmentUpdateList(null);
+
 				}
 			}
-			
-		}
+
+	}
+	
+	/**
+	 * getActiveSegment(c, i, t, state) For the given column c cell i, return a
+	 * segment index such that segmentActive(s,t, state) is true. If multiple
+	 * segments are active, sequence segments are given preference. Otherwise,
+	 * segments with most activity are given preference.
+	 * 
+	 * @param c
+	 * @param i
+	 * @param time
+	 * @param state
+	 * @return
+	 */
+	private Segment getActiveSegment(int c, int i, int time, boolean state) {
+
+		Cell cell = cells[c][i][time];
+		List<Segment> activeSegments=new ArrayList<Segment>();
+		List<Segment> segments = cell.getSegments();
+		Collections.sort(segments);
 		
-		public void updateSynapses(){
+		
+		return segments.get(0);
+	}
+/**
+ * adaptSegments(segmentList, positiveReinforcement)
+This function iterates through a list of segmentUpdate's and reinforces each segment. 
+For each segmentUpdate element, the following changes are performed. 
+If positiveReinforcement is true then synapses on the active list get their permanence counts incremented 
+by permanenceInc. All other synapses get their permanence counts decremented by permanenceDec. 
+If positiveReinforcement is false, 
+then synapses on the active list get their permanence counts decremented by permanenceDec. 
+After this step, 
+any synapses in segmentUpdate that do yet exist get added with a permanence count of initialPerm.
+ * @param segmentUpdateList2
+ * @param b
+ */
+	private void adaptSegments(List<SegmentUpdate> segmentUpdateList2, boolean b) {
+		// TODO Auto-generated method stub
+
+	}
+/**
+ * getBestMatchingCell(c)
+For the given column, return the cell with the best matching segment (as defined above). 
+If no cell has a matching segment, then return the cell with the fewest number of segments.
+ * @param c
+ * @param time
+ * @return
+ */
+	private Cell getBestMatchingCell(int c, int time) {
+		Cell cell = null;
+		for (int j = 0; j < Column.CELLS_PER_COLUMN - 1; j++) {
+			cell = cells[c][j][time];
+			System.out.println(cell.getSegments().size());
+		}
+		return cell;
+	}
+
+	
+
+	/**
+	 * getSegmentActiveSynapses(c, i, t, s, newSynapses= false)
+Return a segmentUpdate data structure containing a list of proposed changes to segment s. 
+Let activeSynapses be the list of active synapses where the originating cells 
+have their activeState output = 1 at time step t. 
+(This list is empty if s = -1 since the segment doesn't exist.)
+ newSynapses is an optional argument that defaults to false. 
+ If newSynapses is true, then newSynapseCount - count(activeSynapses) synapses are added to activeSynapses. 
+These synapses are randomly chosen from the set of cells that have learnState output = 1 at time step t.
+	 * @param c
+	 * @param i
+	 * @param segment
+	 * @param t
+	 * @param b
+	 * @return
+	 */
+	private SegmentUpdate getSegmentActiveSynapses(int c, int i,
+			Segment segment, int t, boolean b) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+/**
+ * getBestMatchingSegment(c, i, t)
+For the given column c cell i at time t, find the segment with the largest number of active synapses. 
+This routine is aggressive in finding the best match. 
+The permanence value of synapses is allowed to be below connectedPerm. 
+The number of active synapses is allowed to be below activationThreshold, but must be above minThreshold. 
+The routine returns the segment index. If no segments are found, then an index of -1 is returned.
+ * @param cell
+ * @return
+ */
+	private Segment getBestMatchingSegment(int c, int i,int time) {
+		Cell cell=cells[c][i][time];
+		List<Segment> segments =cell.getSegments();
+		for (Segment segment : segments) {
+			segment.getSynapses().size();
 			
-			for (int i = 0; i < activeColumns.length; i++) {//or do I need all columns?
-				
-				Column activeColumn=activeColumns[i];
-				for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {
+			//TemporalPooler.MIN_TRESHOLD;
+		}
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-					Cell cell=activeColumn.getCells()[j];
-					
-						if(cell.isLearnState()){
-							//TODO implement adaptSegments
-							adaptSegments(cell.getSegmentUpdateList() ,true);
-							cell.setSegmentUpdateList(null);
-							
-						} else if(!activeColumn.getPredictiveStatesNow()[j]
-								&&activeColumn.getPredictiveStatesBefore()[j]) {
-
-							//TODO implement adaptSegments
-							adaptSegments(cell.getSegmentUpdateList() ,false);
-							cell.setSegmentUpdateList(null);
-							
-						}
-						
-				}
+	/**
+	 * segmentActive(s, t, state) This routine returns true if the number of
+	 * connected synapses on segment s that are active due to the given state at
+	 * time t is greater than activationThreshold. The parameter state can be
+	 * activeState, or learnState.
+	 * 
+	 * @param segment
+	 * @param time
+	 *            can be 1 meaning now or 0 meaning t-1
+	 * @param learnState
+	 * @return
+	 */
+	private boolean segmentActive(Segment segment, int time, boolean learnState) {
+		//ignoring the state. That comes from the cell!!or from the cell that makes the cynapse(NOT THIS ONE)
+		//also ignoring time. We already have a segment from a cell at the right time
+		List<LateralSynapse> synapses = segment.getSynapses();
+		int ammountConnected = 0;
+		for (Iterator<LateralSynapse> iterator = synapses.iterator(); iterator
+				.hasNext();) {
+			LateralSynapse synapse = (LateralSynapse) iterator.next();
+			if (synapse.isActive(TemporalPooler.CONNECTED_PERM) && cells[synapse.getColumnIndex()][synapse.getCellIndex()][time].hasLearnState()==learnState) {
+				ammountConnected++;
 			}
 		}
-		
-		private void adaptSegments(List<SegmentUpdate> segmentUpdateList2,
-				boolean b) {
-			// TODO Auto-generated method stub
-			
-		}
-		private Cell getBestMatchingCell(Column column){
-			Cell cell=null;
-			for (int j = 0; j < Column.CELLS_PER_COLUMN-1; j++) {	
-				cell=column.getCells()[j];
-				System.out.println(cell.getSegments().size());
-			}	
-			return cell;
-		}
-		
+		return ammountConnected > TemporalPooler.ACTIVATION_TRESHOLD;
 
-		public void setActiveColumns(ArrayList<Column> activeColumns) {
-			
-			Object[] objects=activeColumns.toArray();
-			Column[] actives=new Column[objects.length];
-			System.arraycopy(objects, 0, actives, 0, objects.length);
-			this.activeColumns=actives;
-		}
-		private SegmentUpdate getSegmentActiveSynapses(Column activeColumn, Cell cell,
-				int i, Segment segment, boolean b) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-			private Segment getBestMatchingSegment(Cell cell) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-			private boolean segmentActive(Segment segment,int  time, boolean learnState) {
-				
-				List synapses=segment.getSynapses();
-				int ammountConnected=0;
-				for (Iterator iterator = synapses.iterator(); iterator.hasNext();) {
-					Synapse synapse = (Synapse) iterator.next();
-					if(synapse.isActive(12)){
-						ammountConnected++;
-					}							
-				}
-				return ammountConnected>TemporalPooler.activeTresHold;
-			
-			}
-			public Column[] getActiveColumns() {
-				return activeColumns;
-			}
-			public void setActiveColumns(Column[] activeColumns) {
-				this.activeColumns = activeColumns;
-			}	
-		
+	}
+	
+	public void setActiveColumns(ArrayList<Column> activeColumns) {
+
+		Object[] objects = activeColumns.toArray();
+		Column[] actives = new Column[objects.length];
+		System.arraycopy(objects, 0, actives, 0, objects.length);
+		this.activeColumns = actives;
+	}
 }

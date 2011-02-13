@@ -14,6 +14,8 @@ import com.numenta.model.Synapse;
 
 public class SpatialPooler {
 
+	public static final int AMMOUNT_OF_COLLUMNS = 144;
+
 	private int					desiredLocalActivity		= 3;
 
 	private double				connectedPermanance			= 0.7;
@@ -79,7 +81,7 @@ public class SpatialPooler {
 
 	public void init() {
 		// logger.log(Level.INFO, "SpatialPooler");
-		columns = new Column[144];
+		columns = new Column[AMMOUNT_OF_COLLUMNS];
 
 		// lets say every column has 10 synapses
 		Random random = new Random();
