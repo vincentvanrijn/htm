@@ -92,10 +92,7 @@ public class Cell {
 	}
 	
 	
-//	public Segment getActiveSegment(int j,  String activeState) {
-//	Segment returnValue=null;
-//	return returnValue;
-//}
+
 public List<SegmentUpdate> getSegmentUpdateList() {
 	return segmentUpdateList;
 }
