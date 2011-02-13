@@ -259,9 +259,8 @@ The routine returns the segment index. If no segments are found, then an index o
 	private boolean segmentActive(Segment segment, int time, boolean learnState) {
 			List<LateralSynapse> synapses = segment.getSynapses();
 		int ammountConnected = 0;
-		for (Iterator<LateralSynapse> iterator = synapses.iterator(); iterator
-				.hasNext();) {
-			LateralSynapse synapse = (LateralSynapse) iterator.next();
+		for (LateralSynapse synapse : synapses) {			
+		
 			if (synapse.isActive(TemporalPooler.CONNECTED_PERM) && cells[synapse.getColumnIndex()][synapse.getCellIndex()][time].hasLearnState()==learnState) {
 				ammountConnected++;
 			}
