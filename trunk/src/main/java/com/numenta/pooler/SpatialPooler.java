@@ -3,7 +3,6 @@ package com.numenta.pooler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -14,7 +13,7 @@ import com.numenta.model.Synapse;
 
 public class SpatialPooler {
 
-	public static final int AMMOUNT_OF_COLLUMNS = 144;
+	public static final int		AMMOUNT_OF_COLLUMNS			= 144;
 
 	private int					desiredLocalActivity		= 3;
 
@@ -51,15 +50,12 @@ public class SpatialPooler {
 	}
 
 	public void conectSynapsesToInputSpace(int[] inputSpace) {
-		
-		for (int i = 0; i < columns.length; i++) {
-			Column column = columns[i];
-			for (int j = 0; j < column.getPotentialSynapses().length; j++) {
-				Synapse synapse = column.getPotentialSynapses()[j];
+
+		for (Column column : this.columns) {
+			for (Synapse synapse : column.getPotentialSynapses()) {
 				synapse.setSourceInput(inputSpace[synapse.getInputSpaceIndex()]);
 			}
 		}
-		// logger.log(Level.INFO, "connected synapses");
 	}
 
 	public SpatialPooler(int desiredLocalActivity, double connectedPermanance, int minimalOverlap,
@@ -125,13 +121,10 @@ public class SpatialPooler {
 
 	public void computOverlap() {
 		// logger.log(Level.FINE, "computOverlap");
-		for (int i = 0; i < this.columns.length; i++) {
+		for (Column column : this.columns) {
 			double overlap = 0.0;
-			Column column = this.columns[i];
-			Synapse[] connectedSynapses = column.getConnectedSynapses(connectedPermanance);
 			// logger.log(Level.INFO, "connected syn=" + connectedSynapses.length);
-			for (int j = 0; j < connectedSynapses.length; j++) {
-				Synapse connectedSynapse = connectedSynapses[j];
+			for (Synapse connectedSynapse : column.getConnectedSynapses(connectedPermanance)) {
 				int t = 1;
 				overlap += input(t, connectedSynapse.getSourceInput());
 			}
@@ -154,14 +147,12 @@ public class SpatialPooler {
 
 		// logger.log(Level.FINE, "computeWinningColumsAfterInhibition");
 		activeColumns = new ArrayList<Column>();
-		for (int i = 0; i < columns.length; i++) {
-			Column column = columns[i];
-
+		for (Column column : this.columns) {
 			column.setNeigbours(getNeigbors(column));
 
 			double minimalLocalActivity = kthScore(column.getNeigbours(), desiredLocalActivity);// if inhibitioradius
-																								// changes, shouldn't
-																								// this also change?
+			// changes, shouldn't
+			// this also change?
 			column.setMinimalLocalActivity(minimalLocalActivity);
 			if (column.getOverlap() > 0 && column.getOverlap() >= minimalLocalActivity) {
 				// logger.info("column Overlap "+ column.getOverlap()+ " minimal overlap"+ minimalLocalActivity);
@@ -176,11 +167,9 @@ public class SpatialPooler {
 
 	public void updateSynapses() {
 		// logger.log(Level.FINE, "updateSynapses");
-		for (Iterator<Column> i = activeColumns.iterator(); i.hasNext();) {
-			Column activeColumn = (Column) i.next();
-			Synapse[] potentialSynapses = activeColumn.getPotentialSynapses();
-			for (int j = 0; j < potentialSynapses.length; j++) {
-				Synapse potentialSynapse = potentialSynapses[j];
+		for (Column activeColumn : activeColumns) {
+			for (Synapse potentialSynapse : activeColumn.getPotentialSynapses()) {
+
 				double permanance = potentialSynapse.getPermanance();
 				if (potentialSynapse.isActive(connectedPermanance)) {
 
@@ -199,9 +188,9 @@ public class SpatialPooler {
 
 		}
 		ArrayList<Integer> inhibitionRadiuses = new ArrayList<Integer>();
-		for (int i = 0; i < columns.length; i++) {
-			Column column = columns[i];
+		for (Column column : this.columns) {
 			double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column.getNeigbours())));
+			column.setMinimalDutyCycle(minimalDutyCycle);
 			column.calculateBoost(minimalDutyCycle);
 
 			double overlapDutyCycle = column.updateOverlapDutyCycle();
@@ -210,9 +199,7 @@ public class SpatialPooler {
 				column.increasePermanances(0.1 * connectedPermanance);
 				// logger.info("increasePermanances of all synapses of the column");
 			}
-			Synapse[] connectedSynapses = column.getConnectedSynapses(connectedPermanance);
-			for (int j = 0; j < connectedSynapses.length; j++) {
-				Synapse synapse = connectedSynapses[j];
+			for (Synapse synapse : column.getConnectedSynapses(connectedPermanance)) {
 
 				inhibitionRadiuses.add(Math.max(Math.abs(column.getxPos() - synapse.getxPos()), Math.abs(column
 						.getyPos()
@@ -222,8 +209,7 @@ public class SpatialPooler {
 
 		double averageReceptiveFieldSize = 0;
 
-		for (Iterator<Integer> iterator = inhibitionRadiuses.iterator(); iterator.hasNext();) {
-			Integer integer = (Integer) iterator.next();
+		for (Integer integer : inhibitionRadiuses) {
 			averageReceptiveFieldSize += integer;
 		}
 		averageReceptiveFieldSize = averageReceptiveFieldSize / inhibitionRadiuses.size();
@@ -232,8 +218,7 @@ public class SpatialPooler {
 		this.inhibitionRadius = averageReceptiveFieldSize;
 		logger.info("new inhib fac=" + this.inhibitionRadius);
 	}
-	
-	
+
 	public double getConnectedPermanance() {
 		return connectedPermanance;
 	}
@@ -249,9 +234,7 @@ public class SpatialPooler {
 		if (neighbors.size() > 0) {
 			highestNeighbor = neighbors.get(0);
 		}
-		for (Iterator<Column> iterator = neighbors.iterator(); iterator.hasNext();) {
-			Column neighbor = (Column) iterator.next();
-
+		for (Column neighbor : neighbors) {
 			if (neighbor.getActiveDutyCycle() > highestNeighbor.getActiveDutyCycle()) {
 				highestNeighbor = neighbor;
 			}
@@ -278,8 +261,7 @@ public class SpatialPooler {
 	private List<Column> getNeigbors(Column column) {
 
 		List<Column> neighbors = new ArrayList<Column>();
-		for (int g = 0; g < this.columns.length; g++) {
-			Column potentialNeigbor = this.columns[g];
+		for (Column potentialNeigbor : this.columns) {
 			int xposColPlusIn = (int) (column.getxPos() + Math.round(inhibitionRadius));
 			int yposColPlusIn = (int) (column.getyPos() + Math.round(inhibitionRadius));
 			int xposColMinIn = (int) (column.getxPos() - Math.round(inhibitionRadius));

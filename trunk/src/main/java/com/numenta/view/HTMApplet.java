@@ -1,4 +1,3 @@
-
 package com.numenta.view;
 
 import java.applet.Applet;
@@ -77,11 +76,10 @@ public class HTMApplet extends Applet {
 		submitButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("sparse"))
-					createSparseDistributedRep();
+				if (e.getActionCommand().equals("sparse")) createSparseDistributedRep();
 			}
 		});
-		add(submitButton);	
+		add(submitButton);
 
 		Button reset = new Button("reset");
 		reset.addActionListener(new ActionListener() {
@@ -156,17 +154,17 @@ public class HTMApplet extends Applet {
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
 		}
-		this.loggedColum=null;
+		this.loggedColum = null;
 		draw();
 	}
-	
+
 	@Override
 	public void paint(Graphics graphics) {
 		graphics.drawImage(image, 0, 0, this);
 	}
 
 	private void mouseOver(int x, int y) {
-		
+
 		int index = -1;
 		outer: for (int yy = 0; yy < 12; yy++) {
 
@@ -182,7 +180,7 @@ public class HTMApplet extends Applet {
 								black = true;
 							}
 							mousePressed = false;
-							
+
 						} else {
 							if (mouseDragged) {
 
@@ -194,7 +192,7 @@ public class HTMApplet extends Applet {
 
 									setInputValue(index, 0);
 								}
-								
+
 							} else {
 
 								if (input[index] == 1) {
@@ -206,7 +204,7 @@ public class HTMApplet extends Applet {
 
 									setInputValue(index, 1);
 								}
-								
+
 							}
 
 							repaint();
@@ -217,7 +215,7 @@ public class HTMApplet extends Applet {
 
 						if (x > 19 * xx + 260 && x < 19 * xx + 260 + 16) {
 							if (!mousePressed) {
-							logColumn(spat.getColumns()[index], xx, yy);
+								logColumn(spat.getColumns()[index], xx, yy);
 							}
 							if (mousePressed) {
 								mousePressed = false;
@@ -230,54 +228,58 @@ public class HTMApplet extends Applet {
 		}
 	}
 
-	private void logColumn(Column column, int xx, int yy) {		
+	private void logColumn(Column column, int xx, int yy) {
 
-			//delete the blue dot if there is one
-		if (!(mouseDragged && loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum.getyPos() == column.getyPos())) {
-		
-			if(loggedColum!=null){
+		// delete the blue dot if there is one
+		if (!(mouseDragged && loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum
+				.getyPos() == column.getyPos())) {
+
+			if (loggedColum != null) {
 				if (loggedColum.isActive()) {
 					graphics.setColor(Color.RED);
-				} else{
+				} else {
 					graphics.setColor(Color.WHITE);
 				}
-				graphics.fillOval(19 * this.loggedColum.getxPos() + 5 + 260, 99 + 19 * this.loggedColum.getyPos() + 6, 6, 6);
+				graphics.fillOval(19 * this.loggedColum.getxPos() + 5 + 260, 99 + 19 * this.loggedColum.getyPos() + 6,
+						6, 6);
 			}
-			
-			if (loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum.getyPos() == column.getyPos() ) {
+
+			if (loggedColum != null && this.loggedColum.getxPos() == column.getxPos()
+					&& this.loggedColum.getyPos() == column.getyPos()) {
 				this.loggedColum = null;
 				reDraw();
 				repaint();
 				// we click on a new column
 			} else {
-				this.loggedColum = column;			
+				this.loggedColum = column;
 				graphics.setColor(Color.blue);
 				graphics.fillOval(19 * xx + 5 + 260, 99 + 19 * yy + 6, 6, 6);
 				reDraw();
 				logSynapses(column);
-				
+
 			}
 		}
-		
+
 	}
-	
-	private void logSynapses(Column column){
-		
-		graphics.setColor(Color.black);				
+
+	private void logSynapses(Column column) {
+
+		graphics.setColor(Color.black);
 		if (column.getNeigbours() != null) {
 			String columnBoost = df2.format(column.getBoost());
 
-			String minimalLocalActivity =df2.format(column.getMinimalLocalActivity());
-			String overlap =df2.format(column.getOverlap());
-			String overlapDutyCycle =df2.format(column.getOverlapDutyCycle());
-			String activeDutyCycle =df2.format(column.getActiveDutyCycle());
+			String minimalLocalActivity = df2.format(column.getMinimalLocalActivity());
+			String overlap = df2.format(column.getOverlap());
+			String overlapDutyCycle = df2.format(column.getOverlapDutyCycle());
+			String activeDutyCycle = df2.format(column.getActiveDutyCycle());
+			String minimalDutyCycle = df2.format(column.getMinimalDutyCycle());
 
-			graphics.drawString("Col " + column.getxPos() + "," + column.getyPos() +" bst=" + columnBoost
-					+ " nghbrs=" + column.getNeigbours().size() + " ovl=" + overlap
-					+ " min.loc.act=" + minimalLocalActivity
-					+" ovl.dut.cy="+overlapDutyCycle
-					+" act.dut.cy="+activeDutyCycle, 0, 340);
+			graphics.drawString("C " + column.getxPos() + "," + column.getyPos() + " bst=" + columnBoost + " nbrs="
+					+ column.getNeigbours().size() + " ovl=" + overlap + " m.loc.act=" + minimalLocalActivity
+					+ " o.d.cy=" + overlapDutyCycle + " a.d.cy=" + activeDutyCycle + " m.d.cy=" + minimalDutyCycle, 0,
+					340);
 		}
+
 		for (int i = 0; i < column.getPotentialSynapses().length; i++) {
 			Synapse potentialSynapse = column.getPotentialSynapses()[i];
 			if (potentialSynapse.isActive(spat.getConnectedPermanance())) {
@@ -286,17 +288,16 @@ public class HTMApplet extends Applet {
 				graphics.setColor(Color.RED);
 			}
 			String permanance = df2.format(potentialSynapse.getPermanance());
-			
-			graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos()
-					+ " perm=" + permanance + " input=" + potentialSynapse.getSourceInput() + " active="
+
+			graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos() + " perm="
+					+ permanance + " input=" + potentialSynapse.getSourceInput() + " active="
 					+ potentialSynapse.isActive(spat.getConnectedPermanance()), 0, 354 + 16 * i);
 			// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
-			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5,
-					6, 6);
-		}		
+			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5, 6, 6);
+		}
 		repaint();
 	}
-		
+
 	/**
 	 * Draws the inputspace and columns.Without input/output
 	 */
@@ -310,13 +311,14 @@ public class HTMApplet extends Applet {
 		}
 		repaint();
 	}
+
 	private void reDraw() {
 		graphics.clearRect(0, 100, 260, 230);
 		graphics.clearRect(0, 330, 500, 750);
 		int j = 0;
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
-				
+
 				if (input[j] == 0) {
 					graphics.setColor(Color.black);
 					graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
@@ -335,7 +337,7 @@ public class HTMApplet extends Applet {
 		graphics.setColor(Color.black);
 		// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 		graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
-		if(loggedColum!=null){
+		if (loggedColum != null) {
 			logSynapses(loggedColum);
 		}
 	}
@@ -346,15 +348,15 @@ public class HTMApplet extends Applet {
 		graphics.setColor(Color.black);
 		graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
 
-		if(loggedColum!=null){
+		if (loggedColum != null) {
 			logSynapses(loggedColum);
 		}
 	}
-		
+
 	private void setInputValue(int index, int value) {
-			input[index] = value;
+		input[index] = value;
 	}
-	
+
 	public void createSparseDistributedRep() {
 
 		spat.conectSynapsesToInputSpace(input);
@@ -383,18 +385,18 @@ public class HTMApplet extends Applet {
 				j++;
 			}
 		}
-		//if we are currently logging a column
-		if (this.loggedColum!=null) {
+		// if we are currently logging a column
+		if (this.loggedColum != null) {
 			reDraw();
 			logSynapses(loggedColum);
 			graphics.setColor(Color.BLUE);
 			graphics.fillOval(19 * loggedColum.getxPos() + 5 + 260, 99 + 19 * loggedColum.getyPos() + 6, 6, 6);
 		}
-		
+
 		repaint();
-//		 tempo.setActiveColumns(spat.getActiveColumns());
-//		 tempo.computeActiveState();
-//		 tempo.computeActiveState();
-		 
+		// tempo.setActiveColumns(spat.getActiveColumns());
+		// tempo.computeActiveState();
+		// tempo.computeActiveState();
+
 	}
 }
