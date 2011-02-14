@@ -2,17 +2,14 @@ package com.numenta.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class Column implements Comparable<Column> {
-
-	private Logger				logger								= Logger.getLogger(this.getClass().getName());
 
 	private int					xPos;
 
 	private int					yPos;
 
-	private double				boost								= 1.0;											// TODO
+	private double				boost								= 1.0;						// TODO
 
 	// choose
 	// reasonable
@@ -38,6 +35,10 @@ public class Column implements Comparable<Column> {
 	 */
 	private double				activeDutyCycle;
 
+	private double				minimalLocalActivity;
+
+	private double				minimalDutyCycle;
+
 	/*
 	 * A sliding average representing how often column c has had significant overlap (i.e. greater than minOverlap) with
 	 * its inputs (e.g. over the last 1000 iterations).
@@ -47,43 +48,7 @@ public class Column implements Comparable<Column> {
 	// for temoral pooler
 	public static int			CELLS_PER_COLUMN					= 3;
 
-	private boolean[]			predictiveStatesBefore				= new boolean[CELLS_PER_COLUMN];
-
-	private boolean[]			predictiveStatesNow					= new boolean[CELLS_PER_COLUMN];
-
-	// private boolean[]activeStatesBefore=new boolean[CELLS_PER_COLUMN];
-	private boolean[]			activeStatesNow						= new boolean[CELLS_PER_COLUMN];
-
 	private Cell[]				cells;
-
-	private double				minimalLocalActivity;
-
-	private double				minimalDutyCycle;
-
-	// for temoral pooler
-	// public boolean[] getActiveStatesBefore() {
-	// return activeStatesBefore;
-	// }
-	//
-	// public void setActiveStatesBefore(boolean[] activeStatesBefore) {
-	// this.activeStatesBefore = activeStatesBefore;
-	// }
-
-	public boolean[] getActiveStatesNow() {
-		return activeStatesNow;
-	}
-
-	public void setActiveStatesNow(boolean[] activeStatesNow) {
-		this.activeStatesNow = activeStatesNow;
-	}
-
-	public boolean[] getPredictiveStatesNow() {
-		return predictiveStatesNow;
-	}
-
-	public void setPredictiveStatesNow(boolean[] predictiveStatesNow) {
-		this.predictiveStatesNow = predictiveStatesNow;
-	}
 
 	public static int getCELLS_PER_COLUMN() {
 		return CELLS_PER_COLUMN;
@@ -91,14 +56,6 @@ public class Column implements Comparable<Column> {
 
 	public static void setCELLS_PER_COLUMN(int cELLSPERCOLUMN) {
 		CELLS_PER_COLUMN = cELLSPERCOLUMN;
-	}
-
-	public boolean[] getPredictiveStatesBefore() {
-		return predictiveStatesBefore;
-	}
-
-	public void setPredictiveStatesBefore(boolean[] predictiveStatesBefore) {
-		this.predictiveStatesBefore = predictiveStatesBefore;
 	}
 
 	public int getxPos() {
