@@ -22,8 +22,7 @@ public class Column implements Comparable<Column> {
 
 	private boolean				active;
 
-	// public static int MINIMAL_OVERLAP = 4;// TODO choose reasonable overlap
-	private double				minimalDesiredDutyCycle;
+	// private double minimalDesiredDutyCycle;
 
 	private ArrayList<Boolean>	activeList							= new ArrayList<Boolean>();
 
@@ -58,6 +57,8 @@ public class Column implements Comparable<Column> {
 	private Cell[]				cells;
 
 	private double				minimalLocalActivity;
+
+	private double				minimalDutyCycle;
 
 	// for temoral pooler
 	// public boolean[] getActiveStatesBefore() {
@@ -156,12 +157,20 @@ public class Column implements Comparable<Column> {
 		return activeDutyCycle;
 	}
 
-	public double getMinimalDesiredDutyCycle() {
-		return minimalDesiredDutyCycle;
+	// public double getMinimalDesiredDutyCycle() {
+	// return minimalDesiredDutyCycle;
+	// }
+	//
+	// public void setMinimalDesiredDutyCycle(double minimalDesiredDutyCycle) {
+	// this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
+	// }
+
+	public double getMinimalDutyCycle() {
+		return minimalDutyCycle;
 	}
 
-	public void setMinimalDesiredDutyCycle(double minimalDesiredDutyCycle) {
-		this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
+	public void setMinimalDutyCycle(double minimalDutyCycle) {
+		this.minimalDutyCycle = minimalDutyCycle;
 	}
 
 	public double getOverlap() {
@@ -190,8 +199,7 @@ public class Column implements Comparable<Column> {
 
 	public Synapse[] getConnectedSynapses(double connectedPermanance) {
 		ArrayList<Synapse> connectedSynapses = new ArrayList<Synapse>();
-		for (int i = 0; i < potentialSynapses.length; i++) {
-			Synapse potentialSynapse = potentialSynapses[i];
+		for (Synapse potentialSynapse : this.potentialSynapses) {
 			if (potentialSynapse.isActive(connectedPermanance)) {
 				connectedSynapses.add(potentialSynapse);
 			}
@@ -212,23 +220,17 @@ public class Column implements Comparable<Column> {
 	}
 
 	public void increasePermanances(double d) {
-		for (int i = 0; i < this.potentialSynapses.length; i++) {
-			Synapse potenSynapse = potentialSynapses[i];
+		for (Synapse potenSynapse : potentialSynapses) {
 			potenSynapse.setPermanance(potenSynapse.getPermanance() + d);
 		}
 
 	}
 
-	public Segment getActiveSegment(int cell, int time, String activeState) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public double updateOverlapDutyCycle() {
 
 		int totalGt = 0;
-		for (int i = 0; i < timesGreaterOverlapThanMinOverlap.size(); i++) {
-			if (timesGreaterOverlapThanMinOverlap.get(i)) {
+		for (boolean greater : this.timesGreaterOverlapThanMinOverlap) {
+			if (greater) {
 				totalGt++;
 			}
 		}
@@ -242,13 +244,11 @@ public class Column implements Comparable<Column> {
 	// Computes a moving average of how often column c has been active after
 	// inhibition.
 
-	
-
 	public double updateActiveDutyCycle() {
 
 		int totalActive = 0;
-		for (int i = 0; i < activeList.size(); i++) {
-			if (activeList.get(i)) {
+		for (boolean active : activeList) {
+			if (active) {
 				totalActive++;
 			}
 		}
@@ -305,4 +305,5 @@ public class Column implements Comparable<Column> {
 	public double getMinimalLocalActivity() {
 		return minimalLocalActivity;
 	}
+
 }
