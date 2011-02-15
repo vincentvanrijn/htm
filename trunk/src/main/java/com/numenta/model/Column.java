@@ -19,8 +19,6 @@ public class Column implements Comparable<Column> {
 
 	private boolean				active;
 
-	// private double minimalDesiredDutyCycle;
-
 	private ArrayList<Boolean>	activeList							= new ArrayList<Boolean>();
 
 	private ArrayList<Boolean>	timesGreaterOverlapThanMinOverlap	= new ArrayList<Boolean>();
@@ -47,8 +45,6 @@ public class Column implements Comparable<Column> {
 
 	// for temoral pooler
 	public static int			CELLS_PER_COLUMN					= 3;
-
-	private Cell[]				cells;
 
 	public static int getCELLS_PER_COLUMN() {
 		return CELLS_PER_COLUMN;
@@ -113,14 +109,6 @@ public class Column implements Comparable<Column> {
 	public double getActiveDutyCycle() {
 		return activeDutyCycle;
 	}
-
-	// public double getMinimalDesiredDutyCycle() {
-	// return minimalDesiredDutyCycle;
-	// }
-	//
-	// public void setMinimalDesiredDutyCycle(double minimalDesiredDutyCycle) {
-	// this.minimalDesiredDutyCycle = minimalDesiredDutyCycle;
-	// }
 
 	public double getMinimalDutyCycle() {
 		return minimalDutyCycle;
@@ -247,11 +235,6 @@ public class Column implements Comparable<Column> {
 			}
 		}
 		return returnValue;
-	}
-
-	public Cell[] getCells() {
-
-		return this.cells;
 	}
 
 	public void setMinimalLocalActivity(double minimalLocalActivity) {
