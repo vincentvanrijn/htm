@@ -6,12 +6,26 @@ import com.numenta.model.Synapse;
 
 public class SegmentUpdate {
 
-	private boolean sequenceSegment;
-	private int segmentUpdateIndex;
-	private List<Synapse> activeSynapses;
-	public static boolean POSITIVE_REINFORCEMENT=true;
-	public static boolean NO_POSITIVE_REINFORCEMENT=false;
-	
+	private boolean	sequenceSegment;
+
+	private int		segmentUpdateIndex;
+
+	private int		cellIndex;
+
+	public int getCellIndex() {
+		return cellIndex;
+	}
+
+	public void setCellIndex(int cellIndex) {
+		this.cellIndex = cellIndex;
+	}
+
+	private List<Synapse>	activeSynapses;
+
+	public static boolean	POSITIVE_REINFORCEMENT		= true;
+
+	public static boolean	NO_POSITIVE_REINFORCEMENT	= false;
+
 	public int getSegmentUpdateIndex() {
 		return segmentUpdateIndex;
 	}
@@ -33,8 +47,8 @@ public class SegmentUpdate {
 	}
 
 	public void setSequenceSegment(boolean sequenceSegment) {
-		this.sequenceSegment=sequenceSegment;
-		
+		this.sequenceSegment = sequenceSegment;
+
 	}
 
 }
