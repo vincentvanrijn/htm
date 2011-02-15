@@ -72,7 +72,7 @@ public class TemporalPooler {
 
 				cells[c][cell.getCellIndex()][Cell.NOW].setLearnState(true);
 				// TODO implementgetSegmentActiveSynapses
-				SegmentUpdate sUpdate = getSegmentActiveSynapses(c, cell.getCellIndex(), segment, 0, true);
+				SegmentUpdate sUpdate = getSegmentActiveSynapses(c, cell.getCellIndex(), segment, Cell.BEFORE, true);
 				sUpdate.setSequenceSegment(true);
 				cell.getSegmentUpdateList().add(sUpdate);
 			}
