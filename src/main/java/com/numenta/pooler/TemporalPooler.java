@@ -46,7 +46,7 @@ public class TemporalPooler {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
 				if (cells[c][i][Cell.BEFORE].hasPredictiveState()) {
-					System.out.println("predicted before ");
+					// System.out.println("predicted before ");
 					Segment segment = getActiveSegment(c, i, Cell.BEFORE, Cell.ACTIVE_STATE);
 					if (segment.isSsequenceSegment()) {
 						buPredicted = true;
