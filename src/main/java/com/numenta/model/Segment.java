@@ -14,23 +14,33 @@ public class Segment implements Comparable<Segment> {
 	private boolean					sequenceSegment;
 	
 	private int cellIndex;
+	private int						segmentIndex;
+
+	private int columnIndex;
+
+	public Segment(int c, int i, int s, List<LateralSynapse> synapses) {
+		this.columnIndex=c;
+		this.cellIndex=i;
+		this.segmentIndex=s;
+		this.synapses=synapses;
+	}
 
 	public int getCellIndex() {
 		return cellIndex;
 	}
 
-	public void setCellIndex(int cellIndex) {
-		this.cellIndex = cellIndex;
-	}
+	
 
-	private int						SegmentIndex;
+
 
 	public int getSegmentIndex() {
-		return SegmentIndex;
+		return segmentIndex;
 	}
 
-	public void setSegmentIndex(int segmentIndex) {
-		SegmentIndex = segmentIndex;
+	
+
+	public int getColumnIndex() {
+		return columnIndex;
 	}
 
 	public List<LateralSynapse> getSynapses() {
