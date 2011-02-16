@@ -58,6 +58,22 @@ public class TemporalPooler {
 			}
 		}
 	}
+	
+//	private List<Cell> getNeighbors(){
+//		List<Column> neighbors = new ArrayList<Column>();
+//		for (Column potentialNeigbor : this.columns) {
+//			int xposColPlusIn = (int) (column.getxPos() + Math.round(inhibitionRadius));
+//			int yposColPlusIn = (int) (column.getyPos() + Math.round(inhibitionRadius));
+//			int xposColMinIn = (int) (column.getxPos() - Math.round(inhibitionRadius));
+//			int yposColMinIn = (int) (column.getyPos() - Math.round(inhibitionRadius));
+//			if ((xposColPlusIn >= potentialNeigbor.getxPos()) && (yposColPlusIn >= potentialNeigbor.getyPos())
+//					&& (xposColMinIn <= potentialNeigbor.getxPos())
+//					&& (yposColMinIn <= potentialNeigbor.getyPos() && column != potentialNeigbor)) {
+//				neighbors.add(potentialNeigbor);
+//			}
+//		}
+//		
+//	}
 
 	public void computeActiveState() {
 		for (int c = 0; c < activeColumns.length; c++) {
