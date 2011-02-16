@@ -7,11 +7,13 @@ import com.numenta.model.Synapse;
 
 public class SegmentUpdate {
 
-	public SegmentUpdate(int segmentUpdateIndex, int cellIndex,
+	public SegmentUpdate(int columnIndex, int cellIndex,int segmentUpdateIndex, 
 			List<LateralSynapse> activeSynapses) {
 		super();
-		this.segmentUpdateIndex = segmentUpdateIndex;
+
 		this.cellIndex = cellIndex;
+		this.columnIndex=columnIndex;
+		this.segmentUpdateIndex = segmentUpdateIndex;
 		
 		this.activeSynapses = activeSynapses;
 	}

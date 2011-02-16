@@ -1,10 +1,8 @@
 package com.numenta.pooler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +10,6 @@ import com.numenta.model.Cell;
 import com.numenta.model.Column;
 import com.numenta.model.LateralSynapse;
 import com.numenta.model.Segment;
-import com.numenta.model.Synapse;
 import com.numenta.model.helper.SegmentUpdate;
 
 public class TemporalPooler {
@@ -24,8 +21,12 @@ public class TemporalPooler {
 	private static int			ACTIVATION_TRESHOLD	= 0;//TODO choose value
 
 	private static int			AMMOUNT_TIME		= 2;
+	private static int			AMMOUNT_OF_SEGMENTS	= 10;//TODO choose value
+	private static int			AMMOUNT_OF_SYNAPSES	= 10;//TODO choose value
 
-	private static int NEW_SYNAPSE_COUNT;//TODO choose value
+	private static int 			NEW_SYNAPSE_COUNT;//TODO choose valuee
+	
+	private static int			LEARNING_RADIUS; //TODO choose value
 
 	private Column[]			activeColumns;
 
@@ -34,11 +35,25 @@ public class TemporalPooler {
 	public void init() {
 		//TODO choose a reasonable connectedpermanance
 		LateralSynapse.setConnectedPermanance(1);
-		for (int i = 0; i < SpatialPooler.AMMOUNT_OF_COLLUMNS; i++) {
-			for (int j = 0; j < Column.CELLS_PER_COLUMN; j++) {
+		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 				for (int t = 0; t < TemporalPooler.AMMOUNT_TIME; t++) {
 
-					cells[i][j][t] = new Cell(i, j, 1);
+					cells[c][i][t] = new Cell(c, i, t);
+					List<Segment> segments=new ArrayList<Segment> ();
+					for(int s=0;s<AMMOUNT_OF_SEGMENTS;s++){
+						List<LateralSynapse> synapses=new ArrayList<LateralSynapse>();
+						for(int y=0;y<AMMOUNT_OF_SYNAPSES;y++){
+							//TODO permanance
+							//TODO connect to cells
+							
+							//Get all cells in the area of this cells'Learning radius
+							synapses.add(new LateralSynapse(c,i,s,y));
+						}
+
+						segments.add(new Segment(c,i,s,synapses));
+					}
+					
 				}
 			}
 		}
@@ -76,7 +91,7 @@ public class TemporalPooler {
 				Segment segment = getBestMatchingSegment(c, cell.getCellIndex(), Cell.BEFORE);
 
 				cells[c][cell.getCellIndex()][Cell.NOW].setLearnState(true);
-				SegmentUpdate sUpdate = getSegmentActiveSynapses(c, cell.getCellIndex(), segment, Cell.BEFORE, true);
+				SegmentUpdate sUpdate = getSegmentActiveSynapses(c, cell.getCellIndex(), segment, Cell.BEFORE, Segment.GETS_NEW_SYNAPSE);
 				sUpdate.setSequenceSegment(true);
 				cell.getSegmentUpdateList().add(sUpdate);
 			}
@@ -117,17 +132,15 @@ public class TemporalPooler {
 
 				Cell cell = cells[c][i][Cell.NOW];
 
-				if (cells[c][i][1].hasLearnState()) {
-					// TODO implement adaptSegments
+				if (cells[c][i][Cell.NOW].hasLearnState()) {
 					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.POSITIVE_REINFORCEMENT);
-					cell.setSegmentUpdateList(null);
+					cell.getSegmentUpdateList().clear();
 
 				} else
 					if (!cells[c][i][Cell.NOW].hasPredictiveState() && cells[c][i][Cell.BEFORE].hasPredictiveState()) {
 
-						// TODO implement adaptSegments
 						adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.NO_POSITIVE_REINFORCEMENT);
-						cell.setSegmentUpdateList(null);
+						cell.getSegmentUpdateList().clear();
 
 					}
 			}
@@ -191,8 +204,8 @@ public class TemporalPooler {
 				}
 				Cell cell=cells[segmentUpdate.getColumnIndex()][segmentUpdate.getCellIndex()][Cell.NOW];
 				Segment segment=cell.getSegments().get(segmentUpdate.getSegmentUpdateIndex());
-				if(segment.getSynapses().size()> synapse.getSegmentIndex()){
-					synapse.setPermanance(synapse.getPermanance()+LateralSynapse.INITIAL_PERM);
+				if(segment.getSynapses().size()> synapse.getSegmentIndex()){//this is a new segment
+					synapse.setPermanance(LateralSynapse.INITIAL_PERM);
 				} else{
 					segment.getSynapses().add(synapse);
 				}
@@ -282,7 +295,7 @@ public class TemporalPooler {
 					
 				}
 			} 
-			returnValue = new SegmentUpdate(segment.getSegmentIndex(),i,activeSynapses);
+			returnValue = new SegmentUpdate(c,i,segment.getSegmentIndex(),activeSynapses);
 		}
 		
 		return returnValue;
@@ -307,6 +320,7 @@ public class TemporalPooler {
 		List<Segment> segments = cell.getSegments();
 		return(getBestMatchingSegment(segments));
 	}
+	
 	private Segment getBestMatchingSegment(List<Segment> segments){
 		Segment returnValue=null;
 		Collections.sort(segments, new Comparator<Segment>() {

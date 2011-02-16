@@ -10,6 +10,19 @@ public class LateralSynapse {
 
 	private static double connectedPermanance;
 
+	private int synapseIndex;
+
+	public LateralSynapse(int c, int i, int s, int y) {
+		this.columnIndex=c;
+		this.cellIndex=i;
+		this.segmentIndex=s;
+		this.synapseIndex=y;
+	}
+	public LateralSynapse() {
+	}
+	public int getSynapseIndex() {
+		return synapseIndex;
+	}
 	public static void setConnectedPermanance(int connectedPermanance){
 		LateralSynapse.connectedPermanance=connectedPermanance;
 	}
