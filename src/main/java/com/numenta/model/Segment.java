@@ -1,5 +1,6 @@
 package com.numenta.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Segment implements Comparable<Segment> {
@@ -11,6 +12,16 @@ public class Segment implements Comparable<Segment> {
 	private List<LateralSynapse>	synapses;
 
 	private boolean					sequenceSegment;
+	
+	private int cellIndex;
+
+	public int getCellIndex() {
+		return cellIndex;
+	}
+
+	public void setCellIndex(int cellIndex) {
+		this.cellIndex = cellIndex;
+	}
 
 	private int						SegmentIndex;
 
@@ -24,6 +35,15 @@ public class Segment implements Comparable<Segment> {
 
 	public List<LateralSynapse> getSynapses() {
 		return synapses;
+	}
+	public List<LateralSynapse> getConnectedSynapses(){
+		List<LateralSynapse> connectedSynapses=new ArrayList<LateralSynapse>();
+		for (LateralSynapse synapse : synapses){
+			if( synapse.isActive()){
+				connectedSynapses.add(synapse);
+			}
+		}
+		return connectedSynapses;
 	}
 
 	public void setSynapses(List<LateralSynapse> synapses) {
@@ -39,19 +59,22 @@ public class Segment implements Comparable<Segment> {
 	}
 
 	public int compareTo(Segment segment) {
+		//1 sequence most activity
+		//2 sequence and active
+		//3 most activity
+		//4 least activity
 		int returnValue = 0;
-		if (this.getSynapses().size() > segment.getSynapses().size()
-				|| (this.getSynapses().size() == segment.getSynapses().size() && this.isSsequenceSegment())) {
-			returnValue = -1;
+		//
+		if(this.isSsequenceSegment()==segment.isSsequenceSegment()
+				&& this.getConnectedSynapses().size()==segment.getConnectedSynapses().size()){
+			returnValue=0;
+		} else if((this.isSsequenceSegment() && !segment.isSsequenceSegment()) ||
+				(this.isSsequenceSegment()==segment.isSsequenceSegment() &&
+						this.getConnectedSynapses().size()>segment.getConnectedSynapses().size())
+				){
+			returnValue=1;
 		} else {
-			if (this.getSynapses().size() < segment.getSynapses().size()
-					|| (this.getSynapses().size() == segment.getSynapses().size() && segment.isSsequenceSegment())) {
-				returnValue = 0;
-			} else {
-				if (this.getSynapses().size() == segment.getSynapses().size()) {
-					returnValue = 1;
-				}
-			}
+			returnValue=-1;
 		}
 		return returnValue;
 	}
