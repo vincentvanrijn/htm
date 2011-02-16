@@ -99,6 +99,8 @@ public class SpatialPooler {
 							+ (((double) random.nextInt(4)) / 10));
 					// logger.info(""+synapses[j].getPermanance());
 					int inputSpaceIndex = 0;
+					
+					//Collections.shuffle(list);
 					do {
 						inputSpaceIndex = random.nextInt(144);
 					} while (!synapsesToInput.add(inputSpaceIndex));

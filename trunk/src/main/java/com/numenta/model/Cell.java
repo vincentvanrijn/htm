@@ -25,7 +25,10 @@ public class Cell {
 	private int cellIndex;
 	private int time;
 	private boolean predictiveState;
-	
+	private boolean learnState;
+	private boolean activeState;
+
+
 	
 
 
@@ -44,9 +47,6 @@ public class Cell {
 	public boolean hasActiveState() {
 		return activeState;
 	}
-
-	private boolean learnState;
-	private boolean activeState;
 
 	
 
