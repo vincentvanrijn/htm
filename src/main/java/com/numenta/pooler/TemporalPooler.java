@@ -19,42 +19,37 @@ public class TemporalPooler {
 	 */
 	private static final int	MIN_TRESHOLD		= 0;																									// TODO
 
-	// choose
-	// value
+	// TODO choose value
 	/**
 	 * activationThreshold Activation threshold for a segment. If the number of active connected synapses in a segment
 	 * is greater than activationThreshold, the segment is said to be active.
 	 */
 	private static int			ACTIVATION_TRESHOLD	= 0;																									// TODO
 
-	// choose
-	// value
+	// TODO choose value
 
 	private static int			AMMOUNT_TIME		= 2;
 
 	private static int			AMMOUNT_OF_SEGMENTS	= 10;																									// TODO
 
-	// choose
-	// value
-
+	// TODO choose value
 	private static int			AMMOUNT_OF_SYNAPSES	= 10;																									// TODO
 
-	// choose
-	// value
+	// TODO choose value
 	/**
 	 * newSynapseCount The maximum number of synapses added to a segment during learning.
 	 */
 	private static int			NEW_SYNAPSE_COUNT;																											// TODO
 
-	// choose
-	// valuee
+	// TODO choose value
+
 	/**
 	 * learningRadius The area around a temporal pooler cell from which it can get lateral connections.
 	 */
 	private static int			LEARNING_RADIUS;																											// TODO
 
-	// choose
-	// value
+	// TODO choose value
+
 	/**
 	 * activeColumns(t) List of column indices that are winners due to bottom-up input (this is the output of the
 	 * spatial pooler).
