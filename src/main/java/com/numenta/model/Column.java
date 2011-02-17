@@ -5,6 +5,15 @@ import java.util.List;
 
 public class Column implements Comparable<Column> {
 
+	private int columnIndex;
+	public int getColumnIndex() {
+		return columnIndex;
+	}
+
+	public void setColumnIndex(int columnIndex) {
+		this.columnIndex = columnIndex;
+	}
+
 	private int					xPos;
 
 	private int					yPos;
