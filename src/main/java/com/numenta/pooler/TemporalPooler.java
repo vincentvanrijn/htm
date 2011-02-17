@@ -64,6 +64,13 @@ public class TemporalPooler {
 
 	public void init() {
 		// TODO choose a reasonable connectedpermanance
+
+		ArrayList<Integer> collumnIndexes = new ArrayList<Integer>();
+		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+			collumnIndexes.add(c);
+
+		}
+		Random random = new Random();
 		LateralSynapse.setConnectedPermanance(1);
 		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
@@ -73,17 +80,24 @@ public class TemporalPooler {
 					List<Segment> segments = new ArrayList<Segment>();
 					for (int s = 0; s < AMMOUNT_OF_SEGMENTS; s++) {
 						List<LateralSynapse> synapses = new ArrayList<LateralSynapse>();
+						Collections.shuffle(collumnIndexes);
 						for (int y = 0; y < AMMOUNT_OF_SYNAPSES; y++) {
+
 							// TODO permanance
 							// TODO connect to cells
 
-							// Get all cells in the area of this cells'Learning radius
-							synapses.add(new LateralSynapse(c, i, s, y));
+							// Get all cells in the area of this cells'Learning
+							// radius
+							LateralSynapse synapse = new LateralSynapse(c, i,
+									s, y, collumnIndexes.get(y), random
+											.nextInt(3));
+							synapses.add(synapse);
+							// System.out.println(c+","+i+","+s+","+y+","+synapse.getFromColumnIndex()+","+synapse.getFromCellIndex());
 						}
 
 						segments.add(new Segment(c, i, s, synapses));
 					}
-
+					cells[c][i][t].setSegments(segments);
 				}
 			}
 		}

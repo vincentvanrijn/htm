@@ -58,7 +58,7 @@ public class Cell {
 		this.predictiveState = predictiveState;
 	}
 
-	private ArrayList<Segment>	segments;
+	private List<Segment>	segments;
 
 	public boolean hasActiveState() {
 		return activeState;
@@ -86,7 +86,7 @@ public class Cell {
 		this.cellIndex = cellIndex;
 	}
 
-	public ArrayList<Segment> getSegments() {
+	public List<Segment> getSegments() {
 		return segments;
 	}
 
@@ -110,6 +110,11 @@ public class Cell {
 	public void seActiveState(boolean activeState) {
 		this.activeState = activeState;
 
+	}
+
+	public void setSegments(List<Segment> segments) {
+		this.segments=segments;
+		
 	}
 
 }
