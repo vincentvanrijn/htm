@@ -15,23 +15,54 @@ public class SpatialPooler {
 
 	public static final int		AMMOUNT_OF_COLLUMNS			= 144;
 
+	/**
+	 * desiredLocalActivity A parameter controlling the number of columns that will be winners after the inhibition
+	 * step.
+	 */
+
 	private int					desiredLocalActivity		= 3;
+
+	/**
+	 * connectedPerm If the permanence value for a synapse is greater than this value, it is said to be connected.
+	 */
 
 	private double				connectedPermanance			= 0.7;
 
+	/**
+	 * minOverlap A minimum number of inputs that must be active for a column to be considered during the inhibition
+	 * step.
+	 */
+
 	private int					minimalOverlap				= 4;
 
+	/**
+	 * permanenceDec Amount permanence values of synapses are decremented during learning.
+	 */
 	private double				permananceDec				= 0.05;
 
+	/**
+	 * permanenceInc Amount permanence values of synapses are incremented during learning.
+	 */
 	private double				permananceInc				= 0.05;
 
 	private int					amountOfSynapses			= 10;
 
+	/**
+	 * inhibitionRadius Average connected receptive field size of the columns.
+	 */
+
 	private double				inhibitionRadius			= 5.0;
 
+	/**
+	 * columns List of all columns.
+	 */
 	private Column[]			columns;
 
 	private double				connectedPermananceMarge	= 0.2;
+
+	/**
+	 * activeColumns(t) List of column indices that are winners due to bottom-up input.
+	 */
 
 	public ArrayList<Column>	activeColumns				= new ArrayList<Column>();
 
@@ -75,6 +106,16 @@ public class SpatialPooler {
 		init();
 	}
 
+	/**
+	 * Initialization Prior to receiving any inputs, the region is initialized by computing a list of initial potential
+	 * synapses for each column. This consists of a random set of inputs selected from the input space. Each input is
+	 * represented by a synapse and assigned a random permanence value. The random permanence values are chosen with two
+	 * criteria. First, the values are chosen to be in a small range around connectedPerm (the minimum permanence value
+	 * at which a synapse is considered "connected"). This enables potential synapses to become connected (or
+	 * disconnected) after a small number of training iterations. Second, each column has a natural center over the
+	 * input region, and the permanence values have a bias towards this center (they have higher values near the
+	 * center).
+	 */
 	public void init() {
 		// logger.log(Level.INFO, "SpatialPooler");
 		columns = new Column[AMMOUNT_OF_COLLUMNS];
@@ -99,8 +140,8 @@ public class SpatialPooler {
 							+ (((double) random.nextInt(4)) / 10));
 					// logger.info(""+synapses[j].getPermanance());
 					int inputSpaceIndex = 0;
-					
-					//Collections.shuffle(list);
+
+					// Collections.shuffle(list);
 					do {
 						inputSpaceIndex = random.nextInt(144);
 					} while (!synapsesToInput.add(inputSpaceIndex));
@@ -121,6 +162,11 @@ public class SpatialPooler {
 		return inhibitionRadius;
 	}
 
+	/**
+	 * Phase 1: Overlap Given an input vector, the first phase calculates the overlap of each column with that vector.
+	 * The overlap for each column is simply the number of connected synapses with active inputs, multiplied by its
+	 * boost. If this value is below minOverlap, we set the overlap score to zero.
+	 */
 	public void computOverlap() {
 		// logger.log(Level.FINE, "computOverlap");
 		for (Column column : this.columns) {
@@ -145,6 +191,12 @@ public class SpatialPooler {
 		}
 	}
 
+	/**
+	 * Phase 2: Inhibition The second phase calculates which columns remain as winners after the inhibition step.
+	 * desiredLocalActivity is a parameter that controls the number of columns that end up winning. For example, if
+	 * desiredLocalActivity is 10, a column will be a winner if its overlap score is greater than the score of the 10'th
+	 * highest column within its inhibition radius.
+	 */
 	public void computeWinningColumsAfterInhibition() {
 
 		// logger.log(Level.FINE, "computeWinningColumsAfterInhibition");
@@ -167,6 +219,17 @@ public class SpatialPooler {
 		}
 	}
 
+	/**
+	 * Phase 3: Learning The third phase performs learning; it updates the permanence values of all synapses as
+	 * necessary, as well as the boost and inhibition radius. The main learning rule is implemented in lines 20-26. For
+	 * winning columns, if a synapse is active, its permanence value is incremented, otherwise it is decremented.
+	 * Permanence values are constrained to be between 0 and 1. Lines 28-36 implement boosting. There are two separate
+	 * boosting mechanisms in place to help a column learn connections. If a column does not win often enough (as
+	 * measured by activeDutyCycle), its overall boost value is increased (line 30-32). Alternatively, if a column's
+	 * connected synapses do not overlap well with any inputs often enough (as measured by overlapDutyCycle), its
+	 * permanence values are boosted (line 34-36). Note: once learning is turned off, boost(c) is frozen. Finally, at
+	 * the end of Phase 3 the inhibition radius is recomputed (line 38).
+	 */
 	public void updateSynapses() {
 		// logger.log(Level.FINE, "updateSynapses");
 		for (Column activeColumn : activeColumns) {
@@ -221,6 +284,14 @@ public class SpatialPooler {
 		logger.info("new inhib fac=" + this.inhibitionRadius);
 	}
 
+	/**
+	 * averageReceptiveFieldSize() The radius of the average connected receptive field size of all the columns. The
+	 * connected receptive field size of a column includes only the connected synapses (those with permanence values >=
+	 * connectedPerm). This is used to determine the extent of lateral inhibition between columns.
+	 * 
+	 * @return
+	 */
+
 	public double getConnectedPermanance() {
 		return connectedPermanance;
 	}
@@ -230,6 +301,12 @@ public class SpatialPooler {
 		return sourceInput;
 	}
 
+	/**
+	 * maxDutyCycle(cols) Returns the maximum active duty cycle of the columns in the given list of columns.
+	 * 
+	 * @param neighbors
+	 * @return
+	 */
 	private double getMaxDutyCycle(List<Column> neighbors) {
 
 		Column highestNeighbor = null;
@@ -245,14 +322,18 @@ public class SpatialPooler {
 		return highestNeighbor.getActiveDutyCycle();
 	}
 
+	/**
+	 * kthScore(cols, k) Given the list of columns, return the k'th highest overlap value.
+	 * 
+	 * @param neighbors
+	 * @param disiredLocalActivity
+	 * @return
+	 */
 	private double kthScore(List<Column> neighbors, int disiredLocalActivity) {
 
 		if (disiredLocalActivity > neighbors.size()) {
 			disiredLocalActivity = neighbors.size();
 		}
-		// get the overlap of the column that has number <disiredActivity> in
-		// overlap
-		// logger.log(Level.INFO, "amountofNeigbors="+neigbours.length);
 
 		Collections.sort(neighbors);
 		double ktScore = neighbors.get(disiredLocalActivity - 1).getOverlap();

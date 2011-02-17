@@ -5,26 +5,32 @@ import java.util.List;
 import com.numenta.model.LateralSynapse;
 import com.numenta.model.Synapse;
 
+/**
+ * segmentUpdate Data structure holding three pieces of information required to update a given segment: a) segment index
+ * (-1 if it's a new segment), b) a list of existing active synapses, and c) a flag indicating whether this segment
+ * should be marked as a sequence segment (defaults to false).
+ * 
+ * @author vanrijn
+ */
 public class SegmentUpdate {
 
-	public SegmentUpdate(int columnIndex, int cellIndex,int segmentUpdateIndex, 
-			List<LateralSynapse> activeSynapses) {
+	public SegmentUpdate(int columnIndex, int cellIndex, int segmentUpdateIndex, List<LateralSynapse> activeSynapses) {
 		super();
 
 		this.cellIndex = cellIndex;
-		this.columnIndex=columnIndex;
+		this.columnIndex = columnIndex;
 		this.segmentUpdateIndex = segmentUpdateIndex;
-		
+
 		this.activeSynapses = activeSynapses;
 	}
 
-	
 	private boolean	sequenceSegment;
 
 	private int		segmentUpdateIndex;
 
 	private int		cellIndex;
-	private int columnIndex;
+
+	private int		columnIndex;
 
 	public int getColumnIndex() {
 		return columnIndex;
@@ -34,12 +40,11 @@ public class SegmentUpdate {
 		this.columnIndex = columnIndex;
 	}
 
-
 	private List<LateralSynapse>	activeSynapses;
 
-	public static boolean	POSITIVE_REINFORCEMENT		= true;
+	public static boolean			POSITIVE_REINFORCEMENT		= true;
 
-	public static boolean	NO_POSITIVE_REINFORCEMENT	= false;
+	public static boolean			NO_POSITIVE_REINFORCEMENT	= false;
 
 	public int getCellIndex() {
 		return cellIndex;
@@ -48,6 +53,7 @@ public class SegmentUpdate {
 	public void setCellIndex(int cellIndex) {
 		this.cellIndex = cellIndex;
 	}
+
 	public int getSegmentUpdateIndex() {
 		return segmentUpdateIndex;
 	}

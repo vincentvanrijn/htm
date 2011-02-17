@@ -9,11 +9,15 @@ public class Column implements Comparable<Column> {
 
 	private int					yPos;
 
+	/**
+	 * boost(c) The boost value for column c as computed during learning - used to increase the overlap value for
+	 * inactive columns.
+	 */
 	private double				boost								= 1.0;						// TODO
 
-	// choose
-	// reasonable
-	// boost
+	/**
+	 * overlap(c) The spatial pooler overlap of column c with a particular input pattern.
+	 */
 
 	private double				overlap;
 
@@ -23,27 +27,40 @@ public class Column implements Comparable<Column> {
 
 	private ArrayList<Boolean>	timesGreaterOverlapThanMinOverlap	= new ArrayList<Boolean>();
 
+	/**
+	 * neighbors(c) A list of all the columns that are within inhibitionRadius of column c.
+	 */
 	private List<Column>		neigbours;
 
+	/**
+	 * potentialSynapses(c) The list of potential synapses and their permanence values.
+	 */
 	private Synapse[]			potentialSynapses;
 
-	/*
-	 * A sliding average representing how often column c has been active after inhibition (e.g. over the last 1000
-	 * iterations).
+	/**
+	 * activeDutyCycle(c) A sliding average representing how often column c has been active after inhibition (e.g. over
+	 * the last 1000 iterations).
 	 */
 	private double				activeDutyCycle;
 
 	private double				minimalLocalActivity;
 
+	/**
+	 * minDutyCycle(c) A variable representing the minimum desired firing rate for a cell. If a cell's firing rate falls
+	 * below this value, it will be boosted. This value is calculated as 1% of the maximum firing rate of its neighbors.
+	 */
 	private double				minimalDutyCycle;
 
-	/*
+	/**
 	 * A sliding average representing how often column c has had significant overlap (i.e. greater than minOverlap) with
 	 * its inputs (e.g. over the last 1000 iterations).
 	 */
 	private double				overlapDutyCycle;
 
 	// for temoral pooler
+	/**
+	 * cellsPerColumn Number of cells in each column.
+	 */
 	public static int			CELLS_PER_COLUMN					= 3;
 
 	public static int getCELLS_PER_COLUMN() {
@@ -70,6 +87,13 @@ public class Column implements Comparable<Column> {
 		this.yPos = yPos;
 	}
 
+	/**
+	 * boostFunction(c) Returns the boost value of a column. The boost value is a scalar >= 1. If activeDutyCyle(c) is
+	 * above minDutyCycle(c), the boost value is 1. The boost increases linearly once the column's activeDutyCyle starts
+	 * falling below its minDutyCycle.
+	 * 
+	 * @param minimalDesiredDutyCycle
+	 */
 	public void calculateBoost(double minimalDesiredDutyCycle) {
 
 		if (this.getActiveDutyCycle() > minimalDesiredDutyCycle) {
@@ -142,6 +166,13 @@ public class Column implements Comparable<Column> {
 		this.neigbours = neigbours;
 	}
 
+	/**
+	 * connectedSynapses(c) A subset of potentialSynapses(c) where the permanence value is greater than connectedPerm.
+	 * These are the bottom-up inputs that are currently connected to column c.
+	 * 
+	 * @param connectedPermanance
+	 * @return
+	 */
 	public Synapse[] getConnectedSynapses(double connectedPermanance) {
 		ArrayList<Synapse> connectedSynapses = new ArrayList<Synapse>();
 		for (Synapse potentialSynapse : this.potentialSynapses) {
@@ -164,6 +195,11 @@ public class Column implements Comparable<Column> {
 		this.boost = boost;
 	}
 
+	/**
+	 * increasePermanences(c, s) Increase the permanence value of every synapse in column c by a scale factor s.
+	 * 
+	 * @param d
+	 */
 	public void increasePermanances(double d) {
 		for (Synapse potenSynapse : potentialSynapses) {
 			potenSynapse.setPermanance(potenSynapse.getPermanance() + d);
@@ -171,6 +207,11 @@ public class Column implements Comparable<Column> {
 
 	}
 
+	/**
+	 * updateOverlapDutyCycle(c) Computes a moving average of how often column c has overlap greater than minOverlap.
+	 * 
+	 * @return
+	 */
 	public double updateOverlapDutyCycle() {
 
 		int totalGt = 0;
@@ -185,10 +226,11 @@ public class Column implements Comparable<Column> {
 
 	}
 
-	// TODO updateActiveDutyCycle(c)
-	// Computes a moving average of how often column c has been active after
-	// inhibition.
-
+	/**
+	 * updateActiveDutyCycle(c) Computes a moving average of how often column c has been active after inhibition.
+	 * 
+	 * @return
+	 */
 	public double updateActiveDutyCycle() {
 
 		int totalActive = 0;
