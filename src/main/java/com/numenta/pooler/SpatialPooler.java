@@ -129,6 +129,7 @@ public class SpatialPooler {
 				columns[i] = new Column();
 				columns[i].setyPos(y);
 				columns[i].setxPos(x);
+				columns[i].setColumnIndex(i);
 
 				Synapse[] synapses = new Synapse[amountOfSynapses];
 				Set<Integer> synapsesToInput = new HashSet<Integer>();
