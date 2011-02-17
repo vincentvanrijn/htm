@@ -24,11 +24,23 @@ public class LateralSynapse {
 
 	private int					synapseIndex;
 
-	public LateralSynapse(int c, int i, int s, int y) {
-		this.columnIndex = c;
-		this.cellIndex = i;
-		this.segmentIndex = s;
-		this.synapseIndex = y;
+	private int fromColumnIndex;
+
+	private int fromCellIndex;
+
+	public LateralSynapse(int c, int i, int s, int y , int fromColumnIndex, int fromCellIndex ) {
+		this.columnIndex=c;
+		this.cellIndex=i;
+		this.segmentIndex=s;
+		this.synapseIndex=y;
+		this.fromColumnIndex=fromColumnIndex;
+		this.fromCellIndex=fromCellIndex;
+	}
+	public int getFromColumnIndex() {
+		return fromColumnIndex;
+	}
+	public int getFromCellIndex() {
+		return fromCellIndex;
 	}
 
 	public LateralSynapse() {}
