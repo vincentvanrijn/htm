@@ -28,6 +28,9 @@ public class HTMApplet extends Applet {
 
 	private boolean				black					= true;
 
+	/**
+	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the j'th input is on.
+	 */
 	private int[]				input					= new int[144];
 
 	private static final long	serialVersionUID		= 1L;
