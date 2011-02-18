@@ -52,7 +52,7 @@ public class Segment implements Comparable<Segment> {
 	public List<LateralSynapse> getConnectedSynapses(){
 		List<LateralSynapse> connectedSynapses=new ArrayList<LateralSynapse>();
 		for (LateralSynapse synapse : synapses){
-			if( synapse.isActive()){
+			if( synapse.isConnected()){
 				connectedSynapses.add(synapse);
 			}
 		}
