@@ -18,12 +18,12 @@ public class LateralSynapse {
 	/**
 	 * initialPerm Initial permanence value for a synapse.
 	 */
-	public static final double	INITIAL_PERM	= 0;
+	public static final double	INITIAL_PERM	= 0.1;
 
 	/**
 	 * connectedPerm If the permanence value for a synapse is greater than this value, it is said to be connected.
 	 */
-	private static double		connectedPermanance;
+	public static double		connectedPermanance=0;
 
 	private int					synapseIndex;
 
@@ -31,13 +31,14 @@ public class LateralSynapse {
 
 	private int fromCellIndex;
 
-	public LateralSynapse(int c, int i, int s, int y , int fromColumnIndex, int fromCellIndex ) {
+	public LateralSynapse(int c, int i, int s, int y , int fromColumnIndex, int fromCellIndex, double initialPerm ) {
 		this.columnIndex=c;
 		this.cellIndex=i;
 		this.segmentIndex=s;
 		this.synapseIndex=y;
 		this.fromColumnIndex=fromColumnIndex;
 		this.fromCellIndex=fromCellIndex;
+		this.permanance=initialPerm;
 	}
 	public int getFromColumnIndex() {
 		return fromColumnIndex;
@@ -52,9 +53,7 @@ public class LateralSynapse {
 		return synapseIndex;
 	}
 
-	public static void setConnectedPermanance(int connectedPermanance) {
-		LateralSynapse.connectedPermanance = connectedPermanance;
-	}
+	
 
 	private double	permanance;
 
@@ -96,9 +95,13 @@ public class LateralSynapse {
 		this.cellIndex = cellIndex;
 	}
 
-	public boolean isActive() {
+	public boolean isConnected() {
 		// logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+
 		// "input="+sourceInput);
 		return this.permanance >= LateralSynapse.connectedPermanance;
 	}
+	public static double getConnectedPermanance() {
+		return connectedPermanance;
+	}
+	
 }
