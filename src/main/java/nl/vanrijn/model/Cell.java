@@ -63,6 +63,10 @@ public class Cell {
 
 	private List<Segment>	segments;
 
+	private int xpos;
+
+	private int ypos;
+
 	public boolean hasActiveState() {
 		return activeState;
 	}
@@ -124,6 +128,23 @@ public class Cell {
 	public String toString() {
 		return "cell=" + this.columnIndex + "," + this.getCellIndex() + "," + this.time + ",activeState="
 				+ this.activeState + ",learnState=" + this.learnState + ",predictivestate=" + this.predictiveState
-				+ ",segments.size=" + this.segments.size();
+				+ ",segments.size=" + this.segments.size()+"x,y="+this.getXpos()+","+this.getYpos()+" "+this.segmentUpdateList.size() ;
+	}
+
+	public void setXpos(int xpos) {
+		this.xpos=xpos;
+	
+	}
+	public void setYpos(int ypos) {
+		this.ypos=ypos;
+	
+	}
+
+	public int getXpos() {
+		return xpos;
+	}
+
+	public int getYpos() {
+		return ypos;
 	}
 }

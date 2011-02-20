@@ -59,6 +59,12 @@ public class Segment implements Comparable<Segment> {
 		return connectedSynapses;
 	}
 
+	@Override
+	public String toString() {
+		
+		return "segment "+this.getColumnIndex()+","+this.getCellIndex()+","+this.getSegmentIndex()+","+isSsequenceSegment()+" "+this.getSynapses().size();
+	}
+
 	public void setSynapses(List<LateralSynapse> synapses) {
 		this.synapses = synapses;
 	}

@@ -32,6 +32,12 @@ public class SegmentUpdate {
 
 	private int		segmentUpdateIndex;
 
+	@Override
+	public String toString() {
+		
+		return "segmentUpdate"+this.getColumnIndex()+","+this.getCellIndex()+","+this.getSegmentUpdateIndex()+","+this.isSequenceSegment();
+	}
+
 	private int		cellIndex;
 
 	private int		columnIndex;
