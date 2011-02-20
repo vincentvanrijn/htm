@@ -8,6 +8,12 @@ import java.util.List;
 
 public class Column implements Comparable<Column> {
 
+	@Override
+	public String toString() {
+		
+		return "column "+this.getColumnIndex()+","+this.getxPos()+","+this.getyPos();
+	}
+
 	private int columnIndex;
 	public int getColumnIndex() {
 		return columnIndex;
