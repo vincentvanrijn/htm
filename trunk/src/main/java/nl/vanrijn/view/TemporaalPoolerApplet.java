@@ -222,6 +222,7 @@ public class TemporaalPoolerApplet extends Applet {
 	}
 
 	public void invokeTemporalPooler() {
+
 		graphics.clearRect(0, 0, 600, 600);
 		draw();
 		//
@@ -362,6 +363,6 @@ public class TemporaalPoolerApplet extends Applet {
 		}
 		repaint();
 		tempo.nextTime();
-
+		columns = new int[144];
 	}
 }

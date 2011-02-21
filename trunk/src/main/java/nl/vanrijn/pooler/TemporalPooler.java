@@ -153,8 +153,8 @@ public class TemporalPooler {
 	 * bottom-up input was predicted by any cell (i.e. its predictiveState output was 1 due to a sequence segment), then
 	 * those cells become active (lines 23-27). If that segment became active from cells chosen with learnState on, this
 	 * cell is selected as the learning cell (lines 28-30). If the bottom-up input was not predicted, then all cells in
-	 * the become active (lines 32-34). In addition, the best matching cell is chosen as the learning cell (lines 36-41)
-	 * and a new segment is added to that cell.
+	 * the column become active (lines 32-34). In addition, the best matching cell is chosen as the learning cell (lines
+	 * 36-41) and a new segment is added to that cell.
 	 */
 	public void computeActiveState() {
 		for (int c = 0; c < activeColumns.length; c++) {
@@ -342,9 +342,12 @@ public class TemporalPooler {
 				}
 				for (LateralSynapse synapse : segmentUpdate.getActiveSynapses()) {
 					if (positiveReinforcement) {
-						// System.out.println("pos");
+						System.out.println("inc " + synapse);
+
 						synapse.setPermanance(synapse.getPermanance() + LateralSynapse.PERMANANCE_INC);
+						System.out.println("inc after " + synapse);
 					} else {
+						System.out.println("dec " + synapse);
 						synapse.setPermanance(synapse.getPermanance() - LateralSynapse.PERMANANCE_DEC);
 					}
 
@@ -523,7 +526,7 @@ public class TemporalPooler {
 
 				if (synapse.isConnected()
 						&& cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time].hasLearnState()) {
-					fromCell = cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time];
+					// fromCell = cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time];
 
 					ammountConnected++;
 					// System.out.println("ammountCon learnstate");

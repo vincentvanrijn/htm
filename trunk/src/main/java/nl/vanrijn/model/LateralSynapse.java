@@ -5,15 +5,22 @@ package nl.vanrijn.model;
 
 public class LateralSynapse {
 
+	@Override
+	public String toString() {
+
+		return "LateralSynapse " + this.fromColumnIndex + "," + this.fromCellIndex + "," + this.columnIndex + ","
+				+ this.getCellIndex() + "," + this.segmentIndex + "," + this.permanance;
+	}
+
 	/**
 	 * permanenceInc Amount permanence values of synapses are incremented when activity-based learning occurs.
 	 */
-	public static final double	PERMANANCE_INC		= 0;	// TODO choose reasonable value for PERMANANCE_INC
+	public static final double	PERMANANCE_INC		= 0.1;	// TODO choose reasonable value for PERMANANCE_INC
 
 	/**
 	 * permanenceDec Amount permanence values of synapses are decremented when activity-based learning occurs.
 	 */
-	public static final double	PERMANANCE_DEC		= 0;	// TODO choose reasonable value for PERMANANCE_DEC
+	public static final double	PERMANANCE_DEC		= 0.2;	// TODO choose reasonable value for PERMANANCE_DEC
 
 	/**
 	 * initialPerm Initial permanence value for a synapse.
