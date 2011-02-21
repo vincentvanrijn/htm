@@ -330,12 +330,9 @@ public class TemporalPooler {
 	 */
 	private void adaptSegments(List<SegmentUpdate> segmentUpdateList, boolean positiveReinforcement) {
 		if (segmentUpdateList != null) {
-			// System.out.println("ff bakkie vullen"+segmentUpdateList.size());
 			for (SegmentUpdate segmentUpdate : segmentUpdateList) {
 				Cell cell = cells[segmentUpdate.getColumnIndex()][segmentUpdate.getCellIndex()][Cell.NOW];
 				Segment segment = cell.getSegments().get(segmentUpdate.getSegmentUpdateIndex());
-				// System.out.println(segment + "  to be update");
-				// System.out.println(segmentUpdate);
 				if (segmentUpdate.isSequenceSegment()) {
 					segment.setSequenceSegment(true);
 					// System.out.println(segment);
@@ -351,17 +348,20 @@ public class TemporalPooler {
 						synapse.setPermanance(synapse.getPermanance() - LateralSynapse.PERMANANCE_DEC);
 					}
 
-					if (segment.getSynapses().size() > synapse.getSegmentIndex()) {// this is a new segment
+					if (synapse.getSegmentIndex() >= segment.getSynapses().size()  ) {// this is a new segment
+						System.out.println("adding new Synapse");
+						//TODO should point to a cell
 						synapse.setPermanance(LateralSynapse.INITIAL_PERM);
-					} else {
-						// TODO This synapse should pint toa cell
-						// System.out.println("adding a synapse");
 						segment.getSynapses().add(synapse);
 					}
 
+
+					
 				}
+				
 			}
 		}
+
 
 	}
 
@@ -564,6 +564,13 @@ public class TemporalPooler {
 	public void nextTime() {
 		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
+				for(Segment segment :cells[c][i][1].getSegments()){
+					for (LateralSynapse lat:segment.getSynapses()) {
+						if(lat.getPermanance()>0.5){
+							System.out.println("hier ergens "+lat);
+						}
+					}
+				}
 				cells[c][i][0] = cells[c][i][1];// old cell is new cell
 				Cell cell = new Cell(c, i, 1);
 
@@ -575,6 +582,13 @@ public class TemporalPooler {
 				cell.setXpos(cells[c][i][0].getXpos());
 				cell.setYpos(cells[c][i][0].getYpos());
 				cells[c][i][1] = cell;
+//				for(Segment segment :cell.getSegments()){
+//					for (LateralSynapse lat:segment.getSynapses()) {
+//						if(lat.getPermanance()>0.5){
+//							System.out.println("hier ergens "+lat);
+//						}
+//					}
+//				}
 				// System.out.println(cell);
 
 			}
