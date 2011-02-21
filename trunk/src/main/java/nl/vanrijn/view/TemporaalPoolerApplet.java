@@ -24,35 +24,34 @@ import nl.vanrijn.pooler.TemporalPooler;
 
 public class TemporaalPoolerApplet extends Applet {
 
-	private boolean mouseDragged = false;
+	private boolean				mouseDragged		= false;
 
-	private boolean mousePressed = false;
+	private boolean				mousePressed		= false;
 
-	private boolean black = true;
+	private boolean				black				= true;
 
 	/**
-	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the
-	 * j'th input is on.
+	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the j'th input is on.
 	 */
-	private int[] columns = new int[144];
+	private int[]				columns				= new int[144];
 
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
-	private Graphics graphics;
+	private Graphics			graphics;
 
-	private Logger logger = Logger.getLogger(this.getClass().getName());
+	private Logger				logger				= Logger.getLogger(this.getClass().getName());
 
-	private Image image;
+	private Image				image;
 
 	// private Column[] columns;
 
-	private TemporalPooler tempo = new TemporalPooler();
+	private TemporalPooler		tempo				= new TemporalPooler();
 
-	private Column loggedColum = null;
+	private Column				loggedColum			= null;
 
-	DecimalFormat df2 = new DecimalFormat("#,###,###,##0.00");
+	DecimalFormat				df2					= new DecimalFormat("#,###,###,##0.00");
 
-	private Cell[][][] cells;
+	private Cell[][][]			cells;
 
 	public void init() {
 		Button submitButton = new Button("invoke Temporal Pooler");
@@ -73,7 +72,7 @@ public class TemporaalPoolerApplet extends Applet {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("reset"))
-					// System.out.println("reset");
+				// System.out.println("reset");
 					reset();
 			}
 		});
@@ -261,66 +260,66 @@ public class TemporaalPoolerApplet extends Applet {
 					graphics.setColor(Color.black);
 
 					switch (cell.getCellIndex()) {
-					case 0: {
-						// System.out.println("nuuuuu0" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 260,
-								100 + (9 * cell.getYpos()), 7, 7);
-						break;
-					}
-					case 1: {
-						// System.out.println("nuuuuu1" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 260,
-								220 + (9 * cell.getYpos()), 7, 7);
-						break;
-					}
-					case 2: {
-						// System.out.println("nuuuuu2" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 380,
-								100 + (9 * cell.getYpos()), 7, 7);
-						break;
-					}
-					case 3: {
-						// System.out.println("nuuuuu3" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 380,
-								220 + (9 * cell.getYpos()), 7, 7);
-						break;
-					}
-					default:
-						break;
+						case 0: {
+							// System.out.println("nuuuuu0" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 260, 100 + (9 * cell.getYpos()), 7, 7);
+							break;
+						}
+						case 1: {
+							// System.out.println("nuuuuu1" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 260, 220 + (9 * cell.getYpos()), 7, 7);
+							break;
+						}
+						case 2: {
+							// System.out.println("nuuuuu2" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 380, 100 + (9 * cell.getYpos()), 7, 7);
+							break;
+						}
+						case 3: {
+							// System.out.println("nuuuuu3" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 380, 220 + (9 * cell.getYpos()), 7, 7);
+							break;
+						}
+						default:
+							break;
 					}
 				}
-				if(cell.hasPredictiveState()){
-//					System.out.println(cell +" "+cell.getXpos()+","+cell.getYpos()
-//							);
+				if (cell.hasPredictiveState()) {
+					// System.out.println(cell +" "+cell.getXpos()+","+cell.getYpos()
+					// );
 					graphics.setColor(Color.blue);
-					
+
 					switch (cell.getCellIndex()) {
-					case 0:{
-						//System.out.println("nuuuuu0" + cell.getCellIndex() +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos()  + 261, 101 + (9 * cell.getYpos()), 5, 5);
-						break;
-					}
-					case 1:{
-						//System.out.println("nuuuuu1" + cell.getCellIndex() +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 261, 221 + (9 * cell.getYpos()), 5, 5);
-						break;
-					}
-					case 2:{
-						//System.out.println("nuuuuu2" + cell.getCellIndex() +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 381, 101 + (9 * cell.getYpos()), 5, 5);
-						break;
-					}
-					case 3:{
-						//System.out.println("nuuuuu3" + cell.getCellIndex() +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 381, 221 + (9 * cell.getYpos()), 5, 5);
-						break;
-					}
-					default:
-						break;
+						case 0: {
+							// System.out.println("nuuuuu0" + cell.getCellIndex() +" "+cell.getXpos()+" "
+							// +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 261, 101 + (9 * cell.getYpos()), 5, 5);
+							break;
+						}
+						case 1: {
+							// System.out.println("nuuuuu1" + cell.getCellIndex() +" "+cell.getXpos()+" "
+							// +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 261, 221 + (9 * cell.getYpos()), 5, 5);
+							break;
+						}
+						case 2: {
+							// System.out.println("nuuuuu2" + cell.getCellIndex() +" "+cell.getXpos()+" "
+							// +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 381, 101 + (9 * cell.getYpos()), 5, 5);
+							break;
+						}
+						case 3: {
+							// System.out.println("nuuuuu3" + cell.getCellIndex() +" "+cell.getXpos()+" "
+							// +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 381, 221 + (9 * cell.getYpos()), 5, 5);
+							break;
+						}
+						default:
+							break;
 					}
 				}
 				if (cell.hasLearnState()) {
@@ -330,36 +329,32 @@ public class TemporaalPoolerApplet extends Applet {
 					graphics.setColor(Color.red);
 
 					switch (cell.getCellIndex()) {
-					case 0: {
-						// System.out.println("nuuuuu0" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 262,
-								102 + (9 * cell.getYpos()), 3, 3);
-						break;
-					}
-					case 1: {
-						// System.out.println("nuuuuu1" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 262,
-								222 + (9 * cell.getYpos()), 3, 3);
-						break;
-					}
-					case 2: {
-						// System.out.println("nuuuuu2" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 321,
-								102 + (9 * cell.getYpos()), 3, 3);
-						break;
-					}
-					case 3: {
-						// System.out.println("nuuuuu3" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(9 * cell.getXpos() + 321,
-								222 + (9 * cell.getYpos()), 3, 3);
-						break;
-					}
-					default:
-						break;
+						case 0: {
+							// System.out.println("nuuuuu0" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 262, 102 + (9 * cell.getYpos()), 3, 3);
+							break;
+						}
+						case 1: {
+							// System.out.println("nuuuuu1" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 262, 222 + (9 * cell.getYpos()), 3, 3);
+							break;
+						}
+						case 2: {
+							// System.out.println("nuuuuu2" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 321, 102 + (9 * cell.getYpos()), 3, 3);
+							break;
+						}
+						case 3: {
+							// System.out.println("nuuuuu3" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(9 * cell.getXpos() + 321, 222 + (9 * cell.getYpos()), 3, 3);
+							break;
+						}
+						default:
+							break;
 					}
 
 				}

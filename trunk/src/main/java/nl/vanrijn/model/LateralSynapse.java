@@ -8,41 +8,43 @@ public class LateralSynapse {
 	/**
 	 * permanenceInc Amount permanence values of synapses are incremented when activity-based learning occurs.
 	 */
-	public static final double	PERMANANCE_INC	= 0;	// TODO choose reasonable value for PERMANANCE_INC
+	public static final double	PERMANANCE_INC		= 0;	// TODO choose reasonable value for PERMANANCE_INC
 
 	/**
 	 * permanenceDec Amount permanence values of synapses are decremented when activity-based learning occurs.
 	 */
-	public static final double	PERMANANCE_DEC	= 0;	// TODO choose reasonable value for PERMANANCE_DEC
+	public static final double	PERMANANCE_DEC		= 0;	// TODO choose reasonable value for PERMANANCE_DEC
 
 	/**
 	 * initialPerm Initial permanence value for a synapse.
 	 */
-	public static final double	INITIAL_PERM	= 0.1;
+	public static final double	INITIAL_PERM		= 0.5;
 
 	/**
 	 * connectedPerm If the permanence value for a synapse is greater than this value, it is said to be connected.
 	 */
-	public static double		connectedPermanance=0;
+	public static double		connectedPermanance	= 0.5;
 
 	private int					synapseIndex;
 
-	private int fromColumnIndex;
+	private int					fromColumnIndex;
 
-	private int fromCellIndex;
+	private int					fromCellIndex;
 
-	public LateralSynapse(int c, int i, int s, int y , int fromColumnIndex, int fromCellIndex, double initialPerm ) {
-		this.columnIndex=c;
-		this.cellIndex=i;
-		this.segmentIndex=s;
-		this.synapseIndex=y;
-		this.fromColumnIndex=fromColumnIndex;
-		this.fromCellIndex=fromCellIndex;
-		this.permanance=initialPerm;
+	public LateralSynapse(int c, int i, int s, int y, int fromColumnIndex, int fromCellIndex, double initialPerm) {
+		this.columnIndex = c;
+		this.cellIndex = i;
+		this.segmentIndex = s;
+		this.synapseIndex = y;
+		this.fromColumnIndex = fromColumnIndex;
+		this.fromCellIndex = fromCellIndex;
+		this.permanance = initialPerm;
 	}
+
 	public int getFromColumnIndex() {
 		return fromColumnIndex;
 	}
+
 	public int getFromCellIndex() {
 		return fromCellIndex;
 	}
@@ -52,8 +54,6 @@ public class LateralSynapse {
 	public int getSynapseIndex() {
 		return synapseIndex;
 	}
-
-	
 
 	private double	permanance;
 
@@ -100,8 +100,9 @@ public class LateralSynapse {
 		// "input="+sourceInput);
 		return this.permanance >= LateralSynapse.connectedPermanance;
 	}
+
 	public static double getConnectedPermanance() {
 		return connectedPermanance;
 	}
-	
+
 }
