@@ -35,7 +35,7 @@ public class TemporalPooler {
 
 	private static int			AMMOUNT_OF_SEGMENTS	= 10;																									// TODO
 
-	// TODO choose value
+	// TODO choose value maybe first same ammount as cells
 	private static int			AMMOUNT_OF_SYNAPSES	= 10;																									// TODO
 
 	// TODO choose value
@@ -160,7 +160,7 @@ public class TemporalPooler {
 		for (int c = 0; c < activeColumns.length; c++) {
 			// System.out.println(c);
 			Column column = activeColumns[c];
-			System.out.println(column);
+//			System.out.println(column);
 			boolean buPredicted = false;
 			boolean lcChosen = false;
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
@@ -171,17 +171,19 @@ public class TemporalPooler {
 					if (segment.isSsequenceSegment()) {
 						// System.out.println("predicted and sequence");
 						buPredicted = true;
-						cells[column.getColumnIndex()][i][Cell.NOW].seActiveState(true);
+						cells[column.getColumnIndex()][i][Cell.NOW].setActiveState(true);
 						if (segmentActive(segment, Cell.BEFORE, Cell.LEARN_STATE)) {
 							lcChosen = true;
 							cells[column.getColumnIndex()][i][Cell.NOW].setLearnState(true);
+							//TODO this never happsens
+							System.out.println("setLearnstate because of sequence sg");
 						}
 					}
 				}
 			}
 			if (!buPredicted) {
 				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
-					cells[column.getColumnIndex()][i][Cell.NOW].seActiveState(true);
+					cells[column.getColumnIndex()][i][Cell.NOW].setActiveState(true);
 					// System.out.println("all cells active "
 					// + cells[c][i][Cell.NOW]);
 				}
@@ -195,13 +197,14 @@ public class TemporalPooler {
 				Segment segment = getBestMatchingSegment(column.getColumnIndex(), cell.getCellIndex(), Cell.BEFORE);
 
 				// System.out.println("best matching segment=" + segment);
+				//cells only get active in first layer...why???
 				cells[column.getColumnIndex()][cell.getCellIndex()][Cell.NOW].setLearnState(true);
 				// System.out.println("cell active="
 				// + cells[c][cell.getCellIndex()][Cell.NOW]);
 				SegmentUpdate sUpdate = getSegmentActiveSynapses(column.getColumnIndex(), cell.getCellIndex(), segment,
 						Cell.BEFORE, Segment.GETS_NEW_SYNAPSE);
 				if (sUpdate != null) {
-					System.out.println("creating a segmentUpdate");
+//					System.out.println("creating a segmentUpdate");
 					sUpdate.setSequenceSegment(true);
 					// TODO the segment update is for now!
 					Cell cellToUpdate = cells[cell.getColumnIndex()][cell.getCellIndex()][Cell.NOW];
@@ -229,13 +232,19 @@ public class TemporalPooler {
 				for (int s = 0; s < cell.getSegments().size(); s++) {
 					Segment segment = cell.getSegments().get(s);
 
-					if (segmentActive(segment, Cell.NOW, Cell.ACTIVE_STATE)) {
-						System.out.println("segmentActive pred " + segment);
+					if (segmentActive(segment, Cell.NOW, Cell.ACTIVE_STATE)) {//TODO which synapses and cells?
+//						for(LateralSynapse synapse :segment.getConnectedSynapses()){
+//							Cell potentiallyActiveCell=cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.NOW];
+//							if(potentiallyActiveCell.hasActiveState()){
+//								System.out.println("active Celll "+potentiallyActiveCell);
+//							}
+//						}
+						//System.out.println("segmentActive pred " + segment);
 						cells[c][i][Cell.NOW].setPredictiveState(true);
 						SegmentUpdate activeUpdate = getSegmentActiveSynapses(c, i, segment, Cell.NOW,
 								Segment.GETS_NO_NEW_SYNAPSE);
 						cell.getSegmentUpdateList().add(activeUpdate);
-
+						//TODO This should not happen so often. Only once for an active cell.
 						Segment predSegment = getBestMatchingSegment(c, i, Cell.BEFORE);
 						SegmentUpdate predUpdate = getSegmentActiveSynapses(c, i, predSegment, Cell.BEFORE,
 								Segment.GETS_NEW_SYNAPSE);
@@ -269,7 +278,7 @@ public class TemporalPooler {
 					// System.out.println("updating learnstate "+cell);
 					cell.getSegmentUpdateList().clear();
 
-				} else
+				} else//TODO when does this occur?
 					if (!cells[c][i][Cell.NOW].hasPredictiveState() && cells[c][i][Cell.BEFORE].hasPredictiveState()) {
 						// System.out.println("updating");
 						adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.NO_POSITIVE_REINFORCEMENT);
@@ -306,7 +315,7 @@ public class TemporalPooler {
 			}
 		}
 		if (activeSegments.size() == 1) {
-			System.out.println("only 1");
+//			System.out.println("only 1");
 			returnValue = segments.get(0);
 		} else {
 			Collections.sort(segments);
@@ -339,17 +348,17 @@ public class TemporalPooler {
 				}
 				for (LateralSynapse synapse : segmentUpdate.getActiveSynapses()) {
 					if (positiveReinforcement) {
-						System.out.println("inc " + synapse);
+//						System.out.println("inc " + synapse);
 
 						synapse.setPermanance(synapse.getPermanance() + LateralSynapse.PERMANANCE_INC);
-						System.out.println("inc after " + synapse);
+//						System.out.println("inc after " + synapse);
 					} else {
-						System.out.println("dec " + synapse);
+//						System.out.println("dec " + synapse);
 						synapse.setPermanance(synapse.getPermanance() - LateralSynapse.PERMANANCE_DEC);
 					}
 
 					if (synapse.getSegmentIndex() >= segment.getSynapses().size()  ) {// this is a new segment
-						System.out.println("adding new Synapse");
+//						System.out.println("adding new Synapse");
 						//TODO should point to a cell
 						synapse.setPermanance(LateralSynapse.INITIAL_PERM);
 						segment.getSynapses().add(synapse);
@@ -564,17 +573,17 @@ public class TemporalPooler {
 	public void nextTime() {
 		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
-				for(Segment segment :cells[c][i][1].getSegments()){
-					for (LateralSynapse lat:segment.getSynapses()) {
-						if(lat.getPermanance()>0.5){
-							System.out.println("hier ergens "+lat);
-						}
-					}
-				}
+//				for(Segment segment :cells[c][i][1].getSegments()){
+//					for (LateralSynapse lat:segment.getSynapses()) {
+//						if(lat.getPermanance()>0.5){
+//							System.out.println("hier ergens "+lat);
+//						}
+//					}
+//				}
 				cells[c][i][0] = cells[c][i][1];// old cell is new cell
 				Cell cell = new Cell(c, i, 1);
 
-				cell.seActiveState(false);
+				cell.setActiveState(false);
 				cell.setLearnState(false);
 				cell.setPredictiveState(false);
 				cell.setSegments(cells[c][i][0].getSegments());

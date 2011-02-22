@@ -114,7 +114,7 @@ public class Cell {
 		this.segmentUpdateList = segmentUpdateList;
 	}
 
-	public void seActiveState(boolean activeState) {
+	public void setActiveState(boolean activeState) {
 		this.activeState = activeState;
 
 	}
