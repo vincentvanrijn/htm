@@ -58,9 +58,7 @@ public class LateralSynapse {
 
 	public LateralSynapse() {}
 
-	public int getSynapseIndex() {
-		return synapseIndex;
-	}
+	
 
 	private double	permanance;
 
