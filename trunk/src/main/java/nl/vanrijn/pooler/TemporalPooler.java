@@ -20,38 +20,43 @@ public class TemporalPooler {
 	/**
 	 * minThreshold Minimum segment activity for learning.
 	 */
-	private static final int	MIN_TRESHOLD		= 0;																									// TODO
+	private static final int	MIN_TRESHOLD		= 0;																									
+	// TODO value for min treshold
 
-	// TODO choose value
+	// TODO choose value for min treshold
 	/**
 	 * activationThreshold Activation threshold for a segment. If the number of active connected synapses in a segment
 	 * is greater than activationThreshold, the segment is said to be active.
 	 */
-	private static int			ACTIVATION_TRESHOLD	= 5;																									// TODO
+	private static int			ACTIVATION_TRESHOLD	= 5;																									
+	// TODO value for activasion treshold
 
-	// TODO choose value
 
 	private static int			AMMOUNT_TIME		= 2;
 
-	private static int			AMMOUNT_OF_SEGMENTS	= 10;																									// TODO
+	private static int			AMMOUNT_OF_SEGMENTS	= 10;																									
+	// TODO value for ammount segments
 
 	// TODO choose value maybe first same ammount as cells
-	private static int			AMMOUNT_OF_SYNAPSES	= 10;																									// TODO
+	private static int			AMMOUNT_OF_SYNAPSES	= 50;																									
+	// TODO choose value for ammount of synapse
 
-	// TODO choose value
+
 	/**
 	 * newSynapseCount The maximum number of synapses added to a segment during learning.
 	 */
-	private static int			NEW_SYNAPSE_COUNT;																											// TODO
+	private static int			NEW_SYNAPSE_COUNT;																											
+	// TODO for new synapse count
 
-	// TODO choose value
+	// TODO choose value for learning radius
 
 	/**
 	 * learningRadius The area around a temporal pooler cell from which it can get lateral connections.
 	 */
-	private static int			LEARNING_RADIUS;																											// TODO
+	private static int			LEARNING_RADIUS;																											
 
-	// TODO choose value
+
+	
 
 	/**
 	 * activeColumns(t) List of column indices that are winners due to bottom-up input (this is the output of the
@@ -169,7 +174,7 @@ public class TemporalPooler {
 					// System.out.println("predicted before ");
 					Segment segment = getActiveSegment(column.getColumnIndex(), i, Cell.BEFORE, Cell.ACTIVE_STATE);
 					if (segment.isSsequenceSegment()) {
-						// System.out.println("predicted and sequence");
+						System.out.println("predicted and sequence");
 						buPredicted = true;
 						cells[column.getColumnIndex()][i][Cell.NOW].setActiveState(true);
 						if (segmentActive(segment, Cell.BEFORE, Cell.LEARN_STATE)) {
@@ -201,9 +206,10 @@ public class TemporalPooler {
 				cells[column.getColumnIndex()][cell.getCellIndex()][Cell.NOW].setLearnState(true);
 				// System.out.println("cell active="
 				// + cells[c][cell.getCellIndex()][Cell.NOW]);
-				SegmentUpdate sUpdate = getSegmentActiveSynapses(column.getColumnIndex(), cell.getCellIndex(), segment,
+				if(segment!=null){
+					SegmentUpdate sUpdate = getSegmentActiveSynapses(column.getColumnIndex(), cell.getCellIndex(), segment,
 						Cell.BEFORE, Segment.GETS_NEW_SYNAPSE);
-				if (sUpdate != null) {
+//					System.out.println("activeState "+sUpdate);
 //					System.out.println("creating a segmentUpdate");
 					sUpdate.setSequenceSegment(true);
 					// TODO the segment update is for now!
@@ -212,6 +218,7 @@ public class TemporalPooler {
 					// System.out.println(sUpdate + " okok");
 					// System.out.println(cellToUpdate);
 				}
+				
 			}
 		}
 	}
@@ -243,13 +250,18 @@ public class TemporalPooler {
 						cells[c][i][Cell.NOW].setPredictiveState(true);
 						SegmentUpdate activeUpdate = getSegmentActiveSynapses(c, i, segment, Cell.NOW,
 								Segment.GETS_NO_NEW_SYNAPSE);
+//						System.out.println("activeUpdate"+ activeUpdate);
 						cell.getSegmentUpdateList().add(activeUpdate);
 						//TODO This should not happen so often. Only once for an active cell.
 						Segment predSegment = getBestMatchingSegment(c, i, Cell.BEFORE);
-						SegmentUpdate predUpdate = getSegmentActiveSynapses(c, i, predSegment, Cell.BEFORE,
+						if(predSegment!=null){
+							SegmentUpdate predUpdate = getSegmentActiveSynapses(c, i, predSegment, Cell.BEFORE,
 								Segment.GETS_NEW_SYNAPSE);
 
-						cell.getSegmentUpdateList().add(predUpdate);
+							cell.getSegmentUpdateList().add(predUpdate);
+
+//						System.out.println("predUpdate "+predUpdate);
+						}
 						// System.out.println(cell.getSegmentUpdateList().size()
 						// + " hllo");
 					}
@@ -275,12 +287,12 @@ public class TemporalPooler {
 				if (cells[c][i][Cell.NOW].hasLearnState()) {
 					// System.out.println("learnstate");
 					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.POSITIVE_REINFORCEMENT);
-					// System.out.println("updating learnstate "+cell);
+//					System.out.println("updating learnstate "+cell);
 					cell.getSegmentUpdateList().clear();
 
-				} else//TODO when does this occur?
+				} else//TODO I have the feeling that this is wrong. It should be:if the cell was predicted but is not active now.
 					if (!cells[c][i][Cell.NOW].hasPredictiveState() && cells[c][i][Cell.BEFORE].hasPredictiveState()) {
-						// System.out.println("updating");
+//						System.out.println("was predicted but not active "+cell);
 						adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.NO_POSITIVE_REINFORCEMENT);
 						cell.getSegmentUpdateList().clear();
 
@@ -292,8 +304,7 @@ public class TemporalPooler {
 	/**
 	 * getActiveSegment(c, i, t, state) For the given column c cell i, return a segment index such that
 	 * segmentActive(s,t, state) is true. If multiple segments are active, sequence segments are given preference.
-	 * Otherwise, segments with most activity are given preference. I have used most activity of a segment as most
-	 * connected synapses
+	 * Otherwise, segments with most activity are given preference. 
 	 * 
 	 * @param c
 	 * @param i
@@ -301,7 +312,7 @@ public class TemporalPooler {
 	 * @param state
 	 * @return
 	 */
-	private Segment getActiveSegment(int c, int i, int time, int state) {
+	private Segment getActiveSegment(int c, int i, final int time, int state) {
 
 		Segment returnValue = null;
 		Cell cell = cells[c][i][time];
@@ -316,10 +327,48 @@ public class TemporalPooler {
 		}
 		if (activeSegments.size() == 1) {
 //			System.out.println("only 1");
-			returnValue = segments.get(0);
+			returnValue = activeSegments.get(0);
 		} else {
-			Collections.sort(segments);
-			returnValue = segments.get(0);
+			//TODO check if sequence segments are prefered
+			Collections.sort(activeSegments, new Comparator<Segment>() {
+
+				public int compare(Segment segment, Segment segmentToCompare) {
+					//1 sequence most activity
+					//2 sequence and active
+					//3 most activity
+					//4 least activity
+					int returnValue = 0;
+					//
+					int ammountActiveCells=0;
+					int ammountActiveCellsToCompare=0;
+					for(LateralSynapse synapse :segment.getSynapses()){
+						if(cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time].hasActiveState()){							
+							ammountActiveCells++;
+						}
+					}
+					segment.setAmmountActiveCells(ammountActiveCells);
+					for(LateralSynapse synapse :segmentToCompare.getSynapses()){
+						if(cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time].hasActiveState()){
+							ammountActiveCellsToCompare++;
+						}
+					}
+					segmentToCompare.setAmmountActiveCells(ammountActiveCellsToCompare);
+					
+					if(segment.isSsequenceSegment()==segmentToCompare.isSsequenceSegment()
+							&& segment.getAmmountActiveCells()==segmentToCompare.getAmmountActiveCells()){
+						returnValue=0;
+					} else if((segment.isSsequenceSegment() && !segmentToCompare.isSsequenceSegment()) ||
+							(segment.isSsequenceSegment()==segmentToCompare.isSsequenceSegment() &&
+									segment.getAmmountActiveCells()>segmentToCompare.getAmmountActiveCells())
+							){
+						returnValue=1;
+					} else {
+						returnValue=-1;
+					}
+					return returnValue;
+				}
+			});
+			returnValue = activeSegments.get(0);
 			// System.out.println("most active "+returnValue);
 		}
 		return returnValue;
@@ -362,16 +411,10 @@ public class TemporalPooler {
 						//TODO should point to a cell
 						synapse.setPermanance(LateralSynapse.INITIAL_PERM);
 						segment.getSynapses().add(synapse);
-					}
-
-
-					
-				}
-				
+					}					
+				}				
 			}
 		}
-
-
 	}
 
 	/**
@@ -386,26 +429,28 @@ public class TemporalPooler {
 
 		Cell returnValue = null;
 		List<Segment> bestMatchingSegments = new ArrayList<Segment>();
-		int cellIndexWithFewestNumberOfSegments = 0;
+		//TODO all cells have the same amount of segments. Do they mean connected synapses?
+		int cellIndexWithFewestNumberOfSegments = -1;
 		int lowestAmmountOfSegments = 0;
 		if (Column.CELLS_PER_COLUMN > 0) {
 			cellIndexWithFewestNumberOfSegments = 0;
 			lowestAmmountOfSegments = cells[c][0][time].getSegments().size();
 		}
-
+//find the cell with the fewest amount of segments and on the same time find the bestMatching segment from the cell
 		for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 			// cellsToCompare[j] = this.cells[c][j][time];
 			if (cells[c][i][time].getSegments().size() < lowestAmmountOfSegments) {
 				cellIndexWithFewestNumberOfSegments = i;
 				lowestAmmountOfSegments = cells[c][i][time].getSegments().size();
 			}
-			Segment bestMatchingSegment = getBestMatchingSegment(c, i, time);
-			if (bestMatchingSegment != null) {
-				bestMatchingSegments.add(bestMatchingSegment);
+			Segment bestMatchingSegmentPerCell = getBestMatchingSegment(c, i, time);
+			if (bestMatchingSegmentPerCell != null) {
+				bestMatchingSegments.add(bestMatchingSegmentPerCell);
 			}
 		}
 		if (bestMatchingSegments.size() != 0) {
-			returnValue = cells[c][bestMatchingSegments.get(0).getCellIndex()][time];
+			Segment bestMatchingSegment=getBestMatchingSegment(bestMatchingSegments, time);
+			returnValue = cells[c][bestMatchingSegment.getCellIndex()][time];
 		} else {
 			returnValue = cells[c][cellIndexWithFewestNumberOfSegments][time];
 			// return the cell with the fewest number of segments.
@@ -475,29 +520,41 @@ public class TemporalPooler {
 	 * @return
 	 */
 
-	// TODO How can a synapse be active if its permanance is below connectedPerm
-	// als het aantal connected synapses gelijk is, kijk dan naar het totaal
-	// aantal synapses.
-	private Segment getBestMatchingSegment(int c, int i, int time) {
+	// TODO order the synapses 1 active state from connected cell 2 permanance of the synapse.
+	//only return a segment if the ammount of active synapses is obove minTreshold
+	
+	private Segment getBestMatchingSegment(int c, int i, final int time) {
 
 		Cell cell = cells[c][i][time];
 		List<Segment> segments = cell.getSegments();
-		return (getBestMatchingSegment(segments));
+		return (getBestMatchingSegment(segments, time));
 	}
 
-	private Segment getBestMatchingSegment(List<Segment> segments) {
+	private Segment getBestMatchingSegment(List<Segment> segments, final int time) {
 		Segment returnValue = null;
 		Collections.sort(segments, new Comparator<Segment>() {
 
 			public int compare(Segment segment, Segment toCompare) {
+				int ammountActiveCells=0;
+				int ammountActiveCellsToCompare=0;
+				for(LateralSynapse synapse :segment.getSynapses()){
+					if(cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time].hasActiveState()){
+						
+						ammountActiveCells++;
+					}
+				}
+				segment.setAmmountActiveCells(ammountActiveCells);
+				for(LateralSynapse synapse :toCompare.getSynapses()){
+					if(cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time].hasActiveState()){
+						ammountActiveCellsToCompare++;
+					}
+				}
+				toCompare.setAmmountActiveCells(ammountActiveCellsToCompare);
 				int returnValue = 0;
-				if (segment.getConnectedSynapses().size() == toCompare.getConnectedSynapses().size()
-						&& segment.getSynapses().size() == toCompare.getSynapses().size()) {
+				if (ammountActiveCells == ammountActiveCellsToCompare){
 					returnValue = 0;
 				} else
-					if ((segment.getConnectedSynapses().size() > toCompare.getConnectedSynapses().size())
-							|| ((segment.getConnectedSynapses().size() == toCompare.getConnectedSynapses().size() && segment
-									.getSynapses().size() > toCompare.getSynapses().size()))) {
+					if (ammountActiveCells > ammountActiveCellsToCompare) {
 						returnValue = 1;
 					} else {
 						returnValue = -1;
@@ -506,7 +563,7 @@ public class TemporalPooler {
 
 			}
 		});
-		if (segments.get(0) != null && segments.get(0).getConnectedSynapses().size() > TemporalPooler.MIN_TRESHOLD) {
+		if (segments.get(0) != null && segments.get(0).getAmmountActiveCells() > TemporalPooler.MIN_TRESHOLD) {
 			returnValue = segments.get(0);
 		}
 		return returnValue;
@@ -527,12 +584,13 @@ public class TemporalPooler {
 		List<LateralSynapse> synapses = segment.getSynapses();
 		int ammountConnected = 0;
 		Cell fromCell = null;
+		
 		for (LateralSynapse synapse : synapses) {
 			// System.out.println(synapse.getPermanance()+" "+LateralSynapse.connectedPermanance);
 
 			if (state == Cell.LEARN_STATE) {
 				// System.out.println("learnstatr "+synapse.isConnected());
-
+//TODO are all cells that have learnstate also Active?
 				if (synapse.isConnected()
 						&& cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time].hasLearnState()) {
 					// fromCell = cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time];

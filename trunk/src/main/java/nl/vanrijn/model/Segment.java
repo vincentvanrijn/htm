@@ -6,7 +6,7 @@ package nl.vanrijn.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Segment implements Comparable<Segment> {
+public class Segment {
 
 	public static final boolean		GETS_NO_NEW_SYNAPSE	= false;
 
@@ -20,6 +20,8 @@ public class Segment implements Comparable<Segment> {
 	private int						segmentIndex;
 
 	private int columnIndex;
+
+	private int ammountActiveCells;
 
 	public Segment(int c, int i, int s, List<LateralSynapse> synapses) {
 		this.columnIndex=c;
@@ -77,25 +79,20 @@ public class Segment implements Comparable<Segment> {
 		this.sequenceSegment = sequenceSegment;
 	}
 
-	public int compareTo(Segment segment) {
-		//1 sequence most activity
-		//2 sequence and active
-		//3 most activity
-		//4 least activity
-		int returnValue = 0;
-		//
-		if(this.isSsequenceSegment()==segment.isSsequenceSegment()
-				&& this.getConnectedSynapses().size()==segment.getConnectedSynapses().size()){
-			returnValue=0;
-		} else if((this.isSsequenceSegment() && !segment.isSsequenceSegment()) ||
-				(this.isSsequenceSegment()==segment.isSsequenceSegment() &&
-						this.getConnectedSynapses().size()>segment.getConnectedSynapses().size())
-				){
-			returnValue=1;
-		} else {
-			returnValue=-1;
-		}
-		return returnValue;
+	
+/**
+ * This is used for sorting a List of segments
+ * @param ammountActiveCells
+ */
+	
+	
+	public void setAmmountActiveCells(int ammountActiveCells) {
+		this.ammountActiveCells=ammountActiveCells;
+		
+	}
+
+	public int getAmmountActiveCells() {
+		return this.ammountActiveCells;
 	}
 
 }
