@@ -24,34 +24,36 @@ import nl.vanrijn.pooler.TemporalPooler;
 
 public class TemporaalPoolerApplet extends Applet {
 
-	private boolean				mouseDragged		= false;
+	private boolean mouseDragged = false;
 
-	private boolean				mousePressed		= false;
+	private boolean mousePressed = false;
 
-	private boolean				black				= true;
+	private boolean black = true;
 
 	/**
-	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the j'th input is on.
+	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the
+	 * j'th input is on.
 	 */
-	private int[]				columns				= new int[144];
+	private int[] columns = new int[144];
 
-	private static final long	serialVersionUID	= 1L;
+	private int[] patternOne = null;
+	private int[] patternTwo = null;
 
-	private Graphics			graphics;
+	private static final long serialVersionUID = 1L;
 
-	private Logger				logger				= Logger.getLogger(this.getClass().getName());
+	private Graphics graphics;
 
-	private Image				image;
+	private Logger logger = Logger.getLogger(this.getClass().getName());
+
+	private Image image;
 
 	// private Column[] columns;
 
-	private TemporalPooler		tempo				= new TemporalPooler();
+	private TemporalPooler tempo = new TemporalPooler();
 
-	private Column				loggedColum			= null;
+	DecimalFormat df2 = new DecimalFormat("#,###,###,##0.00");
 
-	DecimalFormat				df2					= new DecimalFormat("#,###,###,##0.00");
-
-	private Cell[][][]			cells;
+	private Cell[][][] cells;
 
 	public void init() {
 		Button submitButton = new Button("invoke Temporal Pooler");
@@ -72,11 +74,47 @@ public class TemporaalPoolerApplet extends Applet {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("reset"))
-				// System.out.println("reset");
+					// System.out.println("reset");
 					reset();
 			}
 		});
 		add(reset);
+
+		Button running = new Button("run");
+		running.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("run"))
+					run();
+			}
+		});
+		add(running);
+
+		Button patternOne = new Button("patternOne");
+		patternOne.setActionCommand("patternOne");
+		patternOne.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("patternOne")) {
+					savePatternOne();
+
+				}
+			}
+		});
+		add(patternOne);
+
+		Button patternTwo = new Button("patternTwo");
+		patternTwo.setActionCommand("patternTwo");
+		patternTwo.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("patternTwo")) {
+					savePatternTwo();
+
+				}
+			}
+		});
+		add(patternTwo);
 
 		image = createImage(getSize().width, getSize().height);
 		graphics = image.getGraphics();
@@ -112,15 +150,48 @@ public class TemporaalPoolerApplet extends Applet {
 		draw();
 	}
 
+	protected void savePatternTwo() {
+		patternTwo = new int[columns.length];
+		System.arraycopy(columns, 0, patternTwo, 0, columns.length);
+		
+		System.out.println("pattern two saved");
+		invokeTemporalPooler();
+		
+
+	}
+
+	protected void savePatternOne() {
+		patternOne = new int[columns.length];
+		System.arraycopy(columns, 0, patternOne, 0, columns.length);
+
+		System.out.println("pattern one saved");
+		invokeTemporalPooler();
+	}
+
+	protected void run() {
+		if (!(patternOne == null || patternTwo == null)) {
+			for (int i = 0; i < 10; i++) {
+				System.arraycopy(patternTwo, 0, columns, 0, columns.length);
+				
+				invokeTemporalPooler();
+				System.arraycopy(patternOne, 0, columns, 0, columns.length);
+				
+				invokeTemporalPooler();
+				
+			}
+			System.out.println("ready");
+		}
+	}
+
 	public void reset() {
 
 		graphics.clearRect(0, 0, 600, 600);
 		for (int i = 0; i < columns.length; i++) {
 			columns[i] = 0;
 		}
-		this.loggedColum = null;
 		tempo.init();
-
+		patternOne = null;
+		patternTwo = null;
 		draw();
 	}
 
@@ -177,10 +248,41 @@ public class TemporaalPoolerApplet extends Applet {
 						}
 
 						break outer;
+					} else if (x > 19 * xx + 260 && x < 19 * xx + 260 + 16) {
+						if (!mousePressed) {
+							logCell(0, index, xx, yy);
+						}
+						if (mousePressed) {
+							mousePressed = false;
+						}
+						break outer;
+					} else if (x > 19 * xx + 520 && x < 19 * xx + 520 + 16) {
+						if (!mousePressed) {
+							logCell(1, index, xx, yy);
+						}
+						if (mousePressed) {
+							mousePressed = false;
+						}
+						break outer;
+
+					} else if (x > 19 * xx + 780 && x < 19 * xx + 780 + 16) {
+						if (!mousePressed) {
+							logCell(2, index, xx, yy);
+						}
+						if (mousePressed) {
+							mousePressed = false;
+						}
+						break outer;
 					}
+
 				}
 			}
 		}
+	}
+
+	private void logCell(int layer, int index, int xPos, int yPos) {
+		// TODO Auto-generated method stub
+		System.out.println(tempo.getCells()[index][layer][Cell.BEFORE]);
 	}
 
 	/**
@@ -192,11 +294,26 @@ public class TemporaalPoolerApplet extends Applet {
 			for (int y = 0; y < 12; y++) {
 				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
 
-				// TODO draw cells
-				graphics.drawOval(9 * x + 260, 100 + (9 * y), 7, 7);
-				graphics.drawOval(9 * x + 260, 220 + (9 * y), 7, 7);
-				graphics.drawOval(9 * x + 380, 100 + (9 * y), 7, 7);
-				graphics.drawOval(9 * x + 380, 220 + (9 * y), 7, 7);
+				graphics.drawOval(19 * x + 260, 100 + (19 * y), 16, 16);
+				graphics.drawOval(19 * x + 520, 100 + (19 * y), 16, 16);
+				graphics.drawOval(19 * x + 780, 100 + (19 * y), 16, 16);
+
+			}
+		}
+		repaint();
+	}
+	public void redraw() {
+		System.out.println("redraw");
+		graphics.setColor(Color.BLACK);
+		int index=0;
+		for (int x = 0; x < 12; x++) {
+			for (int y = 0; y < 12; y++) {
+				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
+				System.out.print(columns[index]+",");
+				if(columns[index]==1){
+					graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
+				}
+				index++;
 			}
 		}
 		repaint();
@@ -223,7 +340,7 @@ public class TemporaalPoolerApplet extends Applet {
 
 	public void invokeTemporalPooler() {
 
-		graphics.clearRect(0, 0, 600, 600);
+		graphics.clearRect(0, 0, 1050, 1050);
 		draw();
 		//
 		ArrayList<Column> activeColumns = new ArrayList<Column>();
@@ -261,66 +378,64 @@ public class TemporaalPoolerApplet extends Applet {
 					graphics.setColor(Color.black);
 
 					switch (cell.getCellIndex()) {
-						case 0: {
-							// System.out.println("nuuuuu0" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 260, 100 + (9 * cell.getYpos()), 7, 7);
-							break;
-						}
-						case 1: {
-							// System.out.println("nuuuuu1" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 260, 220 + (9 * cell.getYpos()), 7, 7);
-							break;
-						}
-						case 2: {
-							// System.out.println("nuuuuu2" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 380, 100 + (9 * cell.getYpos()), 7, 7);
-							break;
-						}
-						case 3: {
-							// System.out.println("nuuuuu3" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 380, 220 + (9 * cell.getYpos()), 7, 7);
-							break;
-						}
-						default:
-							break;
+					case 0: {
+
+						// System.out.println("nuuuuu0" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 260,
+								100 + (19 * cell.getYpos()), 16, 16);
+						break;
+					}
+					case 1: {
+						// System.out.println("nuuuuu1" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 520,
+								100 + (19 * cell.getYpos()), 16, 16);
+						break;
+					}
+					case 2: {
+						// System.out.println("nuuuuu2" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 780,
+								100 + (19 * cell.getYpos()), 16, 16);
+						break;
+					}
+					default:
+						break;
 					}
 				}
 				if (cell.hasPredictiveState()) {
-					// System.out.println(cell +" "+cell.getXpos()+","+cell.getYpos()
+					// System.out.println(cell
+					// +" "+cell.getXpos()+","+cell.getYpos()
 					// );
 					graphics.setColor(Color.blue);
 
 					switch (cell.getCellIndex()) {
-						case 0: {
-							// System.out.println("nuuuuu0" + cell.getCellIndex() +" "+cell.getXpos()+" "
-							// +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 261, 101 + (9 * cell.getYpos()), 5, 5);
-							break;
-						}
-						case 1: {
-							// System.out.println("nuuuuu1" + cell.getCellIndex() +" "+cell.getXpos()+" "
-							// +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 261, 221 + (9 * cell.getYpos()), 5, 5);
-							break;
-						}
-						case 2: {
-							// System.out.println("nuuuuu2" + cell.getCellIndex() +" "+cell.getXpos()+" "
-							// +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 381, 101 + (9 * cell.getYpos()), 5, 5);
-							break;
-						}
-						case 3: {
-							// System.out.println("nuuuuu3" + cell.getCellIndex() +" "+cell.getXpos()+" "
-							// +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 381, 221 + (9 * cell.getYpos()), 5, 5);
-							break;
-						}
-						default:
-							break;
+
+					case 0: {
+
+						// System.out.println("nuuuuu0" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 263,
+								103 + (19 * cell.getYpos()), 10, 10);
+						break;
+					}
+					case 1: {
+						// System.out.println("nuuuuu1" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 523,
+								103 + (19 * cell.getYpos()), 10, 10);
+						break;
+					}
+					case 2: {
+						// System.out.println("nuuuuu2" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 783,
+								103 + (19 * cell.getYpos()), 10, 10);
+						break;
+					}
+					default:
+						break;
 					}
 				}
 				if (cell.hasLearnState()) {
@@ -328,34 +443,31 @@ public class TemporaalPoolerApplet extends Applet {
 					// +" "+cell.getXpos()+","+cell.getYpos()
 					// );
 					graphics.setColor(Color.red);
-
 					switch (cell.getCellIndex()) {
-						case 0: {
-							// System.out.println("nuuuuu0" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 262, 102 + (9 * cell.getYpos()), 3, 3);
-							break;
-						}
-						case 1: {
-							// System.out.println("nuuuuu1" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 262, 222 + (9 * cell.getYpos()), 3, 3);
-							break;
-						}
-						case 2: {
-							// System.out.println("nuuuuu2" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 321, 102 + (9 * cell.getYpos()), 3, 3);
-							break;
-						}
-						case 3: {
-							// System.out.println("nuuuuu3" + cell.getCellIndex()
-							// +" "+cell.getXpos()+" " +cell.getYpos());
-							graphics.fillOval(9 * cell.getXpos() + 321, 222 + (9 * cell.getYpos()), 3, 3);
-							break;
-						}
-						default:
-							break;
+					case 0: {
+
+						// System.out.println("nuuuuu0" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 266,
+								105 + (19 * cell.getYpos()), 5, 5);
+						break;
+					}
+					case 1: {
+						// System.out.println("nuuuuu1" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 526,
+								105 + (19 * cell.getYpos()), 5, 5);
+						break;
+					}
+					case 2: {
+						// System.out.println("nuuuuu2" + cell.getCellIndex()
+						// +" "+cell.getXpos()+" " +cell.getYpos());
+						graphics.fillOval(19 * cell.getXpos() + 786,
+								105 + (19 * cell.getYpos()), 5, 5);
+						break;
+					}
+					default:
+						break;
 					}
 
 				}

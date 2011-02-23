@@ -31,7 +31,8 @@ public class Column implements Comparable<Column> {
 	 * boost(c) The boost value for column c as computed during learning - used to increase the overlap value for
 	 * inactive columns.
 	 */
-	private double				boost								= 1.0;						// TODO
+	private double				boost								= 1.0;						
+	//  choose value for boost  
 
 	/**
 	 * overlap(c) The spatial pooler overlap of column c with a particular input pattern.
@@ -277,7 +278,6 @@ public class Column implements Comparable<Column> {
 	}
 
 	public boolean isActive() {
-		// TODO Auto-generated method stub
 		return this.active;
 	}
 
