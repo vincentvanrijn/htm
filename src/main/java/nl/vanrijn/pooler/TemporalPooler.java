@@ -285,7 +285,6 @@ public class TemporalPooler {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
 				Cell cell = cells[c][i][Cell.NOW];
-
 				if (cells[c][i][Cell.NOW].hasLearnState()) {
 					// System.out.println("learnstate");
 					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.POSITIVE_REINFORCEMENT);
