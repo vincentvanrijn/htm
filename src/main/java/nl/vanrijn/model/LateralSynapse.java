@@ -5,6 +5,14 @@ package nl.vanrijn.model;
 
 public class LateralSynapse {
 
+	public void setFromColumnIndex(int fromColumnIndex) {
+		this.fromColumnIndex = fromColumnIndex;
+	}
+
+	public void setFromCellIndex(int fromCellIndex) {
+		this.fromCellIndex = fromCellIndex;
+	}
+
 	@Override
 	public String toString() {
 
@@ -57,8 +65,6 @@ public class LateralSynapse {
 	}
 
 	public LateralSynapse() {}
-
-	
 
 	private double	permanance;
 
