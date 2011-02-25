@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import nl.vanrijn.model.Cell;
@@ -22,11 +23,12 @@ import nl.vanrijn.model.Column;
 import nl.vanrijn.pooler.SpatialPooler;
 import nl.vanrijn.pooler.TemporalPooler;
 
-public class TemporaalPoolerApplet extends Applet {
+public class TemporaalPoolerApplet extends Applet implements Runnable  {
 
 	private boolean mouseDragged = false;
 
 	private boolean mousePressed = false;
+	Button addPattern=null;
 
 	private boolean black = true;
 
@@ -38,7 +40,9 @@ public class TemporaalPoolerApplet extends Applet {
 
 	private int[] patternOne = null;
 	private int[] patternTwo = null;
-
+	
+	private List<int[]> patterns = new ArrayList<int[]>();
+	
 	private static final long serialVersionUID = 1L;
 
 	private Graphics graphics;
@@ -55,6 +59,12 @@ public class TemporaalPoolerApplet extends Applet {
 
 	private Cell[][][] cells;
 
+	private Thread runner;
+
+	private boolean starting = true;
+
+	private int counter;
+
 	public void init() {
 		Button submitButton = new Button("invoke Temporal Pooler");
 		submitButton.setActionCommand("temporal");
@@ -64,6 +74,8 @@ public class TemporaalPoolerApplet extends Applet {
 				if (e.getActionCommand().equals("temporal")) {
 					// this.invokeTemporalPooler()();
 					invokeTemporalPooler();
+
+					columns = new int[144];
 				}
 			}
 		});
@@ -85,36 +97,47 @@ public class TemporaalPoolerApplet extends Applet {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("run"))
-					run();
+					running();
 			}
 		});
 		add(running);
+		
 
-		Button patternOne = new Button("patternOne");
-		patternOne.setActionCommand("patternOne");
-		patternOne.addActionListener(new ActionListener() {
+		Button stop = new Button("stop");
+		stop.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("patternOne")) {
-					savePatternOne();
+				if (e.getActionCommand().equals("stop"))
+					stopping();
+			}
+		});
+		add(stop);
+
+		addPattern = new Button("addPattern       ");
+		addPattern.setActionCommand("addPattern");
+		addPattern.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("addPattern")) {
+					addPattern();
 
 				}
 			}
 		});
-		add(patternOne);
+		add(addPattern);
 
-		Button patternTwo = new Button("patternTwo");
-		patternTwo.setActionCommand("patternTwo");
-		patternTwo.addActionListener(new ActionListener() {
+		Button resetPatterns = new Button("resetPatterns");
+		resetPatterns.setActionCommand("resetPatterns");
+		resetPatterns.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("patternTwo")) {
-					savePatternTwo();
-
+				if (e.getActionCommand().equals("resetPatterns")) {
+					patterns=new ArrayList<int[]>();
+					addPattern.setLabel("addPattern");
 				}
 			}
 		});
-		add(patternTwo);
+		add(resetPatterns);
 
 		image = createImage(getSize().width, getSize().height);
 		graphics = image.getGraphics();
@@ -150,42 +173,39 @@ public class TemporaalPoolerApplet extends Applet {
 		draw();
 	}
 
-	protected void savePatternTwo() {
-		patternTwo = new int[columns.length];
-		System.arraycopy(columns, 0, patternTwo, 0, columns.length);
+	protected void stopping() {
+		this.starting=false;
 		
-		System.out.println("pattern two saved");
+		
+	}
+
+	protected void addPattern() {
+		
+		
+		int[] pattern=new int[columns.length];
+		System.arraycopy(columns, 0, pattern, 0, columns.length);
+		patterns.add (pattern);
+		
+		//System.out.println("pattern two saved");
+		redraw();
 		invokeTemporalPooler();
+		addPattern.setLabel("addPattern("+patterns.size()+")");
+		columns = new int[144];
 		
 
 	}
 
-	protected void savePatternOne() {
-		patternOne = new int[columns.length];
-		System.arraycopy(columns, 0, patternOne, 0, columns.length);
+	
 
-		System.out.println("pattern one saved");
-		invokeTemporalPooler();
-	}
-
-	protected void run() {
-		if (!(patternOne == null || patternTwo == null)) {
-			for (int i = 0; i < 10; i++) {
-				System.arraycopy(patternTwo, 0, columns, 0, columns.length);
-				
-				invokeTemporalPooler();
-				System.arraycopy(patternOne, 0, columns, 0, columns.length);
-				
-				invokeTemporalPooler();
-				
-			}
-			System.out.println("ready");
-		}
+	protected void running() {
+		runner = new Thread(this); 
+		
+		runner.start(); 	
 	}
 
 	public void reset() {
 
-		graphics.clearRect(0, 0, 600, 600);
+		clearAll();
 		for (int i = 0; i < columns.length; i++) {
 			columns[i] = 0;
 		}
@@ -303,15 +323,17 @@ public class TemporaalPoolerApplet extends Applet {
 		repaint();
 	}
 	public void redraw() {
-		System.out.println("redraw");
-		graphics.setColor(Color.BLACK);
+		//System.out.println("redraw");
+		graphics.setColor(Color.black);
 		int index=0;
-		for (int x = 0; x < 12; x++) {
-			for (int y = 0; y < 12; y++) {
+		for (int y = 0; y < 12; y++) {
+			for (int x = 0; x < 12; x++) {
+			
 				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-				System.out.print(columns[index]+",");
+				//System.out.print(columns[index]+",");
 				if(columns[index]==1){
-					graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
+					//System.out.println("nu");
+					graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 				}
 				index++;
 			}
@@ -338,10 +360,13 @@ public class TemporaalPoolerApplet extends Applet {
 		columns[index] = value;
 	}
 
-	public void invokeTemporalPooler() {
-
+	private void clearAll(){
 		graphics.clearRect(0, 0, 1050, 1050);
 		draw();
+	}
+	public void invokeTemporalPooler() {
+
+		clearAll();
 		//
 		ArrayList<Column> activeColumns = new ArrayList<Column>();
 		int index = -1;
@@ -475,6 +500,34 @@ public class TemporaalPoolerApplet extends Applet {
 		}
 		repaint();
 		tempo.nextTime();
-		columns = new int[144];
+	}
+
+	public void run() {
+		if (patterns.size()!=0) {
+			this.starting=true;
+
+			this.counter=0;
+			do{		
+				
+				System.arraycopy(patterns.get(this.counter), 0, columns, 0, columns.length);
+				
+				invokeTemporalPooler();
+				redraw();
+				
+				
+				try{
+					Thread.sleep(600);
+				} catch (Exception e) {
+					System.out.println("fucked");
+				}
+				if(counter<patterns.size()-1){
+					counter++;
+				} else{
+					counter=0;
+				}
+				System.out.println(this.starting);
+			} while(this.starting);
+		}
+		
 	}
 }

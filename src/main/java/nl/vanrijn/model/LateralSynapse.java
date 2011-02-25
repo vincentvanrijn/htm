@@ -28,7 +28,7 @@ public class LateralSynapse {
 	/**
 	 * permanenceDec Amount permanence values of synapses are decremented when activity-based learning occurs.
 	 */
-	public static final double	PERMANANCE_DEC		= 0.2;	// TODO choose reasonable value for PERMANANCE_DEC
+	public static final double	PERMANANCE_DEC		= 0.1;	// TODO choose reasonable value for PERMANANCE_DEC
 
 	/**
 	 * initialPerm Initial permanence value for a synapse.
