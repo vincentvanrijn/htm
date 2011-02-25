@@ -29,7 +29,7 @@ public class TemporalPooler {
 	 * activationThreshold Activation threshold for a segment. If the number of active connected synapses in a segment
 	 * is greater than activationThreshold, the segment is said to be active.
 	 */
-	private static int			ACTIVATION_TRESHOLD	= 5;
+	private static int			ACTIVATION_TRESHOLD	= 2;
 
 	// TODO value for activasion treshold
 
@@ -40,7 +40,7 @@ public class TemporalPooler {
 	// TODO value for ammount segments
 
 	// TODO choose value maybe first same ammount as cells
-	private static int			AMMOUNT_OF_SYNAPSES	= 10;
+	private static int			AMMOUNT_OF_SYNAPSES	= 20;
 
 	// TODO choose value for ammount of synapse
 
@@ -72,7 +72,6 @@ public class TemporalPooler {
 	private Cell[][][]			cells				= new Cell[SpatialPooler.AMMOUNT_OF_COLLUMNS][Column.CELLS_PER_COLUMN][TemporalPooler.AMMOUNT_TIME];
 
 	public void init() {
-		// TODO choose a reasonable connectedpermanance
 
 		ArrayList<Integer> collumnIndexes = new ArrayList<Integer>();
 		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
@@ -80,7 +79,6 @@ public class TemporalPooler {
 
 		}
 		Random random = new Random();
-		// LateralSynapse.setConnectedPermanance(1);
 		// for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
 		int c = 0;
 		for (int yy = 0; yy < 12; yy++) {
@@ -174,7 +172,7 @@ public class TemporalPooler {
 				if (cells[column.getColumnIndex()][i][Cell.BEFORE].hasPredictiveState()) {
 					// System.out.println("predicted before ");
 					Segment segment = getActiveSegment(column.getColumnIndex(), i, Cell.BEFORE, Cell.ACTIVE_STATE);
-					if (segment.isSsequenceSegment()) {
+					if (segment!=null && segment.isSsequenceSegment()) {
 						System.out.println("predicted and sequence");
 						buPredicted = true;
 						cells[column.getColumnIndex()][i][Cell.NOW].setActiveState(true);
@@ -288,7 +286,7 @@ public class TemporalPooler {
 				if (cells[c][i][Cell.NOW].hasLearnState()) {
 					// System.out.println("learnstate");
 					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.POSITIVE_REINFORCEMENT);
-					// System.out.println("updating learnstate "+cell);
+					//System.out.println("updating learnstate "+cell);
 					cell.getSegmentUpdateList().clear();
 
 				} else
@@ -371,7 +369,9 @@ public class TemporalPooler {
 					return returnValue;
 				}
 			});
-			returnValue = activeSegments.get(0);
+			if(activeSegments.size()>0){
+				returnValue = activeSegments.get(0);
+			}
 			// System.out.println("most active "+returnValue);
 		}
 		return returnValue;
@@ -400,12 +400,12 @@ public class TemporalPooler {
 				}
 				for (LateralSynapse synapse : segmentUpdate.getActiveSynapses()) {
 					if (positiveReinforcement) {
-						// System.out.println("inc " + synapse);
+						System.out.println("inc " + synapse);
 
 						synapse.setPermanance(synapse.getPermanance() + LateralSynapse.PERMANANCE_INC);
 						// System.out.println("inc after " + synapse);
 					} else {
-						// System.out.println("dec " + synapse);
+						System.out.println("dec " + synapse);
 						synapse.setPermanance(synapse.getPermanance() - LateralSynapse.PERMANANCE_DEC);
 					}
 
@@ -597,7 +597,6 @@ public class TemporalPooler {
 		Cell fromCell = null;
 
 		for (LateralSynapse synapse : synapses) {
-			// System.out.println(synapse.getPermanance()+" "+LateralSynapse.connectedPermanance);
 
 			if (state == Cell.LEARN_STATE) {
 				// System.out.println("learnstatr "+synapse.isConnected());
