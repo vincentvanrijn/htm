@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 
 import nl.vanrijn.model.Cell;
 import nl.vanrijn.model.Column;
+import nl.vanrijn.model.LateralSynapse;
+import nl.vanrijn.model.Segment;
 import nl.vanrijn.pooler.SpatialPooler;
 import nl.vanrijn.pooler.TemporalPooler;
 
@@ -301,8 +303,24 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 	}
 
 	private void logCell(int layer, int index, int xPos, int yPos) {
-		// TODO Auto-generated method stub
-		System.out.println(tempo.getCells()[index][layer][Cell.BEFORE]);
+		
+		Cell cell=tempo.getCells()[index][layer][Cell.BEFORE];
+		System.out.println(cell);
+		for(Segment segment : cell.getSegments()){
+			
+			for(LateralSynapse synapse : segment.getConnectedSynapses()){
+				
+				if(tempo.getCells()[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.BEFORE].hasActiveState()){
+					System.out.println(segment);
+					System.out.println(synapse);
+					System.out.println(tempo.getCells()[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.BEFORE]);
+				}
+			}
+			
+			if(this.tempo.segmentActive(segment, Cell.BEFORE, Cell.ACTIVE_STATE)){
+					System.out.println(segment +" is active" );
+			}
+		}
 	}
 
 	/**
@@ -516,7 +534,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 				
 				
 				try{
-					Thread.sleep(600);
+					Thread.sleep(200);
 				} catch (Exception e) {
 					System.out.println("fucked");
 				}
@@ -525,7 +543,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 				} else{
 					counter=0;
 				}
-				System.out.println(this.starting);
+//				System.out.println(this.starting);
 			} while(this.starting);
 		}
 		
