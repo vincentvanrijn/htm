@@ -3,8 +3,6 @@
  */
 package nl.vanrijn.model;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * synapse A data structure representing a synapse - contains a permanence value and the source input index.
@@ -19,7 +17,6 @@ public class Synapse {
 
 	private int		inputSpaceIndex;
 
-	private Logger	logger	= Logger.getLogger(this.getClass().getName());
 
 	private int		xPos;
 
