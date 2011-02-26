@@ -34,15 +34,9 @@ public class Segment {
 		return cellIndex;
 	}
 
-	
-
-
-
 	public int getSegmentIndex() {
 		return segmentIndex;
-	}
-
-	
+	}	
 
 	public int getColumnIndex() {
 		return columnIndex;
@@ -64,7 +58,7 @@ public class Segment {
 	@Override
 	public String toString() {
 		
-		return "segment "+this.getColumnIndex()+","+this.getCellIndex()+","+this.getSegmentIndex()+","+isSsequenceSegment()+" "+this.getSynapses().size();
+		return "segment on "+this.getColumnIndex()+","+this.getCellIndex()+","+this.getSegmentIndex()+",isSeq "+isSsequenceSegment()+",amm syn "+this.getSynapses().size();
 	}
 
 	public void setSynapses(List<LateralSynapse> synapses) {
@@ -78,7 +72,6 @@ public class Segment {
 	public void setSequenceSegment(boolean sequenceSegment) {
 		this.sequenceSegment = sequenceSegment;
 	}
-
 	
 /**
  * This is used for sorting a List of segments

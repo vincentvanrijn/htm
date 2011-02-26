@@ -61,7 +61,7 @@ public class Cell {
 		this.predictiveState = predictiveState;
 	}
 
-	private List<Segment>	segments;
+	private Segment[]	segments;
 
 	private int xpos;
 
@@ -93,7 +93,7 @@ public class Cell {
 		this.cellIndex = cellIndex;
 	}
 
-	public List<Segment> getSegments() {
+	public Segment[] getSegments() {
 		return segments;
 	}
 
@@ -119,7 +119,7 @@ public class Cell {
 
 	}
 
-	public void setSegments(List<Segment> segments) {
+	public void setSegments(Segment[] segments) {
 		this.segments = segments;
 
 	}
@@ -128,7 +128,7 @@ public class Cell {
 	public String toString() {
 		return "cell=" + this.columnIndex + "," + this.getCellIndex() + "," + this.time + ",activeState="
 				+ this.activeState + ",learnState=" + this.learnState + ",predictivestate=" + this.predictiveState
-				+ ",segments.size=" + this.segments.size()+"x,y="+this.getXpos()+","+this.getYpos()+" "+this.segmentUpdateList.size() ;
+				+ ",segments.size=" + this.segments.length+"x,y="+this.getXpos()+","+this.getYpos()+" "+this.segmentUpdateList.size() ;
 	}
 
 	public void setXpos(int xpos) {

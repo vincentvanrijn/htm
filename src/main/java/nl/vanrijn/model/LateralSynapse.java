@@ -3,6 +3,8 @@
  */
 package nl.vanrijn.model;
 
+import nl.vanrijn.pooler.TemporalPooler;
+
 public class LateralSynapse {
 
 	public void setFromColumnIndex(int fromColumnIndex) {
@@ -16,29 +18,11 @@ public class LateralSynapse {
 	@Override
 	public String toString() {
 
-		return "LateralSynapse " + this.fromColumnIndex + "," + this.fromCellIndex + "," + this.columnIndex + ","
-				+ this.getCellIndex() + "," + this.segmentIndex + "," + this.permanance;
+		return "LateralSynapse from " + this.fromColumnIndex + "," + this.fromCellIndex + ", on " + this.columnIndex + ","
+				+ this.getCellIndex() + "," + this.segmentIndex + ",perm " + this.permanance;
 	}
 
-	/**
-	 * permanenceInc Amount permanence values of synapses are incremented when activity-based learning occurs.
-	 */
-	public static final double	PERMANANCE_INC		= 0.1;	// TODO choose reasonable value for PERMANANCE_INC
-
-	/**
-	 * permanenceDec Amount permanence values of synapses are decremented when activity-based learning occurs.
-	 */
-	public static final double	PERMANANCE_DEC		= 0.1;	// TODO choose reasonable value for PERMANANCE_DEC
-
-	/**
-	 * initialPerm Initial permanence value for a synapse.
-	 */
-	public static final double	INITIAL_PERM		= 0.5;
-
-	/**
-	 * connectedPerm If the permanence value for a synapse is greater than this value, it is said to be connected.
-	 */
-	public static double		connectedPermanance	= 0.5;
+	
 
 	private int					synapseIndex;
 
@@ -109,11 +93,9 @@ public class LateralSynapse {
 	public boolean isConnected() {
 		// logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+
 		// "input="+sourceInput);
-		return this.permanance >= LateralSynapse.connectedPermanance;
+		return this.permanance >= TemporalPooler.CONNECTED_PERMANANCE;
 	}
 
-	public static double getConnectedPermanance() {
-		return connectedPermanance;
-	}
+	
 
 }
