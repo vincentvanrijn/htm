@@ -16,7 +16,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import nl.vanrijn.model.Cell;
 import nl.vanrijn.model.Column;
@@ -40,8 +39,6 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 	 */
 	private int[] columns = new int[144];
 
-	private int[] patternOne = null;
-	private int[] patternTwo = null;
 	
 	private List<int[]> patterns = new ArrayList<int[]>();
 	
@@ -49,8 +46,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 
 	private Graphics graphics;
 
-	private Logger logger = Logger.getLogger(this.getClass().getName());
-
+	
 	private Image image;
 
 	// private Column[] columns;
@@ -212,8 +208,6 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 			columns[i] = 0;
 		}
 		tempo.init();
-		patternOne = null;
-		patternTwo = null;
 		draw();
 	}
 
