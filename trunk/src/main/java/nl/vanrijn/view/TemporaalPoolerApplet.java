@@ -62,7 +62,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable {
 	private int					counter;
 
 	public void init() {
-		Button submitButton = new Button("invoke Temporal Pooler");
+		Button submitButton = new Button("Temporal Pooler");
 		submitButton.setActionCommand("temporal");
 		submitButton.addActionListener(new ActionListener() {
 
