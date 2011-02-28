@@ -10,11 +10,19 @@ import nl.vanrijn.model.helper.SegmentUpdate;
 
 public class Cell {
 
-	public static final int		ACTIVE_STATE		= 1;
+	public static final int	ACTIVE_STATE	= 1;
 
-	public static final int		LEARN_STATE			= 2;
+	public static final int	LEARN_STATE		= 2;
 
-	public static final int		NOW					= 1;
+	public static final int	NOW				= 1;
+
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
+	}
 
 	public static final int		BEFORE				= 0;
 
@@ -63,9 +71,9 @@ public class Cell {
 
 	private List<Segment>	segments;
 
-	private int xpos;
+	private int				xpos;
 
-	private int ypos;
+	private int				ypos;
 
 	public boolean hasActiveState() {
 		return activeState;
@@ -128,16 +136,18 @@ public class Cell {
 	public String toString() {
 		return "cell=" + this.columnIndex + "," + this.getCellIndex() + "," + this.time + ",activeState="
 				+ this.activeState + ",learnState=" + this.learnState + ",predictivestate=" + this.predictiveState
-				+ ",segments.size=" + this.segments.size()+"x,y="+this.getXpos()+","+this.getYpos()+" "+this.segmentUpdateList.size() ;
+				+ ",segments.size=" + this.segments.size() + "x,y=" + this.getXpos() + "," + this.getYpos() + " "
+				+ this.segmentUpdateList.size();
 	}
 
 	public void setXpos(int xpos) {
-		this.xpos=xpos;
-	
+		this.xpos = xpos;
+
 	}
+
 	public void setYpos(int ypos) {
-		this.ypos=ypos;
-	
+		this.ypos = ypos;
+
 	}
 
 	public int getXpos() {
