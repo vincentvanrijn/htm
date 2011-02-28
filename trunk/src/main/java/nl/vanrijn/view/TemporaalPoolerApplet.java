@@ -24,44 +24,42 @@ import nl.vanrijn.model.Segment;
 import nl.vanrijn.pooler.SpatialPooler;
 import nl.vanrijn.pooler.TemporalPooler;
 
-public class TemporaalPoolerApplet extends Applet implements Runnable  {
+public class TemporaalPoolerApplet extends Applet implements Runnable {
 
-	private boolean mouseDragged = false;
+	private boolean				mouseDragged		= false;
 
-	private boolean mousePressed = false;
-	Button addPattern=null;
+	private boolean				mousePressed		= false;
 
-	private boolean black = true;
+	Button						addPattern			= null;
+
+	private boolean				black				= true;
 
 	/**
-	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the
-	 * j'th input is on.
+	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the j'th input is on.
 	 */
-	private int[] columns = new int[144];
+	private int[]				columns				= new int[144];
 
-	
-	private List<int[]> patterns = new ArrayList<int[]>();
-	
-	private static final long serialVersionUID = 1L;
+	private List<int[]>			patterns			= new ArrayList<int[]>();
 
-	private Graphics graphics;
+	private static final long	serialVersionUID	= 1L;
 
-	
-	private Image image;
+	private Graphics			graphics;
+
+	private Image				image;
 
 	// private Column[] columns;
 
-	private TemporalPooler tempo = new TemporalPooler();
+	private TemporalPooler		tempo				= new TemporalPooler();
 
-	DecimalFormat df2 = new DecimalFormat("#,###,###,##0.00");
+	DecimalFormat				df2					= new DecimalFormat("#,###,###,##0.00");
 
-	private Cell[][][] cells;
+	private Cell[][][]			cells;
 
-	private Thread runner;
+	private Thread				runner;
 
-	private boolean starting = true;
+	private boolean				starting			= true;
 
-	private int counter;
+	private int					counter;
 
 	public void init() {
 		Button submitButton = new Button("invoke Temporal Pooler");
@@ -84,7 +82,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("reset"))
-					// System.out.println("reset");
+				// System.out.println("reset");
 					reset();
 			}
 		});
@@ -94,19 +92,16 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 		running.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("run"))
-					running();
+				if (e.getActionCommand().equals("run")) running();
 			}
 		});
 		add(running);
-		
 
 		Button stop = new Button("stop");
 		stop.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("stop"))
-					stopping();
+				if (e.getActionCommand().equals("stop")) stopping();
 			}
 		});
 		add(stop);
@@ -130,7 +125,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("resetPatterns")) {
-					patterns=new ArrayList<int[]>();
+					patterns = new ArrayList<int[]>();
 					addPattern.setLabel("addPattern");
 				}
 			}
@@ -172,33 +167,28 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 	}
 
 	protected void stopping() {
-		this.starting=false;
-		
-		
+		this.starting = false;
+
 	}
 
 	protected void addPattern() {
-		
-		
-		int[] pattern=new int[columns.length];
+
+		int[] pattern = new int[columns.length];
 		System.arraycopy(columns, 0, pattern, 0, columns.length);
-		patterns.add (pattern);
-		
-		//System.out.println("pattern two saved");
+		patterns.add(pattern);
+
+		// System.out.println("pattern two saved");
 		redraw();
 		invokeTemporalPooler();
-		addPattern.setLabel("addPattern("+patterns.size()+")");
+		addPattern.setLabel("addPattern(" + patterns.size() + ")");
 		columns = new int[144];
-		
 
 	}
 
-	
-
 	protected void running() {
-		runner = new Thread(this); 
-		
-		runner.start(); 	
+		runner = new Thread(this);
+
+		runner.start();
 	}
 
 	public void reset() {
@@ -264,32 +254,35 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 						}
 
 						break outer;
-					} else if (x > 19 * xx + 260 && x < 19 * xx + 260 + 16) {
-						if (!mousePressed) {
-							logCell(0, index, xx, yy);
-						}
-						if (mousePressed) {
-							mousePressed = false;
-						}
-						break outer;
-					} else if (x > 19 * xx + 520 && x < 19 * xx + 520 + 16) {
-						if (!mousePressed) {
-							logCell(1, index, xx, yy);
-						}
-						if (mousePressed) {
-							mousePressed = false;
-						}
-						break outer;
+					} else
+						if (x > 19 * xx + 260 && x < 19 * xx + 260 + 16) {
+							if (!mousePressed) {
+								logCell(0, index, xx, yy);
+							}
+							if (mousePressed) {
+								mousePressed = false;
+							}
+							break outer;
+						} else
+							if (x > 19 * xx + 520 && x < 19 * xx + 520 + 16) {
+								if (!mousePressed) {
+									logCell(1, index, xx, yy);
+								}
+								if (mousePressed) {
+									mousePressed = false;
+								}
+								break outer;
 
-					} else if (x > 19 * xx + 780 && x < 19 * xx + 780 + 16) {
-						if (!mousePressed) {
-							logCell(2, index, xx, yy);
-						}
-						if (mousePressed) {
-							mousePressed = false;
-						}
-						break outer;
-					}
+							} else
+								if (x > 19 * xx + 780 && x < 19 * xx + 780 + 16) {
+									if (!mousePressed) {
+										logCell(2, index, xx, yy);
+									}
+									if (mousePressed) {
+										mousePressed = false;
+									}
+									break outer;
+								}
 
 				}
 			}
@@ -297,22 +290,24 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 	}
 
 	private void logCell(int layer, int index, int xPos, int yPos) {
-		
-		Cell cell=tempo.getCells()[index][layer][Cell.BEFORE];
+
+		Cell cell = tempo.getCells()[index][layer][Cell.BEFORE];
 		System.out.println(cell);
-		for(Segment segment : cell.getSegments()){
-			
-			for(LateralSynapse synapse : segment.getConnectedSynapses()){
-				
-				if(tempo.getCells()[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.BEFORE].hasActiveState()){
+		for (Segment segment : cell.getSegments()) {
+
+			for (LateralSynapse synapse : segment.getConnectedSynapses()) {
+
+				if (tempo.getCells()[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.BEFORE]
+						.hasActiveState()) {
 					System.out.println(segment);
 					System.out.println(synapse);
-					System.out.println(tempo.getCells()[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.BEFORE]);
+					System.out
+							.println(tempo.getCells()[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][Cell.BEFORE]);
 				}
 			}
-			
-			if(this.tempo.segmentActive(segment, Cell.BEFORE, Cell.ACTIVE_STATE)){
-					System.out.println(segment +" is active" );
+
+			if (this.tempo.segmentActive(segment, Cell.BEFORE, Cell.ACTIVE_STATE)) {
+				System.out.println(segment + " is active");
 			}
 		}
 	}
@@ -334,17 +329,18 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 		}
 		repaint();
 	}
+
 	public void redraw() {
-		//System.out.println("redraw");
+		// System.out.println("redraw");
 		graphics.setColor(Color.black);
-		int index=0;
+		int index = 0;
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
-			
+
 				graphics.drawOval(19 * x, 100 + (19 * y), 16, 16);
-				//System.out.print(columns[index]+",");
-				if(columns[index]==1){
-					//System.out.println("nu");
+				// System.out.print(columns[index]+",");
+				if (columns[index] == 1) {
+					// System.out.println("nu");
 					graphics.fillOval(19 * x, 100 + (19 * y), 16, 16);
 				}
 				index++;
@@ -372,10 +368,11 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 		columns[index] = value;
 	}
 
-	private void clearAll(){
+	private void clearAll() {
 		graphics.clearRect(0, 0, 1050, 1050);
 		draw();
 	}
+
 	public void invokeTemporalPooler() {
 
 		clearAll();
@@ -415,30 +412,27 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 					graphics.setColor(Color.black);
 
 					switch (cell.getCellIndex()) {
-					case 0: {
+						case 0: {
 
-						// System.out.println("nuuuuu0" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 260,
-								100 + (19 * cell.getYpos()), 16, 16);
-						break;
-					}
-					case 1: {
-						// System.out.println("nuuuuu1" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 520,
-								100 + (19 * cell.getYpos()), 16, 16);
-						break;
-					}
-					case 2: {
-						// System.out.println("nuuuuu2" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 780,
-								100 + (19 * cell.getYpos()), 16, 16);
-						break;
-					}
-					default:
-						break;
+							// System.out.println("nuuuuu0" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 260, 100 + (19 * cell.getYpos()), 16, 16);
+							break;
+						}
+						case 1: {
+							// System.out.println("nuuuuu1" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 520, 100 + (19 * cell.getYpos()), 16, 16);
+							break;
+						}
+						case 2: {
+							// System.out.println("nuuuuu2" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 780, 100 + (19 * cell.getYpos()), 16, 16);
+							break;
+						}
+						default:
+							break;
 					}
 				}
 				if (cell.hasPredictiveState()) {
@@ -449,30 +443,27 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 
 					switch (cell.getCellIndex()) {
 
-					case 0: {
+						case 0: {
 
-						// System.out.println("nuuuuu0" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 263,
-								103 + (19 * cell.getYpos()), 10, 10);
-						break;
-					}
-					case 1: {
-						// System.out.println("nuuuuu1" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 523,
-								103 + (19 * cell.getYpos()), 10, 10);
-						break;
-					}
-					case 2: {
-						// System.out.println("nuuuuu2" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 783,
-								103 + (19 * cell.getYpos()), 10, 10);
-						break;
-					}
-					default:
-						break;
+							// System.out.println("nuuuuu0" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 263, 103 + (19 * cell.getYpos()), 10, 10);
+							break;
+						}
+						case 1: {
+							// System.out.println("nuuuuu1" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 523, 103 + (19 * cell.getYpos()), 10, 10);
+							break;
+						}
+						case 2: {
+							// System.out.println("nuuuuu2" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 783, 103 + (19 * cell.getYpos()), 10, 10);
+							break;
+						}
+						default:
+							break;
 					}
 				}
 				if (cell.hasLearnState()) {
@@ -481,30 +472,27 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 					// );
 					graphics.setColor(Color.red);
 					switch (cell.getCellIndex()) {
-					case 0: {
+						case 0: {
 
-						// System.out.println("nuuuuu0" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 266,
-								105 + (19 * cell.getYpos()), 5, 5);
-						break;
-					}
-					case 1: {
-						// System.out.println("nuuuuu1" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 526,
-								105 + (19 * cell.getYpos()), 5, 5);
-						break;
-					}
-					case 2: {
-						// System.out.println("nuuuuu2" + cell.getCellIndex()
-						// +" "+cell.getXpos()+" " +cell.getYpos());
-						graphics.fillOval(19 * cell.getXpos() + 786,
-								105 + (19 * cell.getYpos()), 5, 5);
-						break;
-					}
-					default:
-						break;
+							// System.out.println("nuuuuu0" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 266, 105 + (19 * cell.getYpos()), 5, 5);
+							break;
+						}
+						case 1: {
+							// System.out.println("nuuuuu1" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 526, 105 + (19 * cell.getYpos()), 5, 5);
+							break;
+						}
+						case 2: {
+							// System.out.println("nuuuuu2" + cell.getCellIndex()
+							// +" "+cell.getXpos()+" " +cell.getYpos());
+							graphics.fillOval(19 * cell.getXpos() + 786, 105 + (19 * cell.getYpos()), 5, 5);
+							break;
+						}
+						default:
+							break;
 					}
 
 				}
@@ -515,31 +503,30 @@ public class TemporaalPoolerApplet extends Applet implements Runnable  {
 	}
 
 	public void run() {
-		if (patterns.size()!=0) {
-			this.starting=true;
+		if (patterns.size() != 0) {
+			this.starting = true;
 
-			this.counter=0;
-			do{		
-				
+			this.counter = 0;
+			do {
+
 				System.arraycopy(patterns.get(this.counter), 0, columns, 0, columns.length);
-				
+
 				invokeTemporalPooler();
 				redraw();
-				
-				
-				try{
+
+				try {
 					Thread.sleep(200);
 				} catch (Exception e) {
 					System.out.println("fucked");
 				}
-				if(counter<patterns.size()-1){
+				if (counter < patterns.size() - 1) {
 					counter++;
-				} else{
-					counter=0;
+				} else {
+					counter = 0;
 				}
-//				System.out.println(this.starting);
-			} while(this.starting);
+				// System.out.println(this.starting);
+			} while (this.starting);
 		}
-		
+
 	}
 }
