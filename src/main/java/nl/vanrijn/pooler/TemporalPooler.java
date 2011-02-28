@@ -211,7 +211,6 @@ public class TemporalPooler {
 					// connected to these synapses also.
 					Segment segment = getActiveSegment(column.getColumnIndex(), i, Cell.BEFORE, Cell.ACTIVE_STATE);
 					if (segment != null && segment.isSsequenceSegment()) {
-						System.out.println("predicted and sequence");
 						buPredicted = true;
 						cells[column.getColumnIndex()][i][Cell.NOW].setActiveState(true);
 						// if these cells also had learnstate
@@ -222,7 +221,6 @@ public class TemporalPooler {
 							// TODO this never happsens Create a unit test that
 							// will make this happen
 							// Happens now!!
-							System.out.println("setLearnstate because of sequence sg");
 						}
 					}
 				}
@@ -252,11 +250,7 @@ public class TemporalPooler {
 
 				cellToUpdate.getSegmentUpdateList().add(sUpdate);// does this happen?
 
-				if (cellToUpdate.hasLearnState()) {
-					for (SegmentUpdate segmentUpdate : cellToUpdate.getSegmentUpdateList()) {
-						System.out.println("learnstate and segment update" + segmentUpdate);
-					}
-				}
+		
 
 			}
 		}
@@ -313,7 +307,6 @@ public class TemporalPooler {
 
 				Cell cell = cells[c][i][Cell.NOW];
 				if (cell.hasLearnState()) {
-					System.out.println("learnstate " + cell);
 					adaptSegments(cell.getSegmentUpdateList(), SegmentUpdate.POSITIVE_REINFORCEMENT);
 					// System.out.println("updating learnstate "+cell);
 					cell.getSegmentUpdateList().clear();
@@ -425,30 +418,33 @@ public class TemporalPooler {
 		if (segmentUpdateList != null) {
 			for (SegmentUpdate segmentUpdate : segmentUpdateList) {
 				Cell cell = cells[segmentUpdate.getColumnIndex()][segmentUpdate.getCellIndex()][Cell.NOW];
-				System.out.println("adapt " + cell);
 				if (segmentUpdate.getSegmentUpdateIndex() != -1) {
-					Segment segment = cell.getSegments().get(segmentUpdate.getSegmentUpdateIndex());
-					System.out.println("adapting segment " + segment);
+					Segment segment=null;
+					for(Segment segmentq:cell.getSegments()){
+						if(segmentq.getSegmentIndex()==segmentUpdate.getSegmentUpdateIndex()){
+							segment=segmentq;
+							break;
+						}
+					}
+					
 					if (segmentUpdate.isSequenceSegment()) {
-						System.out.println("making it sequence");
 						segment.setSequenceSegment(true);
 					}
-					System.out.println("ammount synapses to update " + segmentUpdate.getActiveSynapses().size());
 					for (LateralSynapse synapse2 : segmentUpdate.getActiveSynapses()) {
-						System.out.println("adapting synapse " + synapse2);
-
+	
 						if (segment.getSynapses().contains(synapse2)) {// TODO this is going wrong.the synapses
 							// in the list don't seem to exist.but they should. maybe a time problem
 							if (positiveReinforcement) {
-								System.out.println("positief");
 								synapse2.setPermanance(synapse2.getPermanance() + TemporalPooler.PERMANANCE_INC);
+
+//								System.out.println("positief "+synapse2);
 							} else {
 								System.out.println("negatief");
 								synapse2.setPermanance(synapse2.getPermanance() - TemporalPooler.PERMANANCE_DEC);
 							}
 						} else {
 
-							System.out.println("cell extra");
+//							System.out.println("cell extra");
 							synapse2.setPermanance(synapse2.getPermanance() - TemporalPooler.PERMANANCE_DEC);
 
 						}
@@ -551,7 +547,6 @@ public class TemporalPooler {
 				Cell cell = cells[synapse.getFromColumnIndex()][synapse.getFromCellIndex()][time];
 
 				if (cell.hasActiveState()) {
-					System.out.println("cell in getSeg " + cell);
 					activeSynapses.add(synapse);
 				}
 			}
