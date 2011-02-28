@@ -436,8 +436,9 @@ public class TemporalPooler {
 					System.out.println("ammount synapses to update " + segmentUpdate.getActiveSynapses().size());
 					for (LateralSynapse synapse2 : segmentUpdate.getActiveSynapses()) {
 						System.out.println("adapting synapse " + synapse2);
-						if (segment.getSynapses().contains(synapse2)) {// this is going wrong.the synapses
-							// in the list don't seem to exist.
+
+						if (segment.getSynapses().contains(synapse2)) {// TODO this is going wrong.the synapses
+							// in the list don't seem to exist.but they should. maybe a time problem
 							if (positiveReinforcement) {
 								System.out.println("positief");
 								synapse2.setPermanance(synapse2.getPermanance() + TemporalPooler.PERMANANCE_INC);
@@ -446,6 +447,7 @@ public class TemporalPooler {
 								synapse2.setPermanance(synapse2.getPermanance() - TemporalPooler.PERMANANCE_DEC);
 							}
 						} else {
+
 							System.out.println("cell extra");
 							synapse2.setPermanance(synapse2.getPermanance() - TemporalPooler.PERMANANCE_DEC);
 
