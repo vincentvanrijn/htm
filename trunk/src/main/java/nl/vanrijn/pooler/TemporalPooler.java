@@ -528,40 +528,40 @@ public class TemporalPooler {
 					activeSynapses.add(synapse);
 				}
 			}
+			if (newSynapses) {
+				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
+				for (int ci = 0; ci < SpatialPooler.AMMOUNT_OF_COLLUMNS; ci++) {
+					for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
+
+						Cell cell = cells[ci][ii][time];
+						if (cell.hasLearnState()) {
+							cellsWithLearnstate.add(cell);
+						}
+					}
+				}
+				if (cellsWithLearnstate.size() > 0) {
+					Collections.shuffle(cellsWithLearnstate);
+					int l = TemporalPooler.NEW_SYNAPSE_COUNT - activeSynapses.size();
+					if (l > 0) {
+						for (int k = 0; k < l; k++) {
+							if (cellsWithLearnstate.size() > k) {
+								Cell cell = cellsWithLearnstate.get(k);
+
+								activeSynapses.add(new LateralSynapse(c, i, segment.getSegmentIndex(), cell
+										.getColumnIndex(), cell.getCellIndex(), TemporalPooler.INITIAL_PERM));
+								System.out.println("adding new synapse in segmentactive");
+							}
+						}
+					}
+				}
+			}
+
 			returnValue = new SegmentUpdate(c, i, segment.getSegmentIndex(), activeSynapses);
 
 		} else {
 			returnValue = new SegmentUpdate(c, i, -1, activeSynapses);
 		}
 		// TODO Maybe add new Segment
-
-		if (newSynapses) {
-			List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
-			for (int ci = 0; ci < SpatialPooler.AMMOUNT_OF_COLLUMNS; ci++) {
-				for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
-
-					Cell cell = cells[ci][ii][time];
-					if (cell.hasLearnState()) {
-						cellsWithLearnstate.add(cell);
-					}
-				}
-			}
-			if (cellsWithLearnstate.size() > 0) {
-				Collections.shuffle(cellsWithLearnstate);
-				int l = TemporalPooler.NEW_SYNAPSE_COUNT - activeSynapses.size();
-				if (l > 0) {
-					for (int k = 0; k < l; k++) {
-						if (cellsWithLearnstate.size() > k) {
-							Cell cell = cellsWithLearnstate.get(k);
-
-							activeSynapses.add(new LateralSynapse(c, i, segment.getSegmentIndex(), cell
-									.getColumnIndex(), cell.getCellIndex(), TemporalPooler.INITIAL_PERM));
-							System.out.println("adding new synapse in segmentactive");
-						}
-					}
-				}
-			}
-		}
 
 		return returnValue;
 	}
