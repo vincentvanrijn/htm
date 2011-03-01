@@ -6,14 +6,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LateralSynapseTest {
-	
-	LateralSynapse synapse=null;
+
+	LateralSynapse	synapse	= null;
+
 	@Before
-	   public void setup() {
-	      synapse=new LateralSynapse(1,3,2,3,5,1,0.8);
-	     
-	      
-	   }
+	public void setup() {
+		synapse = new LateralSynapse(1, 3, 2, 5, 1, 0.8);
+
+	}
 
 	@Test
 	public void setSegmentIndex() {

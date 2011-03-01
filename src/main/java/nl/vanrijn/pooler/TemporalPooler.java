@@ -136,7 +136,7 @@ public class TemporalPooler {
 								// radius
 
 								// TODO can a cell predict itself?
-								LateralSynapse synapse = new LateralSynapse(c, i, s, y, collumnIndexes.get(y), random
+								LateralSynapse synapse = new LateralSynapse(c, i, s, collumnIndexes.get(y), random
 										.nextInt(3), TemporalPooler.INITIAL_PERM);
 								synapses.add(synapse);
 								// System.out.println(c+","+i+","+s+","+y+","+synapse.getFromColumnIndex()+","+synapse.getFromCellIndex());
@@ -418,41 +418,34 @@ public class TemporalPooler {
 						segment.setSequenceSegment(true);
 					}
 					// TODO All other synapses get their permanence counts decremented by permanenceDec
-					// TODO After this step, any synapses in segmentUpdate
-					// * that do not yet exist get added with a permanence count of initialPerm.
-					for (LateralSynapse synapse2 : segmentUpdate.getActiveSynapses()) {
 
+					for (LateralSynapse synapse2 : segmentUpdate.getActiveSynapses()) {
 						if (segment.getSynapses().contains(synapse2)) {
 							if (positiveReinforcement) {
 								synapse2.setPermanance(Math.min(synapse2.getPermanance()
 										+ TemporalPooler.PERMANANCE_INC, 1.0));
-
-								// System.out.println("positief "+synapse2);
 							} else {
 								System.out.println("negatief");
 								synapse2.setPermanance(Math.max(synapse2.getPermanance()
 										- TemporalPooler.PERMANANCE_DEC, 0.0));
 							}
 						} else {
+							// System.out.println("adding new synapse in adapt segment");
+							segment.getSynapses().add(synapse2);
+						}
+					}
 
-							System.out.println("cell extra");
-							synapse2.setPermanance(Math.max(synapse2.getPermanance() - TemporalPooler.PERMANANCE_DEC,
+					for (LateralSynapse synapse3 : segment.getSynapses()) {
+						if (!segmentUpdate.getActiveSynapses().contains(synapse3)) {
+							System.out.println("negative because is not on the list");
+							synapse3.setPermanance(Math.max(synapse3.getPermanance() - TemporalPooler.PERMANANCE_DEC,
 									0.0));
-
 						}
 					}
 				} else {
 
-					// TODO Maybe W should create a new Segment now
+					// TODO Maybe We should create a new Segment now
 				}
-
-				// if (synapse.getSegmentIndex() >=
-				// segment.getSynapses().size()) {// this is a new segment
-				// // System.out.println("adding new Synapse");
-				// // TODO should point to a cell
-				// synapse.setPermanance(this.INITIAL_PERM);
-				// segment.getSynapses().add(synapse);
-				// }
 
 			}
 		}
@@ -513,7 +506,7 @@ public class TemporalPooler {
 	 * have their activeState output = 1 at time step t. (This list is empty if s = -1 since the segment doesn't exist.)
 	 * newSynapses is an optional argument that defaults to false. If newSynapses is true, then newSynapseCount -
 	 * count(activeSynapses) synapses are added to activeSynapses. These synapses are randomly chosen from the set of
-	 * cells that have learnState output = 1 at time step t. In my version am active synapse doesn't have to be
+	 * cells that have learnState output = 1 at time step t. In my version an active synapse doesn't have to be
 	 * connected because this is the place where learning should be happening.
 	 * 
 	 * @param c
@@ -541,40 +534,33 @@ public class TemporalPooler {
 			returnValue = new SegmentUpdate(c, i, -1, activeSynapses);
 		}
 		// TODO Maybe add new Segment
-		// else{
-		// segment=new Segment(c,i,time,new ArrayList<LateralSynapse>());
-		// }
-		// TODO And add new synapses to this segment
-		if (false && newSynapses) {
 
-			Random random = new Random();
-			int l = TemporalPooler.NEW_SYNAPSE_COUNT - activeSynapses.size();
-			if (l > 0) {
+		if (newSynapses) {
+			List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
+			for (int ci = 0; ci < SpatialPooler.AMMOUNT_OF_COLLUMNS; ci++) {
+				for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
 
-				for (int k = 0; k < TemporalPooler.NEW_SYNAPSE_COUNT - activeSynapses.size(); k++) {
-					LateralSynapse newSynapse = new LateralSynapse();
-					activeSynapses.add(newSynapse);
-					Cell cell = null;
-
-					// TODO first build a list with cells with learnstate on
-					// then reorder that list random and add
-					// synapses to the segment
-					// TODO the first time no cells will have learnstate so this
-					// will continue eternally
-					do {
-						cell = cells[random.nextInt(SpatialPooler.AMMOUNT_OF_COLLUMNS - 1)][random
-								.nextInt(Column.CELLS_PER_COLUMN - 1)][time];
-					} while (!cell.hasLearnState());
-
-					newSynapse.setFromColumnIndex(cell.getColumnIndex());
-					newSynapse.setFromCellIndex(cell.getCellIndex());
-					newSynapse.setColumnIndex(c);
-					newSynapse.setCellIndex(i);
-					newSynapse.setSegmentIndex(segment.getSegmentIndex());
-
+					Cell cell = cells[ci][ii][time];
+					if (cell.hasLearnState()) {
+						cellsWithLearnstate.add(cell);
+					}
 				}
 			}
+			if (cellsWithLearnstate.size() > 0) {
+				Collections.shuffle(cellsWithLearnstate);
+				int l = TemporalPooler.NEW_SYNAPSE_COUNT - activeSynapses.size();
+				if (l > 0) {
+					for (int k = 0; k < l; k++) {
+						if (cellsWithLearnstate.size() > k) {
+							Cell cell = cellsWithLearnstate.get(k);
 
+							activeSynapses.add(new LateralSynapse(c, i, segment.getSegmentIndex(), cell
+									.getColumnIndex(), cell.getCellIndex(), TemporalPooler.INITIAL_PERM));
+							System.out.println("adding new synapse in segmentactive");
+						}
+					}
+				}
+			}
 		}
 
 		return returnValue;
