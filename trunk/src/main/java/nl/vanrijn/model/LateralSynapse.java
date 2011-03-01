@@ -18,23 +18,18 @@ public class LateralSynapse {
 	@Override
 	public String toString() {
 
-		return "LateralSynapse from " + this.fromColumnIndex + "," + this.fromCellIndex + ", on " + this.columnIndex + ","
-				+ this.getCellIndex() + "," + this.segmentIndex + ",perm " + this.permanance;
+		return "LateralSynapse from " + this.fromColumnIndex + "," + this.fromCellIndex + ", on " + this.columnIndex
+				+ "," + this.getCellIndex() + "," + this.segmentIndex + ",perm " + this.permanance;
 	}
 
-	
+	private int	fromColumnIndex;
 
-	private int					synapseIndex;
+	private int	fromCellIndex;
 
-	private int					fromColumnIndex;
-
-	private int					fromCellIndex;
-
-	public LateralSynapse(int c, int i, int s, int y, int fromColumnIndex, int fromCellIndex, double initialPerm) {
+	public LateralSynapse(int c, int i, int s, int fromColumnIndex, int fromCellIndex, double initialPerm) {
 		this.columnIndex = c;
 		this.cellIndex = i;
 		this.segmentIndex = s;
-		this.synapseIndex = y;
 		this.fromColumnIndex = fromColumnIndex;
 		this.fromCellIndex = fromCellIndex;
 		this.permanance = initialPerm;
@@ -95,7 +90,5 @@ public class LateralSynapse {
 		// "input="+sourceInput);
 		return this.permanance >= TemporalPooler.CONNECTED_PERMANANCE;
 	}
-
-	
 
 }
