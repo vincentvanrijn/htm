@@ -48,7 +48,7 @@ public class HTMApplet extends Applet {
 	// private Column[] columns;
 	private SpatialPooler		spat					= new SpatialPooler();
 
-	private TemporalPooler		tempo					= new TemporalPooler();
+	private TemporalPooler		tempo					= new TemporalPooler(12,12);
 
 	private TextField			desiredLocalActivity	= new TextField("3");
 

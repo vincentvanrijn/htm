@@ -12,7 +12,7 @@ public class TemporalPoolerTest {
 
 	@Before
 	public void setup() {
-		TemporalPooler tempo = new TemporalPooler();
+		TemporalPooler tempo = new TemporalPooler(12,12);
 		tempo.init();
 		Cell cell = tempo.getCells()[0][0][1];
 		tempo.nextTime();

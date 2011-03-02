@@ -49,7 +49,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable {
 
 	// private Column[] columns;
 
-	private TemporalPooler		tempo				= new TemporalPooler();
+	private TemporalPooler		tempo				= new TemporalPooler(12,12);
 
 	DecimalFormat				df2					= new DecimalFormat("#,###,###,##0.00");
 
@@ -401,7 +401,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable {
 		tempo.updateSynapses();
 		this.cells = tempo.getCells();
 
-		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+		for (int c = 0; c < 144; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
 				Cell cell = cells[c][i][1];
