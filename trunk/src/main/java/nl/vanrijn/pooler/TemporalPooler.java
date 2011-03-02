@@ -100,21 +100,30 @@ public class TemporalPooler {
 	/**
 	 * cell(c,i) A list of all cells, indexed by i and c.
 	 */
+	private Cell[][][]			cells;
 
-	private Cell[][][]			cells					= new Cell[SpatialPooler.AMMOUNT_OF_COLLUMNS][Column.CELLS_PER_COLUMN][TemporalPooler.AMMOUNT_TIME];
+	private int xxMax;
+
+	private int yyMax;
+
+	public TemporalPooler(int xxMax, int yyMax) {
+		this.xxMax=xxMax;
+		this.yyMax=yyMax;
+	}
 
 	public void init() {
+		cells					= new Cell[xxMax*yyMax][Column.CELLS_PER_COLUMN][TemporalPooler.AMMOUNT_TIME];
 
 		ArrayList<Integer> collumnIndexes = new ArrayList<Integer>();
-		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+		for (int c = 0; c < xxMax*yyMax; c++) {
 			collumnIndexes.add(c);
 
 		}
 		Random random = new Random();
-		// for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+		// for (int c = 0; c < xxMax*yyMax; c++) {
 		int c = 0;
-		for (int yy = 0; yy < 12; yy++) {
-			for (int xx = 0; xx < 12; xx++) {
+		for (int yy = 0; yy < yyMax; yy++) {
+			for (int xx = 0; xx < xxMax; xx++) {
 
 				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 					for (int t = 0; t < TemporalPooler.AMMOUNT_TIME; t++) {
@@ -199,7 +208,6 @@ public class TemporalPooler {
 			boolean buPredicted = false;
 			boolean lcChosen = false;
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
-
 				if (cells[column.getColumnIndex()][i][Cell.BEFORE].hasPredictiveState()) {
 					// get the segment that became active in the time step
 					// before.(That made this cell active).
@@ -255,7 +263,7 @@ public class TemporalPooler {
 	 * segment that has a (potentially weak) match to activity during the previous time step (lines 50-53).
 	 */
 	public void calculatePredictedState() {
-		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+		for (int c = 0; c < xxMax*yyMax; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
 				Cell cell = cells[c][i][Cell.NOW];
@@ -293,7 +301,7 @@ public class TemporalPooler {
 	 */
 	public void updateSynapses() {
 
-		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+		for (int c = 0; c < xxMax*yyMax; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
 				Cell cell = cells[c][i][Cell.NOW];
@@ -530,7 +538,7 @@ public class TemporalPooler {
 			}
 			if (newSynapses) {
 				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
-				for (int ci = 0; ci < SpatialPooler.AMMOUNT_OF_COLLUMNS; ci++) {
+				for (int ci = 0; ci < xxMax*yyMax; ci++) {
 					for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
 
 						Cell cell = cells[ci][ii][time];
@@ -674,7 +682,7 @@ public class TemporalPooler {
 	}
 
 	public void nextTime() {
-		for (int c = 0; c < SpatialPooler.AMMOUNT_OF_COLLUMNS; c++) {
+		for (int c = 0; c < xxMax*yyMax; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
 				cells[c][i][0] = cells[c][i][1];// old cell is new cell
