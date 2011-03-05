@@ -130,34 +130,26 @@ public class SpatialPooler {
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
 
-				columns[i] = new Column();
-				columns[i].setyPos(y);
-				columns[i].setxPos(x);
-				columns[i].setColumnIndex(i);
+				
 
 				Synapse[] synapses = new Synapse[amountOfSynapses];
 				Set<Integer> synapsesToInput = new HashSet<Integer>();
 
 				for (int j = 0; j < synapses.length; j++) {
-					synapses[j] = new Synapse();
-					// TODO 4 is not correct permananceMarge is responsible for this value
-					synapses[j].setPermanance(connectedPermanance - connectedPermananceMarge
-							+ (((double) random.nextInt(4)) / 10));
-					// logger.info(""+synapses[j].getPermanance());
+					
 					int inputSpaceIndex = 0;
 
 					// Collections.shuffle(list);
 					do {
 						inputSpaceIndex = random.nextInt(144);
 					} while (!synapsesToInput.add(inputSpaceIndex));
-					synapses[j].setInputSpaceIndex(inputSpaceIndex);
-
-					synapses[j].setyPos(inputSpaceIndex / 12);
-					synapses[j].setxPos(inputSpaceIndex % 12);
-					// logger.info(""+inputSpaceIndex+ " "+inputSpaceIndex/12 +" "+inputSpaceIndex%12);
+					synapses[j] = new Synapse(inputSpaceIndex,inputSpaceIndex % 12,inputSpaceIndex / 12);
+					// TODO 4 is not correct permananceMarge is responsible for this value
+					synapses[j].setPermanance(connectedPermanance - connectedPermananceMarge
+							+ (((double) random.nextInt(4)) / 10));
+					// logger.info(""+synapses[j].getPermanance());
 				}
-
-				columns[i].setPotentialSynapses(synapses);
+				columns[i] = new Column(i,x,y,synapses);
 				i++;// next column
 			}
 		}

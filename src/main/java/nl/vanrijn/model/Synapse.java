@@ -18,25 +18,27 @@ public class Synapse {
 	private int		inputSpaceIndex;
 
 
-	private int		xPos;
+	private final int		xPos;
 
-	private int		yPos;
+	private final int		yPos;
+
+	public Synapse(int inputSpaceIndex, int xPos, int yPos) {
+		this.inputSpaceIndex=inputSpaceIndex;
+		this.xPos=xPos;
+		this.yPos=yPos;
+	}
 
 	public int getxPos() {
 		return xPos;
 	}
 
-	public void setxPos(int xPos) {
-		this.xPos = xPos;
-	}
+	
 
 	public int getyPos() {
 		return yPos;
 	}
 
-	public void setyPos(int yPos) {
-		this.yPos = yPos;
-	}
+	
 
 	public boolean isActive(double connectedPermanance) {
 		// logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+

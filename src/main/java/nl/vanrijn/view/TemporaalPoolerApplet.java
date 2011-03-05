@@ -21,7 +21,6 @@ import nl.vanrijn.model.Cell;
 import nl.vanrijn.model.Column;
 import nl.vanrijn.model.LateralSynapse;
 import nl.vanrijn.model.Segment;
-import nl.vanrijn.pooler.SpatialPooler;
 import nl.vanrijn.pooler.TemporalPooler;
 
 public class TemporaalPoolerApplet extends Applet implements Runnable {
@@ -385,10 +384,7 @@ public class TemporaalPoolerApplet extends Applet implements Runnable {
 				index++;
 				if (columns[index] == 1) {
 					// System.out.println(index+" "+xx+","+yy);
-					Column column = new Column();
-					column.setColumnIndex(index);
-					column.setxPos(xx);
-					column.setyPos(yy);
+					Column column = new Column(index,xx,yy);
 					column.setActive(true);
 					activeColumns.add(column);
 				}

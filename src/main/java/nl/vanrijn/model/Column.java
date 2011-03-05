@@ -8,79 +8,98 @@ import java.util.List;
 
 public class Column implements Comparable<Column> {
 
-	@Override
-	public String toString() {
-		
-		return "column "+this.getColumnIndex()+","+this.getxPos()+","+this.getyPos();
+	public Column(int index, int xx, int yy) {
+		this.columnIndex = index;
+		this.xPos = xx;
+		this.yPos = yy;
+		this.potentialSynapses=null;
 	}
 
-	private int columnIndex;
+	public Column(int i, int x, int y, Synapse[] synapses) {
+
+		this.columnIndex = i;
+		this.xPos = x;
+		this.yPos = y;
+		this.potentialSynapses = synapses;
+	}
+
+	@Override
+	public String toString() {
+
+		return "column " + this.getColumnIndex() + "," + this.getxPos() + ","
+				+ this.getyPos();
+	}
+
+	private final int columnIndex;
+
 	public int getColumnIndex() {
 		return columnIndex;
 	}
 
-	public void setColumnIndex(int columnIndex) {
-		this.columnIndex = columnIndex;
-	}
+	private final int xPos;
 
-	private int					xPos;
-
-	private int					yPos;
+	private final int yPos;
 
 	/**
-	 * boost(c) The boost value for column c as computed during learning - used to increase the overlap value for
-	 * inactive columns.
+	 * boost(c) The boost value for column c as computed during learning - used
+	 * to increase the overlap value for inactive columns.
 	 */
-	private double				boost								= 1.0;						
-	//  choose value for boost  
+	private double boost = 1.0;
+	// choose value for boost
 
 	/**
-	 * overlap(c) The spatial pooler overlap of column c with a particular input pattern.
+	 * overlap(c) The spatial pooler overlap of column c with a particular input
+	 * pattern.
 	 */
 
-	private double				overlap;
+	private double overlap;
 
-	private boolean				active;
+	private boolean active;
 
-	private ArrayList<Boolean>	activeList							= new ArrayList<Boolean>();
+	private ArrayList<Boolean> activeList = new ArrayList<Boolean>();
 
-	private ArrayList<Boolean>	timesGreaterOverlapThanMinOverlap	= new ArrayList<Boolean>();
+	private ArrayList<Boolean> timesGreaterOverlapThanMinOverlap = new ArrayList<Boolean>();
 
 	/**
-	 * neighbors(c) A list of all the columns that are within inhibitionRadius of column c.
+	 * neighbors(c) A list of all the columns that are within inhibitionRadius
+	 * of column c.
 	 */
-	private List<Column>		neigbours;
+	private List<Column> neigbours;
 
 	/**
-	 * potentialSynapses(c) The list of potential synapses and their permanence values.
+	 * potentialSynapses(c) The list of potential synapses and their permanence
+	 * values.
 	 */
-	private Synapse[]			potentialSynapses;
+	private final Synapse[] potentialSynapses;
 
 	/**
-	 * activeDutyCycle(c) A sliding average representing how often column c has been active after inhibition (e.g. over
-	 * the last 1000 iterations).
+	 * activeDutyCycle(c) A sliding average representing how often column c has
+	 * been active after inhibition (e.g. over the last 1000 iterations).
 	 */
-	private double				activeDutyCycle;
+	private double activeDutyCycle;
 
-	private double				minimalLocalActivity;
-
-	/**
-	 * minDutyCycle(c) A variable representing the minimum desired firing rate for a cell. If a cell's firing rate falls
-	 * below this value, it will be boosted. This value is calculated as 1% of the maximum firing rate of its neighbors.
-	 */
-	private double				minimalDutyCycle;
+	private double minimalLocalActivity;
 
 	/**
-	 * A sliding average representing how often column c has had significant overlap (i.e. greater than minOverlap) with
-	 * its inputs (e.g. over the last 1000 iterations).
+	 * minDutyCycle(c) A variable representing the minimum desired firing rate
+	 * for a cell. If a cell's firing rate falls below this value, it will be
+	 * boosted. This value is calculated as 1% of the maximum firing rate of its
+	 * neighbors.
 	 */
-	private double				overlapDutyCycle;
+	private double minimalDutyCycle;
+
+	/**
+	 * A sliding average representing how often column c has had significant
+	 * overlap (i.e. greater than minOverlap) with its inputs (e.g. over the
+	 * last 1000 iterations).
+	 */
+	private double overlapDutyCycle;
 
 	// for temoral pooler
 	/**
 	 * cellsPerColumn Number of cells in each column.
 	 */
-	public static int			CELLS_PER_COLUMN					= 3;
+	public static int CELLS_PER_COLUMN = 3;
 
 	public static int getCELLS_PER_COLUMN() {
 		return CELLS_PER_COLUMN;
@@ -94,22 +113,15 @@ public class Column implements Comparable<Column> {
 		return xPos;
 	}
 
-	public void setxPos(int xPos) {
-		this.xPos = xPos;
-	}
-
 	public int getyPos() {
 		return yPos;
 	}
 
-	public void setyPos(int yPos) {
-		this.yPos = yPos;
-	}
-
 	/**
-	 * boostFunction(c) Returns the boost value of a column. The boost value is a scalar >= 1. If activeDutyCyle(c) is
-	 * above minDutyCycle(c), the boost value is 1. The boost increases linearly once the column's activeDutyCyle starts
-	 * falling below its minDutyCycle.
+	 * boostFunction(c) Returns the boost value of a column. The boost value is
+	 * a scalar >= 1. If activeDutyCyle(c) is above minDutyCycle(c), the boost
+	 * value is 1. The boost increases linearly once the column's activeDutyCyle
+	 * starts falling below its minDutyCycle.
 	 * 
 	 * @param minimalDesiredDutyCycle
 	 */
@@ -127,7 +139,8 @@ public class Column implements Comparable<Column> {
 
 		// logger.log(Level.INFO, "timesGreate"
 		// + timesGreaterOverlapThanMinOverlap.size());
-		this.timesGreaterOverlapThanMinOverlap.add(0, greaterThanMinimalOverlap);
+		this.timesGreaterOverlapThanMinOverlap
+				.add(0, greaterThanMinimalOverlap);
 		if (timesGreaterOverlapThanMinOverlap.size() > 1000) {
 			timesGreaterOverlapThanMinOverlap.remove(1000);
 		}
@@ -173,9 +186,7 @@ public class Column implements Comparable<Column> {
 		return potentialSynapses;
 	}
 
-	public void setPotentialSynapses(Synapse[] potentialSynapses) {
-		this.potentialSynapses = potentialSynapses;
-	}
+	
 
 	public List<Column> getNeigbours() {
 		return neigbours;
@@ -186,8 +197,9 @@ public class Column implements Comparable<Column> {
 	}
 
 	/**
-	 * connectedSynapses(c) A subset of potentialSynapses(c) where the permanence value is greater than connectedPerm.
-	 * These are the bottom-up inputs that are currently connected to column c.
+	 * connectedSynapses(c) A subset of potentialSynapses(c) where the
+	 * permanence value is greater than connectedPerm. These are the bottom-up
+	 * inputs that are currently connected to column c.
 	 * 
 	 * @param connectedPermanance
 	 * @return
@@ -215,7 +227,8 @@ public class Column implements Comparable<Column> {
 	}
 
 	/**
-	 * increasePermanences(c, s) Increase the permanence value of every synapse in column c by a scale factor s.
+	 * increasePermanences(c, s) Increase the permanence value of every synapse
+	 * in column c by a scale factor s.
 	 * 
 	 * @param d
 	 */
@@ -227,7 +240,8 @@ public class Column implements Comparable<Column> {
 	}
 
 	/**
-	 * updateOverlapDutyCycle(c) Computes a moving average of how often column c has overlap greater than minOverlap.
+	 * updateOverlapDutyCycle(c) Computes a moving average of how often column c
+	 * has overlap greater than minOverlap.
 	 * 
 	 * @return
 	 */
@@ -239,14 +253,16 @@ public class Column implements Comparable<Column> {
 				totalGt++;
 			}
 		}
-		this.overlapDutyCycle = (double) totalGt / timesGreaterOverlapThanMinOverlap.size();
+		this.overlapDutyCycle = (double) totalGt
+				/ timesGreaterOverlapThanMinOverlap.size();
 
 		return overlapDutyCycle;
 
 	}
 
 	/**
-	 * updateActiveDutyCycle(c) Computes a moving average of how often column c has been active after inhibition.
+	 * updateActiveDutyCycle(c) Computes a moving average of how often column c
+	 * has been active after inhibition.
 	 * 
 	 * @return
 	 */
