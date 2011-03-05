@@ -126,43 +126,33 @@ public class TemporalPooler {
 
 		}
 		Random random = new Random();
-		// for (int c = 0; c < xxMax*yyMax; c++) {
 		int c = 0;
 		for (int yy = 0; yy < yyMax; yy++) {
 			for (int xx = 0; xx < xxMax; xx++) {
-
 				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 					for (int t = 0; t < TemporalPooler.AMMOUNT_TIME; t++) {
-
-						cells[c][i][t] = new Cell(c, i, t);
-						cells[c][i][t].setXpos(xx);
-						cells[c][i][t].setYpos(yy);
 						List<Segment> segments = new ArrayList<Segment>();
 						for (int s = 0; s < AMMOUNT_OF_SEGMENTS; s++) {
 							List<LateralSynapse> synapses = new ArrayList<LateralSynapse>();
 							Collections.shuffle(collumnIndexes);
 							for (int y = 0; y < AMMOUNT_OF_SYNAPSES; y++) {
 
-								// TODO permanance
-								// TODO connect to cells
-
 								// Get all cells in the area of this
 								// cells'Learning
 								// radius
 
 								// TODO can a cell predict itself?
-								LateralSynapse synapse = new LateralSynapse(c,
-										i, s, collumnIndexes.get(y), random
+
+								synapses.add(new LateralSynapse(c, i, s,
+										collumnIndexes.get(y), random
 												.nextInt(3),
-										TemporalPooler.INITIAL_PERM);
-								synapses.add(synapse);
-								// System.out.println(c+","+i+","+s+","+y+","+synapse.getFromColumnIndex()+","+synapse.getFromCellIndex());
+										TemporalPooler.INITIAL_PERM));
 							}
 
 							segments.add(new Segment(c, i, s, synapses));
 							// System.out.println(c);
 						}
-						cells[c][i][t].setSegments(segments);
+						cells[c][i][t] = new Cell(c, i, t, xx, yy, segments);
 					}
 				}
 				c++;
@@ -170,11 +160,14 @@ public class TemporalPooler {
 
 		}
 	}
-/** This method returns the cells that this cell can learn from
- * These cells have to be in Learninradius of this cell
- * @param cell
- * @return
- */
+
+	/**
+	 * This method returns the cells that this cell can learn from These cells
+	 * have to be in Learninradius of this cell
+	 * 
+	 * @param cell
+	 * @return
+	 */
 	private List<Cell> getNeighbors(Cell cell) {
 		List<Cell> neighbors = new ArrayList<Cell>();
 		int c = 0;
@@ -182,8 +175,8 @@ public class TemporalPooler {
 			for (int xx = 0; xx < xxMax; xx++) {
 
 				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
-					Cell potentialNeigbor=cells[c][yy][Cell.NOW];					
-					
+					Cell potentialNeigbor = cells[c][yy][Cell.NOW];
+
 					int xposColPlusIn = (int) (cell.getXpos() + Math
 							.round(LEARNING_RADIUS));
 					int yposColPlusIn = (int) (cell.getYpos() + Math
@@ -198,14 +191,13 @@ public class TemporalPooler {
 							&& (yposColMinIn <= potentialNeigbor.getYpos() && cell != potentialNeigbor)) {
 						neighbors.add(potentialNeigbor);
 					}
-					
+
 				}
 
 				c++;
 			}
 		}
 		return neighbors;
-		
 
 	}
 
@@ -289,7 +281,7 @@ public class TemporalPooler {
 				cellToUpdate.setLearnState(true);
 
 				cellToUpdate.getSegmentUpdateList().add(sUpdate);// does this
-																	// happen?
+				// happen?
 
 			}
 		}
@@ -510,6 +502,7 @@ public class TemporalPooler {
 						} else {
 							// System.out.println("adding new synapse in adapt segment");
 							segment.getSynapses().add(synapse2);
+							System.out.println();
 						}
 					}
 
@@ -569,12 +562,13 @@ public class TemporalPooler {
 			}
 		}
 		if (bestMatchingSegments.size() != 0) {
-			List<Segment> segments = new ArrayList<Segment>();
-
-			for (Segment segment : bestMatchingSegments) {
-				segments.add(segment);
-			}
-			Segment bestMatchingSegment = getBestMatchingSegment(segments, time);
+			// List<Segment> segments = new ArrayList<Segment>();
+			//
+			// for (Segment segment : bestMatchingSegments) {
+			// segments.add(segment);
+			// }
+			Segment bestMatchingSegment = getBestMatchingSegment(
+					bestMatchingSegments, time);
 			returnValue = cells[c][bestMatchingSegment.getCellIndex()][time];
 		} else {
 			returnValue = cells[c][cellIndexWithFewestNumberOfSegments][time];
@@ -618,7 +612,10 @@ public class TemporalPooler {
 					activeSynapses.add(synapse);
 				}
 			}
-			if (newSynapses) {
+			int ammountNewSynapsesToAdd = TemporalPooler.NEW_SYNAPSE_COUNT
+					- activeSynapses.size();
+			if (newSynapses && ammountNewSynapsesToAdd > 0) {
+
 				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
 				for (int ci = 0; ci < xxMax * yyMax; ci++) {
 					for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
@@ -631,22 +628,20 @@ public class TemporalPooler {
 				}
 				if (cellsWithLearnstate.size() > 0) {
 					Collections.shuffle(cellsWithLearnstate);
-					int l = TemporalPooler.NEW_SYNAPSE_COUNT
-							- activeSynapses.size();
-					if (l > 0) {
-						for (int k = 0; k < l; k++) {
-							if (cellsWithLearnstate.size() > k) {
-								Cell cell = cellsWithLearnstate.get(k);
 
-								activeSynapses.add(new LateralSynapse(c, i,
-										segment.getSegmentIndex(), cell
-												.getColumnIndex(), cell
-												.getCellIndex(),
-										TemporalPooler.INITIAL_PERM));
-								System.out
-										.println("adding new synapse in segmentactive");
-							}
-						}
+					if (cellsWithLearnstate.size() < ammountNewSynapsesToAdd) {
+						ammountNewSynapsesToAdd = cellsWithLearnstate.size();
+					}
+					for (int k = 0; k < ammountNewSynapsesToAdd; k++) {
+
+						Cell cell = cellsWithLearnstate.get(k);
+
+						activeSynapses.add(new LateralSynapse(c, i, segment
+								.getSegmentIndex(), cell.getColumnIndex(), cell
+								.getCellIndex(), TemporalPooler.INITIAL_PERM));
+						System.out
+								.println("adding new synapse in segmentactive");
+
 					}
 				}
 			}
@@ -782,19 +777,12 @@ public class TemporalPooler {
 
 				cells[c][i][0] = cells[c][i][1];// old cell is new cell
 				cells[c][i][0].setTime(Cell.BEFORE);
-				Cell cell = new Cell(c, i, 1);
+				cells[c][i][1] = new Cell(c, i, 1, cells[c][i][0].getXpos(),
+						cells[c][i][0].getYpos(), cells[c][i][0].getSegments());
 
-				cell.setActiveState(false);
-				cell.setLearnState(false);
-				cell.setPredictiveState(false);
-				cell.setSegments(cells[c][i][0].getSegments());
 				// TODO there is discussion if this should be remembered over
 				// time
 				// cell.setSegmentUpdateList(cells[c][i][0].getSegmentUpdateList());
-				cell.setXpos(cells[c][i][0].getXpos());
-				cell.setYpos(cells[c][i][0].getYpos());
-				cells[c][i][1] = cell;
-
 			}
 		}
 	}

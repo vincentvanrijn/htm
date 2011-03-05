@@ -32,9 +32,9 @@ public class Cell {
 	 */
 	private List<SegmentUpdate>	segmentUpdateList	= new ArrayList<SegmentUpdate>();
 
-	private int					columnIndex;
+	private final int					columnIndex;
 
-	private int					cellIndex;
+	private final int					cellIndex;
 
 	private int					time;
 
@@ -69,37 +69,32 @@ public class Cell {
 		this.predictiveState = predictiveState;
 	}
 
-	private List<Segment>	segments;
+	private final List<Segment>	segments;
 
-	private int				xpos;
+	private final int				xpos;
 
-	private int				ypos;
+	private final int				ypos;
 
 	public boolean hasActiveState() {
 		return activeState;
 	}
 
-	public Cell(int columnIndex, int cellIndex, int time) {
+	public Cell(int columnIndex, int cellIndex, int time, int xx, int yy, List<Segment> segments) {
 		this.columnIndex = columnIndex;
 		this.cellIndex = cellIndex;
 		this.time = time;
+		this.ypos=yy;
+		this.xpos=xx;
+		this.segments=segments;
 	}
 
 	public int getColumnIndex() {
 		return columnIndex;
-	}
-
-	public void setColumnIndex(int columnIndex) {
-		this.columnIndex = columnIndex;
-	}
+	}	
 
 	public int getCellIndex() {
 		return cellIndex;
-	}
-
-	public void setCellIndex(int cellIndex) {
-		this.cellIndex = cellIndex;
-	}
+	}	
 
 	public List<Segment> getSegments() {
 		return segments;
@@ -125,12 +120,7 @@ public class Cell {
 	public void setActiveState(boolean activeState) {
 		this.activeState = activeState;
 
-	}
-
-	public void setSegments(List<Segment> segments) {
-		this.segments = segments;
-
-	}
+	}	
 
 	@Override
 	public String toString() {
@@ -138,17 +128,7 @@ public class Cell {
 				+ this.activeState + ",learnState=" + this.learnState + ",predictivestate=" + this.predictiveState
 				+ ",segments.size=" + this.segments.size() + "x,y=" + this.getXpos() + "," + this.getYpos() + " "
 				+ this.segmentUpdateList.size();
-	}
-
-	public void setXpos(int xpos) {
-		this.xpos = xpos;
-
-	}
-
-	public void setYpos(int ypos) {
-		this.ypos = ypos;
-
-	}
+	}	
 
 	public int getXpos() {
 		return xpos;
