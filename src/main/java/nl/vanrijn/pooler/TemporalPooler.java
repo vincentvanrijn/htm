@@ -52,7 +52,7 @@ public class TemporalPooler {
 	/**
 	 * minThreshold Minimum segment activity for learning.
 	 */
-	private static final int	MIN_TRESHOLD			= 0;
+	private static final int	MIN_TRESHOLD			= 1;
 
 	// TODO value for min treshold
 
