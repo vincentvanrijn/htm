@@ -5,15 +5,7 @@ package nl.vanrijn.model;
 
 import nl.vanrijn.pooler.TemporalPooler;
 
-public class LateralSynapse {
-
-	public void setFromColumnIndex(int fromColumnIndex) {
-		this.fromColumnIndex = fromColumnIndex;
-	}
-
-	public void setFromCellIndex(int fromCellIndex) {
-		this.fromCellIndex = fromCellIndex;
-	}
+public class LateralSynapse {	
 
 	@Override
 	public String toString() {
@@ -22,9 +14,9 @@ public class LateralSynapse {
 				+ "," + this.getCellIndex() + "," + this.segmentIndex + ",perm " + this.permanance;
 	}
 
-	private int	fromColumnIndex;
+	private final int	fromColumnIndex;
 
-	private int	fromCellIndex;
+	private final int	fromCellIndex;
 
 	public LateralSynapse(int c, int i, int s, int fromColumnIndex, int fromCellIndex, double initialPerm) {
 		this.columnIndex = c;
@@ -43,46 +35,33 @@ public class LateralSynapse {
 		return fromCellIndex;
 	}
 
-	public LateralSynapse() {}
 
-	private double	permanance;
+	private  double	permanance;
 
-	private int		columnIndex;
+	public void setPermanance(double permanance) {
+		this.permanance = permanance;
+	}
 
-	private int		cellIndex;
+	private final int		columnIndex;
 
-	private int		segmentIndex;
+	private final int		cellIndex;
+
+	private final int		segmentIndex;
 
 	public int getSegmentIndex() {
 		return segmentIndex;
-	}
-
-	public void setSegmentIndex(int segmentIndex) {
-		this.segmentIndex = segmentIndex;
 	}
 
 	public double getPermanance() {
 		return permanance;
 	}
 
-	public void setPermanance(double permanance) {
-		this.permanance = permanance;
-	}
-
 	public int getColumnIndex() {
 		return columnIndex;
 	}
 
-	public void setColumnIndex(int columnIndex) {
-		this.columnIndex = columnIndex;
-	}
-
 	public int getCellIndex() {
 		return cellIndex;
-	}
-
-	public void setCellIndex(int cellIndex) {
-		this.cellIndex = cellIndex;
 	}
 
 	public boolean isConnected() {
