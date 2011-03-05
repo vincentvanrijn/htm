@@ -235,20 +235,14 @@ public class Pong extends Applet {
 				
 				if(yPos>= yy && yPos<yy+10 && xx==-70){
 					//System.out.println(yy+"");
-					Column column = new Column();
-					column.setColumnIndex(index);
-					column.setxPos(-80);//TODO right?
-					column.setyPos(yy);
+					Column column = new Column(index,-80,yy);//is -80 TODO right?
 					column.setActive(true);
 					activeColumns.add(column);				
 				}
 				if(ballX==xx && ballY==yy){
 					
 					//System.out.print("found");
-					Column column = new Column();
-					column.setColumnIndex(index);
-					column.setxPos(xx);
-					column.setyPos(yy);
+					Column column = new Column(index,xx,yy);
 					column.setActive(true);
 					activeColumns.add(column);
 				}
