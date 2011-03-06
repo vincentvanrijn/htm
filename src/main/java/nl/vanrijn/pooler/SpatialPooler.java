@@ -126,6 +126,7 @@ public class SpatialPooler {
 	 * center).
 	 */
 	public void init() {
+		//TODO the input space has to be the same size is the column space. That is not desireable .Make this better.
 		// logger.log(Level.INFO, "SpatialPooler");
 		columns = new Column[AMMOUNT_OF_COLLUMNS];
 
@@ -149,7 +150,7 @@ public class SpatialPooler {
 						inputSpaceIndex = random.nextInt(144);
 					} while (!synapsesToInput.add(inputSpaceIndex));
 					synapses[j] = new Synapse(inputSpaceIndex,inputSpaceIndex % 12,inputSpaceIndex / 12);
-					// TODO 4 is not correct permananceMarge is responsible for this value
+					// TODO 4 is not correct permananceMarge should be responsible for this value
 					synapses[j].setPermanance(connectedPermanance - connectedPermananceMarge
 							+ (((double) random.nextInt(4)) / 10));
 					// logger.info(""+synapses[j].getPermanance());
@@ -206,12 +207,11 @@ public class SpatialPooler {
 		for (Column column : this.columns) {
 			column.setNeigbours(getNeigbors(column));
 
-			double minimalLocalActivity = kthScore(column.getNeigbours(), desiredLocalActivity);// if inhibitioradius
+			double minimalLocalActivity = kthScore(column.getNeigbours(), desiredLocalActivity);// TODO if inhibitioradius
 			// changes, shouldn't
 			// this also change?
 			column.setMinimalLocalActivity(minimalLocalActivity);
 			if (column.getOverlap() > 0 && column.getOverlap() >= minimalLocalActivity) {
-				// logger.info("column Overlap "+ column.getOverlap()+ " minimal overlap"+ minimalLocalActivity);
 				column.setActive(true);
 				activeColumns.add(column);
 			} else {
@@ -234,7 +234,6 @@ public class SpatialPooler {
 	 */
 	public void updateSynapses() {
 		if (LEARNING ){
-			// logger.log(Level.FINE, "updateSynapses");
 			for (Column activeColumn : activeColumns) {
 				for (Synapse potentialSynapse : activeColumn.getPotentialSynapses()) {
 	
@@ -242,15 +241,11 @@ public class SpatialPooler {
 					if (potentialSynapse.isActive(connectedPermanance)) {
 	
 						potentialSynapse.setPermanance(permanance + permananceInc);
-						// logger.log(Level.INFO, ""+potentialSynapse.getPermanance());
 						potentialSynapse.setPermanance(Math.min(potentialSynapse.getPermanance(), 1.0));
-	
-						// logger.info("plus "+potentialSynapse.getPermanance());
-	
+		
 					} else {
 						potentialSynapse.setPermanance(permanance - permananceDec);
 						potentialSynapse.setPermanance(Math.max(potentialSynapse.getPermanance(), 0.0));
-						// logger.info("min "+potentialSynapse.getPermanance());
 					}
 				}
 	
@@ -265,7 +260,6 @@ public class SpatialPooler {
 	
 				if (overlapDutyCycle < minimalDutyCycle) {
 					column.increasePermanances(0.1 * connectedPermanance);
-					// logger.info("increasePermanances of all synapses of the column");
 				}
 				for (Synapse synapse : column.getConnectedSynapses(connectedPermanance)) {
 	
@@ -283,8 +277,7 @@ public class SpatialPooler {
 			averageReceptiveFieldSize = averageReceptiveFieldSize / inhibitionRadiuses.size();
 			inhibitionRadiuses = null;
 	
-			this.inhibitionRadius = averageReceptiveFieldSize;
-			logger.info("new inhib fac=" + this.inhibitionRadius);
+			this.inhibitionRadius = averageReceptiveFieldSize;//TODO inhibition radius should be calculated in a different method
 
 		}
 	}
@@ -322,7 +315,6 @@ public class SpatialPooler {
 				highestNeighbor = neighbor;
 			}
 		}
-		// logger.log(Level.INFO, "highestActiveDutyCycly="+highestNeighbor.getActiveDutyCycle());
 		return highestNeighbor.getActiveDutyCycle();
 	}
 
@@ -361,8 +353,6 @@ public class SpatialPooler {
 		}
 
 		column.setNeigbours(neighbors);
-		// logger.info(column.getxPos()+" "+column.getyPos()+"amount of neigbors="+neighbors.size());
-		// System.out.println(column.getxPos()+" "+column.getyPos()+"amount of neigbors="+neighbors.size());
 		return neighbors;
 	}
 }
