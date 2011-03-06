@@ -20,6 +20,11 @@ public class SpatialPooler {
 	public static final int		AMMOUNT_OF_COLLUMNS			= 144;
 
 	/**
+	 * if learning is on, the spatial pooler can learn new patterns
+	 */
+	private static final boolean LEARNING = true;
+
+	/**
 	 * desiredLocalActivity A parameter controlling the number of columns that will be winners after the inhibition
 	 * step.
 	 */
@@ -228,59 +233,61 @@ public class SpatialPooler {
 	 * the end of Phase 3 the inhibition radius is recomputed (line 38).
 	 */
 	public void updateSynapses() {
-		// logger.log(Level.FINE, "updateSynapses");
-		for (Column activeColumn : activeColumns) {
-			for (Synapse potentialSynapse : activeColumn.getPotentialSynapses()) {
-
-				double permanance = potentialSynapse.getPermanance();
-				if (potentialSynapse.isActive(connectedPermanance)) {
-
-					potentialSynapse.setPermanance(permanance + permananceInc);
-					// logger.log(Level.INFO, ""+potentialSynapse.getPermanance());
-					potentialSynapse.setPermanance(Math.min(potentialSynapse.getPermanance(), 1.0));
-
-					// logger.info("plus "+potentialSynapse.getPermanance());
-
-				} else {
-					potentialSynapse.setPermanance(permanance - permananceDec);
-					potentialSynapse.setPermanance(Math.max(potentialSynapse.getPermanance(), 0.0));
-					// logger.info("min "+potentialSynapse.getPermanance());
+		if (LEARNING ){
+			// logger.log(Level.FINE, "updateSynapses");
+			for (Column activeColumn : activeColumns) {
+				for (Synapse potentialSynapse : activeColumn.getPotentialSynapses()) {
+	
+					double permanance = potentialSynapse.getPermanance();
+					if (potentialSynapse.isActive(connectedPermanance)) {
+	
+						potentialSynapse.setPermanance(permanance + permananceInc);
+						// logger.log(Level.INFO, ""+potentialSynapse.getPermanance());
+						potentialSynapse.setPermanance(Math.min(potentialSynapse.getPermanance(), 1.0));
+	
+						// logger.info("plus "+potentialSynapse.getPermanance());
+	
+					} else {
+						potentialSynapse.setPermanance(permanance - permananceDec);
+						potentialSynapse.setPermanance(Math.max(potentialSynapse.getPermanance(), 0.0));
+						// logger.info("min "+potentialSynapse.getPermanance());
+					}
+				}
+	
+			}
+			ArrayList<Integer> inhibitionRadiuses = new ArrayList<Integer>();
+			for (Column column : this.columns) {
+				double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column.getNeigbours())));
+				column.setMinimalDutyCycle(minimalDutyCycle);
+				column.calculateBoost(minimalDutyCycle);
+	
+				double overlapDutyCycle = column.updateOverlapDutyCycle();
+	
+				if (overlapDutyCycle < minimalDutyCycle) {
+					column.increasePermanances(0.1 * connectedPermanance);
+					// logger.info("increasePermanances of all synapses of the column");
+				}
+				for (Synapse synapse : column.getConnectedSynapses(connectedPermanance)) {
+	
+					inhibitionRadiuses.add(Math.max(Math.abs(column.getxPos() - synapse.getxPos()), Math.abs(column
+							.getyPos()
+							- synapse.getyPos())));
 				}
 			}
-
-		}
-		ArrayList<Integer> inhibitionRadiuses = new ArrayList<Integer>();
-		for (Column column : this.columns) {
-			double minimalDutyCycle = (0.01 * (getMaxDutyCycle(column.getNeigbours())));
-			column.setMinimalDutyCycle(minimalDutyCycle);
-			column.calculateBoost(minimalDutyCycle);
-
-			double overlapDutyCycle = column.updateOverlapDutyCycle();
-
-			if (overlapDutyCycle < minimalDutyCycle) {
-				column.increasePermanances(0.1 * connectedPermanance);
-				// logger.info("increasePermanances of all synapses of the column");
+	
+			double averageReceptiveFieldSize = 0;
+	
+			for (Integer integer : inhibitionRadiuses) {
+				averageReceptiveFieldSize += integer;
 			}
-			for (Synapse synapse : column.getConnectedSynapses(connectedPermanance)) {
+			averageReceptiveFieldSize = averageReceptiveFieldSize / inhibitionRadiuses.size();
+			inhibitionRadiuses = null;
+	
+			this.inhibitionRadius = averageReceptiveFieldSize;
+			logger.info("new inhib fac=" + this.inhibitionRadius);
 
-				inhibitionRadiuses.add(Math.max(Math.abs(column.getxPos() - synapse.getxPos()), Math.abs(column
-						.getyPos()
-						- synapse.getyPos())));
-			}
 		}
-
-		double averageReceptiveFieldSize = 0;
-
-		for (Integer integer : inhibitionRadiuses) {
-			averageReceptiveFieldSize += integer;
-		}
-		averageReceptiveFieldSize = averageReceptiveFieldSize / inhibitionRadiuses.size();
-		inhibitionRadiuses = null;
-
-		this.inhibitionRadius = averageReceptiveFieldSize;
-		logger.info("new inhib fac=" + this.inhibitionRadius);
 	}
-
 	/**
 	 * averageReceptiveFieldSize() The radius of the average connected receptive field size of all the columns. The
 	 * connected receptive field size of a column includes only the connected synapses (those with permanence values >=

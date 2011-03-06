@@ -18,6 +18,10 @@ import nl.vanrijn.model.helper.SegmentUpdate;
 public class TemporalPooler {
 
 	/**
+	 * this boolean should be switched of is no learning is desiarable anymore.
+	 */
+	private final boolean LEARNING=true;
+	/**
 	 * permanenceInc Amount permanence values of synapses are incremented when
 	 * activity-based learning occurs.
 	 */
@@ -95,7 +99,7 @@ public class TemporalPooler {
 	 * get lateral connections.
 	 */
 	// TODO implement learning radius implementation
-	private static int LEARNING_RADIUS;
+	private static int LEARNING_RADIUS =40;
 
 	/**
 	 * activeColumns(t) List of column indices that are winners due to bottom-up
@@ -137,9 +141,8 @@ public class TemporalPooler {
 							Collections.shuffle(collumnIndexes);
 							for (int y = 0; y < AMMOUNT_OF_SYNAPSES; y++) {
 
-								// Get all cells in the area of this
-								// cells'Learning
-								// radius
+								
+								
 
 								// TODO can a cell predict itself?
 
@@ -153,6 +156,9 @@ public class TemporalPooler {
 							// System.out.println(c);
 						}
 						cells[c][i][t] = new Cell(c, i, t, xx, yy, segments);
+						if(LEARNING && (xxMax> LEARNING_RADIUS || yyMax>LEARNING_RADIUS)){
+							cells[c][i][t].setNeigbors(getNeighbors(cells[c][i][t]));
+						}
 					}
 				}
 				c++;
@@ -191,14 +197,11 @@ public class TemporalPooler {
 							&& (yposColMinIn <= potentialNeigbor.getYpos() && cell != potentialNeigbor)) {
 						neighbors.add(potentialNeigbor);
 					}
-
 				}
-
 				c++;
 			}
 		}
 		return neighbors;
-
 	}
 
 	public Cell[][][] getCells() {
@@ -226,7 +229,7 @@ public class TemporalPooler {
 		for (int c = 0; c < activeColumns.length; c++) {
 			Column column = activeColumns[c];
 			boolean buPredicted = false;
-			boolean lcChosen = false;
+			boolean lcChosen = false;//used for learning
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 				if (cells[column.getColumnIndex()][i][Cell.BEFORE]
 						.hasPredictiveState()) {
@@ -243,14 +246,11 @@ public class TemporalPooler {
 								.setActiveState(true);
 						// if these cells also had learnstate
 						if (segmentActive(segment, Cell.BEFORE,
-								Cell.LEARN_STATE)) {
+								Cell.LEARN_STATE)&& LEARNING) {
 
 							lcChosen = true;
 							cells[column.getColumnIndex()][i][Cell.NOW]
 									.setLearnState(true);
-							// TODO this never happsens Create a unit test that
-							// will make this happen
-							// Happens now!!
 						}
 					}
 				}
@@ -259,11 +259,9 @@ public class TemporalPooler {
 				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 					cells[column.getColumnIndex()][i][Cell.NOW]
 							.setActiveState(true);
-
 				}
-
 			}
-			if (!lcChosen) {
+			if (!lcChosen && LEARNING) {
 				Cell cell = getBestMatchingCell(column.getColumnIndex(),
 						Cell.BEFORE);
 
@@ -280,9 +278,7 @@ public class TemporalPooler {
 						.getCellIndex()][Cell.NOW];
 				cellToUpdate.setLearnState(true);
 
-				cellToUpdate.getSegmentUpdateList().add(sUpdate);// does this
-				// happen?
-
+				cellToUpdate.getSegmentUpdateList().add(sUpdate);
 			}
 		}
 	}
@@ -310,22 +306,22 @@ public class TemporalPooler {
 					if (segmentActive(segment, Cell.NOW, Cell.ACTIVE_STATE)) {
 
 						cell.setPredictiveState(true);
-						SegmentUpdate activeUpdate = getSegmentActiveSynapses(
-								c, i, segment, Cell.NOW,
-								Segment.GETS_NO_NEW_SYNAPSE);
-						cell.getSegmentUpdateList().add(activeUpdate);
-						// TODO This should not happen so often. Only once for
-						// an active cell.
-						Segment predSegment = getBestMatchingSegment(c, i,
-								Cell.BEFORE);
-
-						SegmentUpdate predUpdate = getSegmentActiveSynapses(c,
-								i, predSegment, Cell.BEFORE,
-								Segment.GETS_NEW_SYNAPSE);
-						cell.getSegmentUpdateList().add(predUpdate);
-
+						if(LEARNING){
+							SegmentUpdate activeUpdate = getSegmentActiveSynapses(
+									c, i, segment, Cell.NOW,
+									Segment.GETS_NO_NEW_SYNAPSE);
+							cell.getSegmentUpdateList().add(activeUpdate);
+							// TODO This should not happen so often. Only once for
+							// an active cell. because it will always be the same segment
+							Segment predSegment = getBestMatchingSegment(c, i,
+									Cell.BEFORE);
+	
+							SegmentUpdate predUpdate = getSegmentActiveSynapses(c,
+									i, predSegment, Cell.BEFORE,
+									Segment.GETS_NEW_SYNAPSE);
+							cell.getSegmentUpdateList().add(predUpdate);
+						}
 					}
-
 				}
 			}
 		}
@@ -339,27 +335,27 @@ public class TemporalPooler {
 	 * reason, we negatively reinforce the segments (lines 58-60).
 	 */
 	public void updateSynapses() {
-
-		for (int c = 0; c < xxMax * yyMax; c++) {
-			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
-
-				Cell cell = cells[c][i][Cell.NOW];
-				if (cell.hasLearnState()) {
-					adaptSegments(cell.getSegmentUpdateList(),
-							SegmentUpdate.POSITIVE_REINFORCEMENT);
-					// System.out.println("updating learnstate "+cell);
-					cell.getSegmentUpdateList().clear();
-
-				} else
-				// TODO I have the feeling that this is wrong. It should be:if
-				// the cell was predicted but is not
-				// active now. (or maybe not)
-				if (!cells[c][i][Cell.NOW].hasPredictiveState()
-						&& cells[c][i][Cell.BEFORE].hasPredictiveState()) {
-					adaptSegments(cell.getSegmentUpdateList(),
-							SegmentUpdate.NO_POSITIVE_REINFORCEMENT);
-					cell.getSegmentUpdateList().clear();
-
+		if(LEARNING){
+			for (int c = 0; c < xxMax * yyMax; c++) {
+				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
+	
+					Cell cell = cells[c][i][Cell.NOW];
+					if (cell.hasLearnState()) {
+						adaptSegments(cell.getSegmentUpdateList(),
+								SegmentUpdate.POSITIVE_REINFORCEMENT);
+						cell.getSegmentUpdateList().clear();
+	
+					} else
+					// TODO I have the feeling that this is wrong. It should be:if
+					// the cell was predicted but is not
+					// active now. (or maybe not)
+					if (!cells[c][i][Cell.NOW].hasPredictiveState()
+							&& cells[c][i][Cell.BEFORE].hasPredictiveState()) {
+						adaptSegments(cell.getSegmentUpdateList(),
+								SegmentUpdate.NO_POSITIVE_REINFORCEMENT);
+						cell.getSegmentUpdateList().clear();
+	
+					}
 				}
 			}
 		}
@@ -587,9 +583,11 @@ public class TemporalPooler {
 	 * an optional argument that defaults to false. If newSynapses is true, then
 	 * newSynapseCount - count(activeSynapses) synapses are added to
 	 * activeSynapses. These synapses are randomly chosen from the set of cells
-	 * that have learnState output = 1 at time step t. In my version an active
-	 * synapse doesn't have to be connected because this is the place where
-	 * learning should be happening.
+	 * that have learnState output = 1 at time step t. 
+	 * In my version an active synapse doesn't have to be connected because this 
+	 * is the place where learning should be happening. Also, The synapses that 
+	 * are being updated are sometimes chosen in getBestmatchingegment. 
+	 * And in that method it doesn't matter if the synapse is connected or not.
 	 * 
 	 * @param c
 	 * @param i
