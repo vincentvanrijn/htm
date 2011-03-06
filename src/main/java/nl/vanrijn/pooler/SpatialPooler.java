@@ -76,6 +76,14 @@ public class SpatialPooler {
 	public ArrayList<Column>	activeColumns				= new ArrayList<Column>();
 
 	Logger						logger						= Logger.getLogger(SpatialPooler.class.getName());
+	/**
+	 * the amount of columns over y
+	 */
+	private int yyMax=12;
+	/**
+	 * the amount of columns over x 
+	 */
+	private int xxMax=12;
 
 	public Column[] getColumns() {
 		return columns;
@@ -130,12 +138,10 @@ public class SpatialPooler {
 		// logger.log(Level.INFO, "SpatialPooler");
 		columns = new Column[AMMOUNT_OF_COLLUMNS];
 
-		// lets say every column has 10 synapses
 		Random random = new Random();
 		int i = 0;
-		for (int y = 0; y < 12; y++) {
-			for (int x = 0; x < 12; x++) {
-
+		for (int y = 0; y < yyMax; y++) {
+			for (int x = 0; x < xxMax; x++) {
 				
 
 				Synapse[] synapses = new Synapse[amountOfSynapses];
