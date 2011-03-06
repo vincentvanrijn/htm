@@ -144,4 +144,8 @@ public class Cell {
 		this.neighbors=neighbors;
 		
 	}
+
+	public List<Cell> getNeighbors() {
+		return this.neighbors;
+	}
 }

@@ -615,6 +615,15 @@ public class TemporalPooler {
 			if (newSynapses && ammountNewSynapsesToAdd > 0) {
 
 				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
+				//TODO if this cell has neighbors, then get new synapses from neighbors
+//				if(cells[c][i][time].getNeighbors()!=null){
+//					for (Cell cell : cells[c][i][time].getNeighbors()) {
+//						Cell cellToCheck=cells[cell.getColumnIndex()][cell.getCellIndex()][time];
+//						if(cellToCheck.hasLearnState()){
+//							cellsWithLearnstate.add(cellToCheck);
+//						}
+//					}
+//				}
 				for (int ci = 0; ci < xxMax * yyMax; ci++) {
 					for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
 
@@ -773,11 +782,14 @@ public class TemporalPooler {
 		for (int c = 0; c < xxMax * yyMax; c++) {
 			for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
 
-				cells[c][i][0] = cells[c][i][1];// old cell is new cell
-				cells[c][i][0].setTime(Cell.BEFORE);
-				cells[c][i][1] = new Cell(c, i, 1, cells[c][i][0].getXpos(),
-						cells[c][i][0].getYpos(), cells[c][i][0].getSegments());
-
+				cells[c][i][Cell.BEFORE] = cells[c][i][1];// old cell is new cell
+				cells[c][i][Cell.BEFORE].setTime(Cell.BEFORE);
+				cells[c][i][Cell.NOW] = new Cell(c, i, 1, cells[c][i][Cell.BEFORE].getXpos(),
+				cells[c][i][Cell.BEFORE].getYpos(), cells[c][i][Cell.BEFORE].getSegments());
+				//TODO test this
+				if(LEARNING){
+					cells[c][i][Cell.NOW].setNeigbors(cells[c][i][Cell.BEFORE].getNeighbors());
+				}
 				// TODO there is discussion if this should be remembered over
 				// time
 				// cell.setSegmentUpdateList(cells[c][i][0].getSegmentUpdateList());
