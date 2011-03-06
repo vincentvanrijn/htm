@@ -75,6 +75,8 @@ public class Cell {
 
 	private final int				ypos;
 
+	private List<Cell> neighbors;
+
 	public boolean hasActiveState() {
 		return activeState;
 	}
@@ -136,5 +138,10 @@ public class Cell {
 
 	public int getYpos() {
 		return ypos;
+	}
+
+	public void setNeigbors(List<Cell> neighbors) {
+		this.neighbors=neighbors;
+		
 	}
 }
