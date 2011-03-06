@@ -615,21 +615,22 @@ public class TemporalPooler {
 			if (newSynapses && ammountNewSynapsesToAdd > 0) {
 
 				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
-				//TODO if this cell has neighbors, then get new synapses from neighbors
-//				if(cells[c][i][time].getNeighbors()!=null){
-//					for (Cell cell : cells[c][i][time].getNeighbors()) {
-//						Cell cellToCheck=cells[cell.getColumnIndex()][cell.getCellIndex()][time];
-//						if(cellToCheck.hasLearnState()){
-//							cellsWithLearnstate.add(cellToCheck);
-//						}
-//					}
-//				}
-				for (int ci = 0; ci < xxMax * yyMax; ci++) {
-					for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
-
-						Cell cell = cells[ci][ii][time];
-						if (cell.hasLearnState()) {
-							cellsWithLearnstate.add(cell);
+				//TODO test this
+				if(cells[c][i][time].getNeighbors()!=null){
+					for (Cell cell : cells[c][i][time].getNeighbors()) {
+						Cell cellToCheck=cells[cell.getColumnIndex()][cell.getCellIndex()][time];
+						if(cellToCheck.hasLearnState()){
+							cellsWithLearnstate.add(cellToCheck);
+						}
+					}
+				} else{
+					for (int ci = 0; ci < xxMax * yyMax; ci++) {
+						for (int ii = 0; ii < Column.CELLS_PER_COLUMN; ii++) {
+	
+							Cell cell = cells[ci][ii][time];
+							if (cell.hasLearnState()) {
+								cellsWithLearnstate.add(cell);
+							}
 						}
 					}
 				}
