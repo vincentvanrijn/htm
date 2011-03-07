@@ -748,7 +748,7 @@ public class TemporalPooler {
 		for (LateralSynapse synapse : synapses) {
 
 			if (state == Cell.LEARN_STATE) {
-				// TODO are all cells that have learnstate also Active?
+				// TODO are all cells that have learnstate also Active or should we also check if the cell is/was active?
 				if (synapse.isConnected()
 						&& cells[synapse.getFromColumnIndex()][synapse
 								.getFromCellIndex()][time].hasLearnState()) {

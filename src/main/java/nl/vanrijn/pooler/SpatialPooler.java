@@ -243,9 +243,9 @@ public class SpatialPooler {
 		if (LEARNING ){
 			for (Column activeColumn : activeColumns) {
 				for (Synapse potentialSynapse : activeColumn.getPotentialSynapses()) {
-	
 					double permanance = potentialSynapse.getPermanance();
-					if (potentialSynapse.isConnected(connectedPermanance)) {
+					//See page 29 point 6) For each....vice-versa.
+					if (potentialSynapse.getSourceInput()==1){
 	
 						potentialSynapse.setPermanance(permanance + permananceInc);
 						potentialSynapse.setPermanance(Math.min(potentialSynapse.getPermanance(), 1.0));
