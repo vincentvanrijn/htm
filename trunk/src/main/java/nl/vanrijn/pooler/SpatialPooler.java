@@ -133,6 +133,7 @@ public class SpatialPooler {
 	 * input region, and the permanence values have a bias towards this center (they have higher values near the
 	 * center).
 	 */
+	//TODo A synapse can be connected but not active. And maybe also the other way arround 
 	public void init() {
 		//TODO the input space has to be the same size is the column space. That is not desireable .Make this better.
 		// logger.log(Level.INFO, "SpatialPooler");
@@ -244,7 +245,7 @@ public class SpatialPooler {
 				for (Synapse potentialSynapse : activeColumn.getPotentialSynapses()) {
 	
 					double permanance = potentialSynapse.getPermanance();
-					if (potentialSynapse.isActive(connectedPermanance)) {
+					if (potentialSynapse.isConnected(connectedPermanance)) {
 	
 						potentialSynapse.setPermanance(permanance + permananceInc);
 						potentialSynapse.setPermanance(Math.min(potentialSynapse.getPermanance(), 1.0));

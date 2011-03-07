@@ -207,7 +207,7 @@ public class Column implements Comparable<Column> {
 	public Synapse[] getConnectedSynapses(double connectedPermanance) {
 		ArrayList<Synapse> connectedSynapses = new ArrayList<Synapse>();
 		for (Synapse potentialSynapse : this.potentialSynapses) {
-			if (potentialSynapse.isActive(connectedPermanance)) {
+			if (potentialSynapse.isConnected(connectedPermanance)) {
 				connectedSynapses.add(potentialSynapse);
 			}
 		}
