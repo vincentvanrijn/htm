@@ -297,7 +297,7 @@ public class HTMApplet extends Applet {
 			String permanance = df2.format(potentialSynapse.getPermanance());
 
 			graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos() + " perm="
-					+ permanance + " input=" + potentialSynapse.getSourceInput() + " active="
+					+ permanance + " input=" + potentialSynapse.getSourceInput() + " connected="
 					+ potentialSynapse.isConnected(spat.getConnectedPermanance()), 0, 354 + 16 * i);
 			// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5, 6, 6);
