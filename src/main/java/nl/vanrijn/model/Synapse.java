@@ -40,7 +40,7 @@ public class Synapse {
 
 	
 
-	public boolean isActive(double connectedPermanance) {
+	public boolean isConnected(double connectedPermanance) {
 		// logger.log(Level.INFO, "synapse perm ="+this.permanance +" "+(this.permanance>=CONECTED_PERMANANCE)+
 		// "input="+sourceInput);
 		return this.permanance >= connectedPermanance;

@@ -289,7 +289,7 @@ public class HTMApplet extends Applet {
 
 		for (int i = 0; i < column.getPotentialSynapses().length; i++) {
 			Synapse potentialSynapse = column.getPotentialSynapses()[i];
-			if (potentialSynapse.isActive(spat.getConnectedPermanance())) {
+			if (potentialSynapse.isConnected(spat.getConnectedPermanance())) {
 				graphics.setColor(Color.GREEN);
 			} else {
 				graphics.setColor(Color.RED);
@@ -298,7 +298,7 @@ public class HTMApplet extends Applet {
 
 			graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos() + " perm="
 					+ permanance + " input=" + potentialSynapse.getSourceInput() + " active="
-					+ potentialSynapse.isActive(spat.getConnectedPermanance()), 0, 354 + 16 * i);
+					+ potentialSynapse.isConnected(spat.getConnectedPermanance()), 0, 354 + 16 * i);
 			// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
 			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5, 6, 6);
 		}
