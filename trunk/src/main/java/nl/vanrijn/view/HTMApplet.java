@@ -46,7 +46,7 @@ public class HTMApplet extends Applet {
 	private Image				image;
 
 	// private Column[] columns;
-	private SpatialPooler		spat					= new SpatialPooler();
+	private SpatialPooler		spat					= null;
 
 	private TemporalPooler		tempo					= new TemporalPooler(12,12);
 
@@ -54,13 +54,13 @@ public class HTMApplet extends Applet {
 
 	private TextField			connectedPermanance		= new TextField("0.7");
 
-	private TextField			minimalOverlap			= new TextField("4");
+	private TextField			minimalOverlap			= new TextField("7");
 
 	private TextField			permananceDec			= new TextField("0.05");
 
 	private TextField			permananceInc			= new TextField("0.05");
 
-	private TextField			amountOfSynapses		= new TextField("10");
+	private TextField			amountOfSynapses		= new TextField("30");
 
 	private TextField			inhibitionRadius		= new TextField("5.0");
 
@@ -117,8 +117,10 @@ public class HTMApplet extends Applet {
 		add(new Label("inhib.rad"));
 		add(inhibitionRadius);
 		add(reset);
-		SpatialPooler spat = new SpatialPooler();
-		spat.init();
+		spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()), new Double(
+				connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
+				permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
+				.getText()), new Double(inhibitionRadius.getText()));
 
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
