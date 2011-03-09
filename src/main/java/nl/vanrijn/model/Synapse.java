@@ -70,4 +70,9 @@ public class Synapse {
 		this.inputSpaceIndex = inputSpaceIndex;
 	}
 
+	@Override
+	public String toString() {
+		return "Synapse inputspaceIndex="+this.inputSpaceIndex+" perm="+this.permanance+" input="+this.sourceInput+" x,y:"+this.xPos+","+this.yPos;
+	}
+
 }

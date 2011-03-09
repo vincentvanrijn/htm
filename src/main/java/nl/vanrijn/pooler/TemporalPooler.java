@@ -175,6 +175,21 @@ public class TemporalPooler {
 	 * @return
 	 */
 	private List<Cell> getNeighbors(Cell cell) {
+		
+//		int inhib=(int)Math.round(inhibitionRadius);
+//		for(int x=-inhib;x<inhib+1;x++){
+//			for(int y=-inhib;y<inhib+1;y++){
+//				if(x+column.getxPos()>=0 && column.getxPos()+x<xxMax &&
+//						y+column.getyPos()>=0 &&y+column.getyPos()<yyMax&&
+//						!(y+column.getyPos()==column.getyPos()&&x+column.getxPos()==column.getxPos())){
+//					neighbors.add(this.columns[ ((y+column.getyPos())*12+x+column.getxPos())]);
+//				}
+//			}
+//		}
+		
+		
+		
+		
 		List<Cell> neighbors = new ArrayList<Cell>();
 		int c = 0;
 		for (int yy = 0; yy < yyMax; yy++) {
