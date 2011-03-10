@@ -75,7 +75,7 @@ public class Cell {
 
 	private final int				ypos;
 
-	private List<Cell> neighbors;
+	private List<Cell> neighbors=null;
 
 	public boolean hasActiveState() {
 		return activeState;

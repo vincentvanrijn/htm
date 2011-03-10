@@ -64,6 +64,8 @@ public class SpatialPooler {
 	 */
 
 	private double				inhibitionRadius			= 5.0;
+	private double				inhibitionRadiusBefore		= 0.0;
+
 
 	/**
 	 * columns List of all columns.
@@ -109,28 +111,6 @@ public class SpatialPooler {
 		}
 	}
 	
-	public static void main(String [] args){
-//		for (int i=0;i<144;i++){
-//			System.out.println(i +" "+  i%12 +" "+ i/12);
-//		}
-		
-		int xxMax=12;
-		int yyMax=12;
-		int xpos=11;
-		int ypos=0;
-		long inhib=Math.round(2);
-		for(long x=-inhib;x<inhib+1;x++){
-			for(long y=-inhib;y<inhib+1;y++){
-				System.out.println(x+ ","+y);
-//				if(x+xpos>=0 && xpos+x<xxMax &&
-//						y+ypos>=0 &&y+ypos<yyMax){
-//					System.out.println((y+ypos)*12+x+xpos+" "+(x+xpos) +" "+ (y+ypos) );
-//					
-//				}
-			}
-		}
-		
-	}
 
 	public SpatialPooler(int desiredLocalActivity, double connectedPermanance, int minimalOverlap,
 			double permananceDec, double permananceInc, int amountOfSynapses, double inhibitionRadius) {
@@ -203,10 +183,8 @@ public class SpatialPooler {
 	 * boost. If this value is below minOverlap, we set the overlap score to zero.
 	 */
 	public void computOverlap() {
-		// logger.log(Level.FINE, "computOverlap");
 		for (Column column : this.columns) {
 			double overlap = 0.0;
-			// logger.log(Level.INFO, "connected syn=" + connectedSynapses.length);
 			for (Synapse connectedSynapse : column.getConnectedSynapses(connectedPermanance)) {
 				int t = 1;
 				overlap += input(t, connectedSynapse.getSourceInput());
@@ -216,11 +194,9 @@ public class SpatialPooler {
 				column.setOverlap(0);
 				column.addGreaterThanMinimalOverlap(false);
 			} else {
-				// logger.info( "overlap=" + overlap);
 				column.setOverlap(overlap * column.getBoost());
 
 				column.addGreaterThanMinimalOverlap(true);
-				// logger.log(Level.INFO, "overlap=" + overlap * column.getBoost());
 			}
 			column.updateOverlapDutyCycle();
 		}
@@ -234,14 +210,13 @@ public class SpatialPooler {
 	 */
 	public void computeWinningColumsAfterInhibition() {
 
-		// logger.log(Level.FINE, "computeWinningColumsAfterInhibition");
 		activeColumns = new ArrayList<Column>();
 		for (Column column : this.columns) {
-			column.setNeigbours(getNeigbors(column));
-
-			double minimalLocalActivity = kthScore(column.getNeigbours(), desiredLocalActivity);// TODO if inhibitioradius
-			// changes, shouldn't
-			// this also change?
+			if(Math.round(this.inhibitionRadius)!=Math.round(this.inhibitionRadiusBefore)){
+				column.setNeigbours(getNeigbors(column));
+			}
+			double minimalLocalActivity = kthScore(column.getNeigbours(), desiredLocalActivity);
+			// TODO if inhibitionRadius changes, shouldn't this also change?
 			column.setMinimalLocalActivity(minimalLocalActivity);
 			if (column.getOverlap() > 0 && column.getOverlap() >= minimalLocalActivity) {
 				column.setActive(true);
@@ -300,10 +275,11 @@ public class SpatialPooler {
 				}
 			}
 	
-			
-	
+			//for performance I also save inhibitionRadius of the time step before.Neighbors don't need to be calculated if 
+			//inhib didn't change
+			this.inhibitionRadiusBefore=inhibitionRadius;
 			this.inhibitionRadius = averageReceptiveFieldSize();
-			this.inhibitionRadius=2.0;
+			
 
 		}
 	}
@@ -375,23 +351,21 @@ public class SpatialPooler {
 	}
 
 	private List<Column> getNeigbors(Column column) {
-//TODO this should only happen if the inhibitionRadius has changed.
-		//TODO an performance improvemance can be to make sure the loop starts at minimal 0 and ends at max xxMax
+
 		List<Column> neighbors = new ArrayList<Column>();
-		
 		int inhib=(int)Math.round(inhibitionRadius);
-		for(int x=-inhib;x<inhib+1;x++){
-			for(int y=-inhib;y<inhib+1;y++){
-				if(x+column.getxPos()>=0 && column.getxPos()+x<xxMax &&
-						y+column.getyPos()>=0 &&y+column.getyPos()<yyMax&&
-						!(y+column.getyPos()==column.getyPos()&&x+column.getxPos()==column.getxPos())){
-					neighbors.add(this.columns[ ((y+column.getyPos())*12+x+column.getxPos())]);
+		int xxStart=Math.max(0,column.getxPos()-inhib);
+		int xxEnd=Math.min(xxMax, column.getxPos()+inhib+1);
+		int yyStart=Math.max(0,column.getyPos()-inhib);
+		int yyEnd=	Math.min(yyMax,column.getyPos()+inhib+1);
+		
+		for(int y=yyStart;y<yyEnd;y++){
+			for(int x=xxStart;x<xxEnd;x++){
+				if(!(y==column.getyPos()&&x==column.getxPos())){
+					neighbors.add(this.columns[ y*xxMax+x]);
 				}
 			}
 		}
-			
-		
-
 
 		column.setNeigbours(neighbors);
 		return neighbors;
