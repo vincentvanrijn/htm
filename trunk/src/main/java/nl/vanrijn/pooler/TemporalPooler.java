@@ -99,16 +99,16 @@ public class TemporalPooler {
 	 * get lateral connections.
 	 */
 	// TODO implement learning radius implementation
-	private static int LEARNING_RADIUS =40;
+	private static int LEARNING_RADIUS =2;
 
 	/**
-	 * activeColumns(t) List of column indices that are winners due to bottom-up
+	 * activeColumns Array of columns that are winners due to bottom-up
 	 * input (this is the output of the spatial pooler).
 	 */
 	private Column[] activeColumns;
 
 	/**
-	 * cell(c,i) A list of all cells, indexed by i and c.
+	 * cell[c][i][t] An array of all cells, indexed by c(column index) and i(cell index) and  t(time).
 	 */
 	private Cell[][][] cells;
 
@@ -140,10 +140,6 @@ public class TemporalPooler {
 							List<LateralSynapse> synapses = new ArrayList<LateralSynapse>();
 							Collections.shuffle(collumnIndexes);
 							for (int y = 0; y < AMMOUNT_OF_SYNAPSES; y++) {
-
-								
-								
-
 								// TODO can a cell predict itself?
 
 								synapses.add(new LateralSynapse(c, i, s,
@@ -156,9 +152,7 @@ public class TemporalPooler {
 							// System.out.println(c);
 						}
 						cells[c][i][t] = new Cell(c, i, t, xx, yy, segments);
-						if(LEARNING && (xxMax> LEARNING_RADIUS || yyMax>LEARNING_RADIUS)){
-							cells[c][i][t].setNeigbors(getNeighbors(cells[c][i][t]));
-						}
+						
 					}
 				}
 				c++;
@@ -176,44 +170,21 @@ public class TemporalPooler {
 	 */
 	private List<Cell> getNeighbors(Cell cell) {
 		
-//		int inhib=(int)Math.round(inhibitionRadius);
-//		for(int x=-inhib;x<inhib+1;x++){
-//			for(int y=-inhib;y<inhib+1;y++){
-//				if(x+column.getxPos()>=0 && column.getxPos()+x<xxMax &&
-//						y+column.getyPos()>=0 &&y+column.getyPos()<yyMax&&
-//						!(y+column.getyPos()==column.getyPos()&&x+column.getxPos()==column.getxPos())){
-//					neighbors.add(this.columns[ ((y+column.getyPos())*12+x+column.getxPos())]);
-//				}
-//			}
-//		}
-		
-		
-		
-		
 		List<Cell> neighbors = new ArrayList<Cell>();
-		int c = 0;
-		for (int yy = 0; yy < yyMax; yy++) {
-			for (int xx = 0; xx < xxMax; xx++) {
-
+		int xxStart=Math.max(0, cell.getXpos()-LEARNING_RADIUS);
+		int xxEnd=Math.min(xxMax, cell.getXpos()+LEARNING_RADIUS+1);
+		int yyStart=Math.max(0, cell.getYpos()-LEARNING_RADIUS);
+		int yyEnd=Math.min(yyMax, cell.getYpos()+LEARNING_RADIUS+1);
+		int c;
+		for (int yy = yyStart; yy < yyEnd; yy++) {
+			for (int xx = xxStart; xx < xxEnd; xx++) {
+				c=yy*xxMax+xx;
 				for (int i = 0; i < Column.CELLS_PER_COLUMN; i++) {
-					Cell potentialNeigbor = cells[c][yy][Cell.NOW];
+					Cell potentialNeigbor = cells[c][i][Cell.NOW];
 
-					int xposColPlusIn = (int) (cell.getXpos() + Math
-							.round(LEARNING_RADIUS));
-					int yposColPlusIn = (int) (cell.getYpos() + Math
-							.round(LEARNING_RADIUS));
-					int xposColMinIn = (int) (cell.getXpos() - Math
-							.round(LEARNING_RADIUS));
-					int yposColMinIn = (int) (cell.getYpos() - Math
-							.round(LEARNING_RADIUS));
-					if ((xposColPlusIn >= potentialNeigbor.getXpos())
-							&& (yposColPlusIn >= potentialNeigbor.getYpos())
-							&& (xposColMinIn <= potentialNeigbor.getXpos())
-							&& (yposColMinIn <= potentialNeigbor.getYpos() && cell != potentialNeigbor)) {
-						neighbors.add(potentialNeigbor);
-					}
+					neighbors.add(potentialNeigbor);
+				
 				}
-				c++;
 			}
 		}
 		return neighbors;
@@ -505,23 +476,19 @@ public class TemporalPooler {
 										.getPermanance()
 										+ TemporalPooler.PERMANANCE_INC, 1.0));
 							} else {
-								System.out.println("negatief");
+								
 								synapse2.setPermanance(Math.max(synapse2
 										.getPermanance()
 										- TemporalPooler.PERMANANCE_DEC, 0.0));
 							}
 						} else {
-							// System.out.println("adding new synapse in adapt segment");
 							segment.getSynapses().add(synapse2);
-							System.out.println();
 						}
 					}
 
 					for (LateralSynapse synapse3 : segment.getSynapses()) {
 						if (!segmentUpdate.getActiveSynapses().contains(
 								synapse3)) {
-							System.out
-									.println("negative because is not on the list");
 							synapse3.setPermanance(Math.max(synapse3
 									.getPermanance()
 									- TemporalPooler.PERMANANCE_DEC, 0.0));
@@ -631,11 +598,17 @@ public class TemporalPooler {
 
 				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
 				//TODO test this
-				if(cells[c][i][time].getNeighbors()!=null){
-					for (Cell cell : cells[c][i][time].getNeighbors()) {
-						Cell cellToCheck=cells[cell.getColumnIndex()][cell.getCellIndex()][time];
-						if(cellToCheck.hasLearnState()){
-							cellsWithLearnstate.add(cellToCheck);
+				if((LEARNING_RADIUS<xxMax||LEARNING_RADIUS<yyMax) &&LEARNING){
+					//We always get neighbors from the cell at time = now. 
+					//But we only use the indexes of these neighbors to get the cells in the time as in the time parameter of this method.
+					if(cells[c][i][Cell.NOW].getNeighbors()==null){
+						cells[c][i][Cell.NOW].setNeigbors(getNeighbors(cells[c][i][Cell.NOW]));						
+					}
+					
+					for (Cell neighborCell : cells[c][i][Cell.NOW].getNeighbors()) {
+						Cell potentialCellWithLearnState=cells[neighborCell.getColumnIndex()][neighborCell.getCellIndex()][time];
+						if(potentialCellWithLearnState.hasLearnState()){
+							cellsWithLearnstate.add(potentialCellWithLearnState);
 						}
 					}
 				} else{
@@ -662,20 +635,16 @@ public class TemporalPooler {
 						activeSynapses.add(new LateralSynapse(c, i, segment
 								.getSegmentIndex(), cell.getColumnIndex(), cell
 								.getCellIndex(), TemporalPooler.INITIAL_PERM));
-						System.out
-								.println("adding new synapse in segmentactive");
-
 					}
 				}
 			}
 
 			returnValue = new SegmentUpdate(c, i, segment.getSegmentIndex(),
 					activeSynapses);
-
 		} else {
+			// TODO Maybe add new Segment
 			returnValue = new SegmentUpdate(c, i, -1, activeSynapses);
 		}
-		// TODO Maybe add new Segment
 
 		return returnValue;
 	}
@@ -800,10 +769,11 @@ public class TemporalPooler {
 
 				cells[c][i][Cell.BEFORE] = cells[c][i][1];// old cell is new cell
 				cells[c][i][Cell.BEFORE].setTime(Cell.BEFORE);
+				
 				cells[c][i][Cell.NOW] = new Cell(c, i, 1, cells[c][i][Cell.BEFORE].getXpos(),
 				cells[c][i][Cell.BEFORE].getYpos(), cells[c][i][Cell.BEFORE].getSegments());
-				//TODO test this
-				if(LEARNING){
+				
+				if((LEARNING_RADIUS<xxMax||LEARNING_RADIUS<yyMax) &&LEARNING &&cells[c][i][Cell.BEFORE].getNeighbors()!=null){
 					cells[c][i][Cell.NOW].setNeigbors(cells[c][i][Cell.BEFORE].getNeighbors());
 				}
 				// TODO there is discussion if this should be remembered over
