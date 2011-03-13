@@ -18,7 +18,7 @@ import nl.vanrijn.model.helper.SegmentUpdate;
 public class TemporalPooler {
 
 	/**
-	 * this boolean should be switched of is no learning is desiarable anymore.
+	 * this boolean should be switched of if no learning is desirable anymore.
 	 */
 	private final boolean LEARNING=true;
 	/**
@@ -147,17 +147,14 @@ public class TemporalPooler {
 												.nextInt(3),
 										TemporalPooler.INITIAL_PERM));
 							}
-
 							segments.add(new Segment(c, i, s, synapses));
 							// System.out.println(c);
 						}
-						cells[c][i][t] = new Cell(c, i, t, xx, yy, segments);
-						
+						cells[c][i][t] = new Cell(c, i, t, xx, yy, segments);						
 					}
 				}
 				c++;
 			}
-
 		}
 	}
 
@@ -599,8 +596,8 @@ public class TemporalPooler {
 				List<Cell> cellsWithLearnstate = new ArrayList<Cell>();
 				//TODO test this
 				if((LEARNING_RADIUS<xxMax||LEARNING_RADIUS<yyMax) &&LEARNING){
-					//We always get neighbors from the cell at time = now. 
-					//But we only use the indexes of these neighbors to get the cells in the time as in the time parameter of this method.
+					//If the cell doesn't have its neighbors calculated yet, that will happen now.
+					//The neighbors are set on the cells with time NOW.(In that case we don't loose them if the time is recalculated.
 					if(cells[c][i][Cell.NOW].getNeighbors()==null){
 						cells[c][i][Cell.NOW].setNeigbors(getNeighbors(cells[c][i][Cell.NOW]));						
 					}
