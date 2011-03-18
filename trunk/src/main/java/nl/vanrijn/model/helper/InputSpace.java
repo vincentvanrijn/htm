@@ -1,6 +1,11 @@
 package nl.vanrijn.model.helper;
 
-public class InputSpace {
+public class InputSpace implements Comparable<InputSpace>{
+
+	@Override
+	public String toString() {
+		return "x="+xPos+",y="+yPos+"input="+sourceInput;
+	}
 
 	private int	xPos;
 
@@ -16,22 +21,13 @@ public class InputSpace {
 
 	@Override
 	public boolean equals(Object obj) {
-		boolean returnValue = false;
 		if (this == obj) {
-			returnValue = true;
-		} else
-			if (!(obj instanceof InputSpace)) {
-				returnValue = false;
-			} else {
-
-				InputSpace inputSpace = (InputSpace) obj;
-				if (this.xPos == inputSpace.getxPos() && (this.yPos == inputSpace.getyPos())
-						&& this.sourceInput == inputSpace.getSourceInput()) {
-					returnValue = true;
-
-				}
-			}
-		return returnValue;
+			return true;
+		} else if (this.xPos == ((InputSpace)obj).getxPos() && (this.yPos == ((InputSpace)obj).getyPos())
+					&& this.sourceInput == ((InputSpace)obj).getSourceInput()) {
+			return  true;
+		}
+		return false;
 
 	}
 
@@ -57,5 +53,27 @@ public class InputSpace {
 
 	public void setSourceInput(int sourceInput) {
 		this.sourceInput = sourceInput;
+	}
+
+	public int compareTo(InputSpace o) {
+		int returnValue=-3;
+		
+		if(this.equals(o)){
+//			System.out.println("gelijk");
+			returnValue= 0;
+			
+		} else if((this.yPos>  o.getyPos())
+				||
+				(this.yPos==o.getyPos() && this.xPos>o.getxPos())
+				||
+				(this.yPos==o.getyPos() && this.xPos==o.getxPos() && this.sourceInput==1 && o.sourceInput==0)) {
+			returnValue= -1;
+		} else{
+			returnValue= 1;
+		}
+//		if(returnValue==0){
+//			System.out.println(this+"  "+o +" "+returnValue);
+//		}
+		return returnValue;
 	}
 }

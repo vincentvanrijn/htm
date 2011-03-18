@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import nl.vanrijn.model.Column;
@@ -17,7 +18,9 @@ import nl.vanrijn.model.Synapse;
 import nl.vanrijn.model.helper.InputSpace;
 
 public class SpatialPooler {
-
+	
+	
+	
 	private List<Integer>			inhibitionRadiuses			= new ArrayList<Integer>();
 
 	public static final int			AMMOUNT_OF_COLLUMNS			= 144;
@@ -108,6 +111,15 @@ public class SpatialPooler {
 
 	public void conectSynapsesToInputSpace(int[] inputSpace) {
 		this.inputSpace = inputSpace;
+		int index=0;
+//		for (int y = 0; y < yyMax; y++) {
+//			for (int x = 0; x < xxMax; x++) {
+//				int i = inputSpace[index];
+//				System.out.print(" "+i);
+//				index++;
+//			}
+//		}
+		
 		for (Column column : this.columns) {
 			for (Synapse synapse : column.getPotentialSynapses()) {
 				synapse.setSourceInput(inputSpace[synapse.getInputSpaceIndex()]);
@@ -374,30 +386,63 @@ public class SpatialPooler {
 		return neighbors;
 	}
 
-	private double reconstructionQuality() {
+	public double reconstructionQuality() {
 		int ammountOk = 0;
 		int ammountWrong = 0;
-		Set<InputSpace> inputSpaces = new HashSet<InputSpace>();
+		Set<InputSpace> inputSpaces = new TreeSet<InputSpace>();
 
 		for (Column activeColumn : activeColumns) {
 			for (Synapse connectedSynapse : activeColumn.getConnectedSynapses(this.connectedPermanance)) {
-				if (connectedSynapse.getSourceInput() == 1) {
+				//if (connectedSynapse.getSourceInput() == 1) {
 					inputSpaces.add(new InputSpace(connectedSynapse.getxPos(), connectedSynapse.getyPos(),
 							connectedSynapse.getSourceInput()));
-				}
+				//}
 			}
 		}
+//		for(InputSpace inputSpace : inputSpaces){
+//			System.out.println(inputSpace);
+//		}
+		System.out.println("aantal aktief e "+inputSpaces.size());
+		int ammountAcive=0;
 		int index = 0;
+	//	System.out.println();
 		for (int y = 0; y < yyMax; y++) {
 			for (int x = 0; x < xxMax; x++) {
 				int i = inputSpace[index];
+//				System.out.print(i+ " ");
+				if (i==1){
+					
+					ammountAcive++;
+				}
+				
 				if (i == 1 && inputSpaces.contains(new InputSpace(x, y, 1))) {
+//					System.out.println(new InputSpace(x,y,1));
 					ammountOk++;
 
-				}
-			}
-		}
+				} else if (i == 0 && inputSpaces.contains(new InputSpace(x, y, 0))) {
+//					System.out.println("never happesn "+new InputSpace(x, y, 1));
+					ammountWrong++;
 
-		return 0.0;
+				} else if (i == 1 && !inputSpaces.contains(new InputSpace(x, y, 1))) {
+//					System.out.println("1 and 0 "+new InputSpace(x, y, 1));
+					ammountWrong++;
+				}  
+				index++;
+			}
+			
+		}
+		System.out.println();
+		System.out.println(ammountAcive +" ammountAcive");
+		System.out.println(ammountOk+" ok");
+		System.out.println(ammountWrong+" wrong");
+		if(ammountOk!=0){
+			return ((double)ammountOk/(double)(ammountAcive)*100);
+		}
+		return 0;
+		
+	}
+
+	public void setInputSpace(int[] inputSpace) {
+		this.inputSpace = inputSpace;
 	}
 }
