@@ -403,6 +403,8 @@ public class HTMApplet extends Applet {
 		}
 
 		repaint();
+		
+		System.out.println(spat.reconstructionQuality());
 		// tempo.setActiveColumns(spat.getActiveColumns());
 		// tempo.computeActiveState();
 		// tempo.computeActiveState();
