@@ -58,6 +58,21 @@ public class Column implements Comparable<Column> {
 
 	private ArrayList<Boolean> activeList = new ArrayList<Boolean>();
 
+	public void setActiveList(ArrayList<Boolean> activeList) {
+		this.activeList = activeList;
+	}
+
+	public void setTimesGreaterOverlapThanMinOverlap(
+			ArrayList<Boolean> timesGreaterOverlapThanMinOverlap) {
+		this.timesGreaterOverlapThanMinOverlap = timesGreaterOverlapThanMinOverlap;
+	}
+
+	
+
+	public void setOverlapDutyCycle(double overlapDutyCycle) {
+		this.overlapDutyCycle = overlapDutyCycle;
+	}
+
 	private ArrayList<Boolean> timesGreaterOverlapThanMinOverlap = new ArrayList<Boolean>();
 
 	/**

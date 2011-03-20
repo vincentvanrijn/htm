@@ -16,6 +16,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import nl.vanrijn.model.Column;
@@ -24,8 +26,9 @@ import nl.vanrijn.pooler.SpatialPooler;
 import nl.vanrijn.pooler.TemporalPooler;
 
 
-public class HTMApplet extends Applet {
+public class HTMApplet extends Applet  implements Runnable {
 
+	private List<String> logging;
 	private boolean				mouseDragged			= false;
 
 	private boolean				mousePressed			= false;
@@ -60,7 +63,7 @@ public class HTMApplet extends Applet {
 
 	private TextField			permananceInc			= new TextField("0.05");
 
-	private TextField			amountOfSynapses		= new TextField("30");
+	private TextField			amountOfSynapses		= new TextField("10");
 
 	private TextField			inhibitionRadius		= new TextField("5.0");
 
@@ -69,6 +72,14 @@ public class HTMApplet extends Applet {
 	private Column				loggedColum				= null;
 
 	DecimalFormat				df2						= new DecimalFormat("#,###,###,##0.00");
+
+	private Button addPattern;
+
+	protected ArrayList<int[]> patterns = new ArrayList<int[]>();
+
+	private boolean starting;
+
+	private Thread runner;
 
 	public void init() {
 		desiredLocalActivity.setName("desiredLocalActivity");
@@ -154,7 +165,76 @@ public class HTMApplet extends Applet {
 				mouseOver(e.getX(), e.getY());
 			}
 		});
+		addPattern = new Button("addPattern       ");
+		addPattern.setActionCommand("addPattern");
+		addPattern.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("addPattern")) {
+					addPattern();
+
+				}
+			}
+		});
+		add(addPattern);
+		Button resetPatterns = new Button("resetPatterns");
+		resetPatterns.setActionCommand("resetPatterns");
+		resetPatterns.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("resetPatterns")) {
+					patterns = new ArrayList<int[]>();
+					addPattern.setLabel("addPattern");
+				}
+			}
+		});
+		add(resetPatterns);
+		
+		Button running = new Button("run");
+		running.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("run")) running();
+			}
+		});
+		add(running);
+
+		Button stop = new Button("stop");
+		stop.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals("stop")) stopping();
+			}
+		});
+		add(stop);
 		draw();
+	}
+
+	protected void stopping() {
+
+		this.starting = false;
+		
+	}
+
+	protected void running() {
+		runner = new Thread(this);
+
+		runner.start();
+		
+	}
+
+	protected void addPattern() {
+		int[] pattern = new int[input.length];
+		System.out.println(input);
+		System.arraycopy(input, 0, pattern, 0, input.length);
+		patterns.add(pattern);
+
+		reDraw();
+		//invokeTemporalPooler();
+		createSparseDistributedRep();
+		addPattern.setLabel("addPattern(" + patterns.size() + ")");
+		//columns = new int[144];
+		
 	}
 
 	public void reset() {
@@ -408,6 +488,56 @@ public class HTMApplet extends Applet {
 		// tempo.setActiveColumns(spat.getActiveColumns());
 		// tempo.computeActiveState();
 		// tempo.computeActiveState();
+
+	}
+	public void run() {
+		
+		logging=new ArrayList<String>();
+		
+		if (patterns.size() != 0) {
+			this.starting = true;
+			
+			do {
+				String log=""+spat.getAmountOfSynapses();
+				SpatialPooler.LEARNING=true;
+				for(int i=0;i<1000;i++){
+					
+					if(i==999){
+						SpatialPooler.LEARNING=false;
+					}
+					for(int j=0;j<patterns.size();j++ ){						
+					
+						
+						System.arraycopy(patterns.get(j), 0, input, 0, input.length);
+		
+						createSparseDistributedRep();
+						if(i==999){
+							log+=","+j+" "+spat.reconstructionQuality();
+						}
+						reDraw();
+						repaint();
+		
+						try {
+							//Thread.sleep(200);
+						} catch (Exception e) {
+							System.out.println("fucked");
+						}						
+					}
+					
+				}
+				logging.add(log);
+				spat.setAmountOfSynapses(spat.getAmountOfSynapses()+1);
+				spat.init();
+				if(spat.getAmountOfSynapses()==60){
+					starting=false;
+				}
+				
+				// System.out.println(this.starting);
+			} while (this.starting);
+			for(String log: logging){
+				System.out.println(log);
+			}
+		}
 
 	}
 }
