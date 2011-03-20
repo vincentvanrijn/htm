@@ -28,7 +28,15 @@ public class SpatialPooler {
 	/**
 	 * if learning is on, the spatial pooler can learn new patterns
 	 */
-	private static final boolean	LEARNING					= true;
+	public static boolean	LEARNING					= true;
+
+	public int getAmountOfSynapses() {
+		return amountOfSynapses;
+	}
+
+	public void setAmountOfSynapses(int amountOfSynapses) {
+		this.amountOfSynapses = amountOfSynapses;
+	}
 
 	/**
 	 * desiredLocalActivity A parameter controlling the number of columns that will be winners after the inhibition
@@ -187,6 +195,8 @@ public class SpatialPooler {
 			}
 		}
 	}
+	
+	
 
 	public double getInhibitionRadius() {
 		return inhibitionRadius;
@@ -227,7 +237,7 @@ public class SpatialPooler {
 
 		activeColumns = new ArrayList<Column>();
 		for (Column column : this.columns) {
-			if (Math.round(this.inhibitionRadius) != Math.round(this.inhibitionRadiusBefore)) {
+			if (Math.round(this.inhibitionRadius) != Math.round(this.inhibitionRadiusBefore) || column.getNeigbours()==null) {
 				column.setNeigbours(getNeigbors(column));
 			}
 			double minimalLocalActivity = kthScore(column.getNeigbours(), desiredLocalActivity);
@@ -393,10 +403,8 @@ public class SpatialPooler {
 
 		for (Column activeColumn : activeColumns) {
 			for (Synapse connectedSynapse : activeColumn.getConnectedSynapses(this.connectedPermanance)) {
-				//if (connectedSynapse.getSourceInput() == 1) {
-					inputSpaces.add(new InputSpace(connectedSynapse.getxPos(), connectedSynapse.getyPos(),
+				inputSpaces.add(new InputSpace(connectedSynapse.getxPos(), connectedSynapse.getyPos(),
 							connectedSynapse.getSourceInput()));
-				//}
 			}
 		}
 //		for(InputSpace inputSpace : inputSpaces){
@@ -405,26 +413,21 @@ public class SpatialPooler {
 		System.out.println("aantal aktief e "+inputSpaces.size());
 		int ammountAcive=0;
 		int index = 0;
-	//	System.out.println();
 		for (int y = 0; y < yyMax; y++) {
 			for (int x = 0; x < xxMax; x++) {
 				int i = inputSpace[index];
-//				System.out.print(i+ " ");
 				if (i==1){
 					
 					ammountAcive++;
 				}
 				
 				if (i == 1 && inputSpaces.contains(new InputSpace(x, y, 1))) {
-//					System.out.println(new InputSpace(x,y,1));
 					ammountOk++;
 
 				} else if (i == 0 && inputSpaces.contains(new InputSpace(x, y, 0))) {
-//					System.out.println("never happesn "+new InputSpace(x, y, 1));
 					ammountWrong++;
 
 				} else if (i == 1 && !inputSpaces.contains(new InputSpace(x, y, 1))) {
-//					System.out.println("1 and 0 "+new InputSpace(x, y, 1));
 					ammountWrong++;
 				}  
 				index++;

@@ -13,6 +13,8 @@ public class Synapse {
 
 	private int		sourceInput;
 
+
+
 	private double	permanance;
 
 	private int		inputSpaceIndex;
