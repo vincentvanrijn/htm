@@ -503,7 +503,7 @@ public class HTMApplet extends Applet implements Runnable {
 			do {
 				String log = "" + minimalOverlap.getText();
 				SpatialPooler.LEARNING = true;
-				int maxLearning = 100;
+				int maxLearning = 10;
 				for (int i = 0; i < maxLearning; i++) {
 
 					if (i == maxLearning - 1) {
@@ -532,7 +532,7 @@ public class HTMApplet extends Applet implements Runnable {
 
 				// amountOfSynapses.setText("" + ((new Integer(amountOfSynapses.getText())) + 1));
 				minimalOverlap.setText("" + ((new Integer(minimalOverlap.getText())) + 1));
-				initSpatialPooler();
+				spat.restoreSavedSetup();
 
 				if (minimalOverlap.getText().equals("10")) {
 					starting = false;

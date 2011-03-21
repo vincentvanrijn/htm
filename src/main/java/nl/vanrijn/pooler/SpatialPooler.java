@@ -95,6 +95,8 @@ public class SpatialPooler {
 
 	private int[]				inputSpace;
 
+	private Column[]			columsSaved;
+
 	public Column[] getColumns() {
 		return columns;
 	}
@@ -109,7 +111,7 @@ public class SpatialPooler {
 
 	public void conectSynapsesToInputSpace(int[] inputSpace) {
 		this.inputSpace = inputSpace;
-		int index = 0;
+		// int index = 0;
 		// for (int y = 0; y < yyMax; y++) {
 		// for (int x = 0; x < xxMax; x++) {
 		// int i = inputSpace[index];
@@ -138,6 +140,22 @@ public class SpatialPooler {
 		init();
 	}
 
+	private void saveSetup() {
+		columsSaved = new Column[AMMOUNT_OF_COLLUMNS];
+
+		for (Column column : this.columns) {
+			Synapse[] synapsesSaved = new Synapse[amountOfSynapses];
+			System.arraycopy(column.getPotentialSynapses(), 0, synapsesSaved, 0, column.getPotentialSynapses().length);
+			columsSaved[column.getColumnIndex()] = new Column(column.getColumnIndex(), column.getxPos(), column
+					.getyPos(), synapsesSaved);
+		}
+	}
+
+	public void restoreSavedSetup() {
+		System.out.println("restoring");
+		this.columns = columsSaved;
+	}
+
 	/**
 	 * Initialization Prior to receiving any inputs, the region is initialized by computing a list of initial potential
 	 * synapses for each column. This consists of a random set of inputs selected from the input space. Each input is
@@ -149,7 +167,7 @@ public class SpatialPooler {
 	 * center).
 	 */
 	// TODo A synapse can be connected but not active. And maybe also the other way arround
-	public void init() {
+	private void init() {
 		// TODO the input space has to be the same size is the column space. That is not desireable .Make this better.
 		// logger.log(Level.INFO, "SpatialPooler");
 		columns = new Column[AMMOUNT_OF_COLLUMNS];
@@ -184,6 +202,7 @@ public class SpatialPooler {
 				i++;// next column
 			}
 		}
+		saveSetup();
 	}
 
 	public double getInhibitionRadius() {
