@@ -25,10 +25,10 @@ import nl.vanrijn.model.Synapse;
 import nl.vanrijn.pooler.SpatialPooler;
 import nl.vanrijn.pooler.TemporalPooler;
 
+public class HTMApplet extends Applet implements Runnable {
 
-public class HTMApplet extends Applet  implements Runnable {
+	private List<String>		logging;
 
-	private List<String> logging;
 	private boolean				mouseDragged			= false;
 
 	private boolean				mousePressed			= false;
@@ -51,19 +51,19 @@ public class HTMApplet extends Applet  implements Runnable {
 	// private Column[] columns;
 	private SpatialPooler		spat					= null;
 
-	private TemporalPooler		tempo					= new TemporalPooler(12,12);
+	private TemporalPooler		tempo					= new TemporalPooler(12, 12);
 
-	private TextField			desiredLocalActivity	= new TextField("3");
+	private TextField			desiredLocalActivity	= new TextField("1");
 
 	private TextField			connectedPermanance		= new TextField("0.7");
 
-	private TextField			minimalOverlap			= new TextField("7");
+	private TextField			minimalOverlap			= new TextField("2");
 
 	private TextField			permananceDec			= new TextField("0.05");
 
 	private TextField			permananceInc			= new TextField("0.05");
 
-	private TextField			amountOfSynapses		= new TextField("10");
+	private TextField			amountOfSynapses		= new TextField("60");
 
 	private TextField			inhibitionRadius		= new TextField("5.0");
 
@@ -73,13 +73,13 @@ public class HTMApplet extends Applet  implements Runnable {
 
 	DecimalFormat				df2						= new DecimalFormat("#,###,###,##0.00");
 
-	private Button addPattern;
+	private Button				addPattern;
 
-	protected ArrayList<int[]> patterns = new ArrayList<int[]>();
+	protected ArrayList<int[]>	patterns				= new ArrayList<int[]>();
 
-	private boolean starting;
+	private boolean				starting;
 
-	private Thread runner;
+	private Thread				runner;
 
 	public void init() {
 		desiredLocalActivity.setName("desiredLocalActivity");
@@ -106,10 +106,7 @@ public class HTMApplet extends Applet  implements Runnable {
 				if (e.getActionCommand().equals("reset"))
 				// logger.log(Level.INFO, "sparse");
 					// createSparseDistributedRep();
-					spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()), new Double(
-							connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
-							permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
-							.getText()), new Double(inhibitionRadius.getText()));
+					initSpatialPooler();
 				reset();
 			}
 		});
@@ -128,10 +125,7 @@ public class HTMApplet extends Applet  implements Runnable {
 		add(new Label("inhib.rad"));
 		add(inhibitionRadius);
 		add(reset);
-		spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()), new Double(
-				connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
-				permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
-				.getText()), new Double(inhibitionRadius.getText()));
+		initSpatialPooler();
 
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 0;
@@ -189,7 +183,7 @@ public class HTMApplet extends Applet  implements Runnable {
 			}
 		});
 		add(resetPatterns);
-		
+
 		Button running = new Button("run");
 		running.addActionListener(new ActionListener() {
 
@@ -213,28 +207,28 @@ public class HTMApplet extends Applet  implements Runnable {
 	protected void stopping() {
 
 		this.starting = false;
-		
+
 	}
 
 	protected void running() {
 		runner = new Thread(this);
 
 		runner.start();
-		
+
 	}
 
 	protected void addPattern() {
 		int[] pattern = new int[input.length];
-		System.out.println(input);
+
 		System.arraycopy(input, 0, pattern, 0, input.length);
 		patterns.add(pattern);
 
 		reDraw();
-		//invokeTemporalPooler();
+		// invokeTemporalPooler();
 		createSparseDistributedRep();
 		addPattern.setLabel("addPattern(" + patterns.size() + ")");
-		//columns = new int[144];
-		
+		// columns = new int[144];
+
 	}
 
 	public void reset() {
@@ -245,6 +239,14 @@ public class HTMApplet extends Applet  implements Runnable {
 		}
 		this.loggedColum = null;
 		draw();
+	}
+
+	private void initSpatialPooler() {
+
+		spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()),
+				new Double(connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
+						permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
+						.getText()), new Double(inhibitionRadius.getText()));
 	}
 
 	@Override
@@ -483,58 +485,62 @@ public class HTMApplet extends Applet  implements Runnable {
 		}
 
 		repaint();
-		
-		System.out.println(spat.reconstructionQuality());
+
+		// System.out.println(spat.reconstructionQuality());
 		// tempo.setActiveColumns(spat.getActiveColumns());
 		// tempo.computeActiveState();
 		// tempo.computeActiveState();
 
 	}
+
 	public void run() {
-		
-		logging=new ArrayList<String>();
-		
+
+		logging = new ArrayList<String>();
+
 		if (patterns.size() != 0) {
 			this.starting = true;
-			
+
 			do {
-				String log=""+spat.getAmountOfSynapses();
-				SpatialPooler.LEARNING=true;
-				for(int i=0;i<1000;i++){
-					
-					if(i==999){
-						SpatialPooler.LEARNING=false;
+				String log = "" + minimalOverlap.getText();
+				SpatialPooler.LEARNING = true;
+				int maxLearning = 100;
+				for (int i = 0; i < maxLearning; i++) {
+
+					if (i == maxLearning - 1) {
+						SpatialPooler.LEARNING = false;
 					}
-					for(int j=0;j<patterns.size();j++ ){						
-					
-						
+					for (int j = 0; j < patterns.size(); j++) {
+
 						System.arraycopy(patterns.get(j), 0, input, 0, input.length);
-		
+
 						createSparseDistributedRep();
-						if(i==999){
-							log+=","+j+" "+spat.reconstructionQuality();
+						if (i == maxLearning - 1) {
+							log += "," + j + " " + spat.reconstructionQuality();
 						}
 						reDraw();
 						repaint();
-		
+
 						try {
-							//Thread.sleep(200);
+							// Thread.sleep(200);
 						} catch (Exception e) {
 							System.out.println("fucked");
-						}						
+						}
 					}
-					
+
 				}
 				logging.add(log);
-				spat.setAmountOfSynapses(spat.getAmountOfSynapses()+1);
-				spat.init();
-				if(spat.getAmountOfSynapses()==60){
-					starting=false;
+
+				// amountOfSynapses.setText("" + ((new Integer(amountOfSynapses.getText())) + 1));
+				minimalOverlap.setText("" + ((new Integer(minimalOverlap.getText())) + 1));
+				initSpatialPooler();
+
+				if (minimalOverlap.getText().equals("10")) {
+					starting = false;
 				}
-				
+
 				// System.out.println(this.starting);
 			} while (this.starting);
-			for(String log: logging){
+			for (String log : logging) {
 				System.out.println(log);
 			}
 		}
