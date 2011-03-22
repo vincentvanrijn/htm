@@ -4,11 +4,16 @@
 package nl.vanrijn.view;
 
 import java.applet.Applet;
+import java.awt.Adjustable;
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Label;
+import java.awt.Rectangle;
+import java.awt.ScrollPane;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -201,6 +206,28 @@ public class HTMApplet extends Applet implements Runnable {
 			}
 		});
 		add(stop);
+
+		// ScrollPane scroller = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);
+		// scroller.add(new Component() {
+		//
+		// public Dimension getPreferredSize() {
+		// return new Dimension(300, 300);
+		// }
+		//
+		// public void paint(Graphics g) {
+		// g.drawString("This is a test ", 0, 10);
+		// g.drawString("This is a test ", 0, 22);
+		// g.drawString("This is a test ", 0, 34);
+		// g.drawString("This is a test ", 0, 46);
+		// g.drawString("This is a test ", 0, 58);
+		// }
+		// });
+		// Adjustable vadjust = scroller.getVAdjustable();
+		// Adjustable hadjust = scroller.getHAdjustable();
+		// hadjust.setUnitIncrement(10);
+		// vadjust.setUnitIncrement(10);
+		// scroller.setSize(200, 200);
+		// add("South", scroller);
 		draw();
 	}
 
