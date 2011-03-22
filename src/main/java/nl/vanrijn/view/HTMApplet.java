@@ -5,6 +5,7 @@ package nl.vanrijn.view;
 
 import java.applet.Applet;
 import java.awt.Adjustable;
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
@@ -12,7 +13,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Label;
-import java.awt.Rectangle;
+import java.awt.Panel;
 import java.awt.ScrollPane;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -32,61 +33,63 @@ import nl.vanrijn.pooler.TemporalPooler;
 
 public class HTMApplet extends Applet implements Runnable {
 
-	private List<String>		logging;
+	private List<String> logging;
 
-	private boolean				mouseDragged			= false;
+	private boolean mouseDragged = false;
 
-	private boolean				mousePressed			= false;
+	private boolean mousePressed = false;
 
-	private boolean				black					= true;
+	private boolean black = true;
 
 	/**
-	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the j'th input is on.
+	 * input(t,j) The input to this level at time t. input(t, j) is 1 if the
+	 * j'th input is on.
 	 */
-	private int[]				input					= new int[144];
+	private int[] input = new int[144];
 
-	private static final long	serialVersionUID		= 1L;
+	private static final long serialVersionUID = 1L;
 
-	private Graphics			graphics;
+	private Graphics graphics;
 
-	private Logger				logger					= Logger.getLogger(this.getClass().getName());
 
-	private Image				image;
+	private Image image;
 
 	// private Column[] columns;
-	private SpatialPooler		spat					= null;
+	private SpatialPooler spat = null;
 
-	private TemporalPooler		tempo					= new TemporalPooler(12, 12);
 
-	private TextField			desiredLocalActivity	= new TextField("1");
+	private TextField desiredLocalActivity = new TextField("1");
 
-	private TextField			connectedPermanance		= new TextField("0.7");
+	private TextField connectedPermanance = new TextField("0.7");
 
-	private TextField			minimalOverlap			= new TextField("2");
+	private TextField minimalOverlap = new TextField("2");
 
-	private TextField			permananceDec			= new TextField("0.05");
+	private TextField permananceDec = new TextField("0.05");
 
-	private TextField			permananceInc			= new TextField("0.05");
+	private TextField permananceInc = new TextField("0.05");
 
-	private TextField			amountOfSynapses		= new TextField("60");
+	private TextField amountOfSynapses = new TextField("60");
 
-	private TextField			inhibitionRadius		= new TextField("5.0");
+	private TextField inhibitionRadius = new TextField("5.0");
 
-	private TextField			boost					= new TextField("1.0");
+	private TextField boost = new TextField("1.0");
 
-	private Column				loggedColum				= null;
+	private Column loggedColum = null;
 
-	DecimalFormat				df2						= new DecimalFormat("#,###,###,##0.00");
+	DecimalFormat df2 = new DecimalFormat("#,###,###,##0.00");
 
-	private Button				addPattern;
+	private Button addPattern;
 
-	protected ArrayList<int[]>	patterns				= new ArrayList<int[]>();
+	protected ArrayList<int[]> patterns = new ArrayList<int[]>();
 
-	private boolean				starting;
+	private boolean starting;
 
-	private Thread				runner;
+	private Thread runner;
 
 	public void init() {
+		Panel panel = new Panel();
+
+		setLayout(new BorderLayout());
 		desiredLocalActivity.setName("desiredLocalActivity");
 		connectedPermanance.setName("connectedPermanance");
 		minimalOverlap.setName("minimalOverlap");
@@ -99,37 +102,38 @@ public class HTMApplet extends Applet implements Runnable {
 		submitButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("sparse")) createSparseDistributedRep();
+				if (e.getActionCommand().equals("sparse"))
+					createSparseDistributedRep();
 			}
 		});
-		add(submitButton);
+		panel.add(submitButton, BorderLayout.NORTH);
 
 		Button reset = new Button("reset");
 		reset.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals("reset"))
-				// logger.log(Level.INFO, "sparse");
+					// logger.log(Level.INFO, "sparse");
 					// createSparseDistributedRep();
 					initSpatialPooler();
 				reset();
 			}
 		});
-		add(new Label("desi.loc.act"));
-		add(desiredLocalActivity);
-		add(new Label("con.perm"));
-		add(connectedPermanance);
-		add(new Label("min.ov"));
-		add(minimalOverlap);
-		add(new Label("perm.dec"));
-		add(permananceDec);
-		add(new Label("perm.inc"));
-		add(permananceInc);
-		add(new Label("amount.syn"));
-		add(amountOfSynapses);
-		add(new Label("inhib.rad"));
-		add(inhibitionRadius);
-		add(reset);
+		panel.add(new Label("desi.loc.act"));
+		panel.add(desiredLocalActivity);
+		panel.add(new Label("con.perm"));
+		panel.add(connectedPermanance);
+		panel.add(new Label("min.ov"));
+		panel.add(minimalOverlap);
+		panel.add(new Label("perm.dec"));
+		panel.add(permananceDec);
+		panel.add(new Label("perm.inc"));
+		panel.add(permananceInc);
+		panel.add(new Label("amount.syn"));
+		panel.add(amountOfSynapses);
+		panel.add(new Label("inhib.rad"));
+		panel.add(inhibitionRadius);
+		panel.add(reset);
 		initSpatialPooler();
 
 		for (int i = 0; i < input.length; i++) {
@@ -175,7 +179,7 @@ public class HTMApplet extends Applet implements Runnable {
 				}
 			}
 		});
-		add(addPattern);
+		panel.add(addPattern);
 		Button resetPatterns = new Button("resetPatterns");
 		resetPatterns.setActionCommand("resetPatterns");
 		resetPatterns.addActionListener(new ActionListener() {
@@ -187,47 +191,52 @@ public class HTMApplet extends Applet implements Runnable {
 				}
 			}
 		});
-		add(resetPatterns);
+		panel.add(resetPatterns);
 
 		Button running = new Button("run");
 		running.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("run")) running();
+				if (e.getActionCommand().equals("run"))
+					running();
 			}
 		});
-		add(running);
+		panel.add(running);
 
 		Button stop = new Button("stop");
 		stop.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals("stop")) stopping();
+				if (e.getActionCommand().equals("stop"))
+					stopping();
 			}
 		});
-		add(stop);
+		panel.add(stop);
 
-		// ScrollPane scroller = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);
-		// scroller.add(new Component() {
-		//
-		// public Dimension getPreferredSize() {
-		// return new Dimension(300, 300);
-		// }
-		//
-		// public void paint(Graphics g) {
-		// g.drawString("This is a test ", 0, 10);
-		// g.drawString("This is a test ", 0, 22);
-		// g.drawString("This is a test ", 0, 34);
-		// g.drawString("This is a test ", 0, 46);
-		// g.drawString("This is a test ", 0, 58);
-		// }
-		// });
-		// Adjustable vadjust = scroller.getVAdjustable();
-		// Adjustable hadjust = scroller.getHAdjustable();
-		// hadjust.setUnitIncrement(10);
-		// vadjust.setUnitIncrement(10);
-		// scroller.setSize(200, 200);
-		// add("South", scroller);
+		ScrollPane scroller = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);
+		scroller.add(new Component() {
+
+			public Dimension getPreferredSize() {
+				return new Dimension(300, 300);
+			}
+
+			public void paint(Graphics g) {
+				g.drawString("This is a test ", 0, 10);
+				g.drawString("This is a test ", 0, 22);
+				g.drawString("This is a test ", 0, 34);
+				g.drawString("This is a test ", 0, 46);
+				g.drawString("This is a test ", 0, 58);
+			}
+		});
+		Adjustable vadjust = scroller.getVAdjustable();
+		Adjustable hadjust = scroller.getHAdjustable();
+		hadjust.setUnitIncrement(10);
+		vadjust.setUnitIncrement(10);
+		scroller.setSize(200, 200);
+		add( scroller,BorderLayout.SOUTH);
+		
+		
+		add(panel, BorderLayout.NORTH);
 		draw();
 	}
 
@@ -271,9 +280,11 @@ public class HTMApplet extends Applet implements Runnable {
 	private void initSpatialPooler() {
 
 		spat = new SpatialPooler(new Integer(desiredLocalActivity.getText()),
-				new Double(connectedPermanance.getText()), new Integer(minimalOverlap.getText()), new Double(
-						permananceDec.getText()), new Double(permananceInc.getText()), new Integer(amountOfSynapses
-						.getText()), new Double(inhibitionRadius.getText()));
+				new Double(connectedPermanance.getText()), new Integer(
+						minimalOverlap.getText()), new Double(permananceDec
+						.getText()), new Double(permananceInc.getText()),
+				new Integer(amountOfSynapses.getText()), new Double(
+						inhibitionRadius.getText()));
 	}
 
 	@Override
@@ -349,7 +360,8 @@ public class HTMApplet extends Applet implements Runnable {
 	private void logColumn(Column column, int xx, int yy) {
 
 		// delete the blue dot if there is one
-		if (!(mouseDragged && loggedColum != null && this.loggedColum.getxPos() == column.getxPos() && this.loggedColum
+		if (!(mouseDragged && loggedColum != null
+				&& this.loggedColum.getxPos() == column.getxPos() && this.loggedColum
 				.getyPos() == column.getyPos())) {
 
 			if (loggedColum != null) {
@@ -358,11 +370,12 @@ public class HTMApplet extends Applet implements Runnable {
 				} else {
 					graphics.setColor(Color.WHITE);
 				}
-				graphics.fillOval(19 * this.loggedColum.getxPos() + 5 + 260, 99 + 19 * this.loggedColum.getyPos() + 6,
-						6, 6);
+				graphics.fillOval(19 * this.loggedColum.getxPos() + 5 + 260,
+						99 + 19 * this.loggedColum.getyPos() + 6, 6, 6);
 			}
 
-			if (loggedColum != null && this.loggedColum.getxPos() == column.getxPos()
+			if (loggedColum != null
+					&& this.loggedColum.getxPos() == column.getxPos()
 					&& this.loggedColum.getyPos() == column.getyPos()) {
 				this.loggedColum = null;
 				reDraw();
@@ -386,16 +399,19 @@ public class HTMApplet extends Applet implements Runnable {
 		if (column.getNeigbours() != null) {
 			String columnBoost = df2.format(column.getBoost());
 
-			String minimalLocalActivity = df2.format(column.getMinimalLocalActivity());
+			String minimalLocalActivity = df2.format(column
+					.getMinimalLocalActivity());
 			String overlap = df2.format(column.getOverlap());
 			String overlapDutyCycle = df2.format(column.getOverlapDutyCycle());
 			String activeDutyCycle = df2.format(column.getActiveDutyCycle());
 			String minimalDutyCycle = df2.format(column.getMinimalDutyCycle());
 
-			graphics.drawString("C " + column.getxPos() + "," + column.getyPos() + " bst=" + columnBoost + " nbrs="
-					+ column.getNeigbours().size() + " ovl=" + overlap + " m.loc.act=" + minimalLocalActivity
-					+ " o.d.cy=" + overlapDutyCycle + " a.d.cy=" + activeDutyCycle + " m.d.cy=" + minimalDutyCycle, 0,
-					340);
+			graphics.drawString("C " + column.getxPos() + ","
+					+ column.getyPos() + " bst=" + columnBoost + " nbrs="
+					+ column.getNeigbours().size() + " ovl=" + overlap
+					+ " m.loc.act=" + minimalLocalActivity + " o.d.cy="
+					+ overlapDutyCycle + " a.d.cy=" + activeDutyCycle
+					+ " m.d.cy=" + minimalDutyCycle, 0, 340);
 		}
 
 		for (int i = 0; i < column.getPotentialSynapses().length; i++) {
@@ -407,11 +423,20 @@ public class HTMApplet extends Applet implements Runnable {
 			}
 			String permanance = df2.format(potentialSynapse.getPermanance());
 
-			graphics.drawString("Synapse " + potentialSynapse.getxPos() + " " + potentialSynapse.getyPos() + " perm="
-					+ permanance + " input=" + potentialSynapse.getSourceInput() + " connected="
-					+ potentialSynapse.isConnected(spat.getConnectedPermanance()), 0, 354 + 16 * i);
+			graphics.drawString("Synapse "
+					+ potentialSynapse.getxPos()
+					+ " "
+					+ potentialSynapse.getyPos()
+					+ " perm="
+					+ permanance
+					+ " input="
+					+ potentialSynapse.getSourceInput()
+					+ " connected="
+					+ potentialSynapse.isConnected(spat
+							.getConnectedPermanance()), 0, 354 + 16 * i);
 			// graphics.setColor(Color.getHSBColor(10, 0.5f,0.5f));
-			graphics.fillOval(19 * potentialSynapse.getxPos() + 5, 100 + (19 * potentialSynapse.getyPos()) + 5, 6, 6);
+			graphics.fillOval(19 * potentialSynapse.getxPos() + 5,
+					100 + (19 * potentialSynapse.getyPos()) + 5, 6, 6);
 		}
 		repaint();
 	}
@@ -488,7 +513,8 @@ public class HTMApplet extends Applet implements Runnable {
 
 		Column[] columns = spat.getColumns();
 		graphics.clearRect(0, 60, 260, 40);
-		graphics.drawString("new inhibitian radius " + Math.round(spat.getInhibitionRadius()), 0, 80);
+		graphics.drawString("new inhibitian radius "
+				+ Math.round(spat.getInhibitionRadius()), 0, 80);
 		for (int y = 0; y < 12; y++) {
 			for (int x = 0; x < 12; x++) {
 				if (columns[j].isActive()) {
@@ -508,7 +534,8 @@ public class HTMApplet extends Applet implements Runnable {
 			reDraw();
 			logSynapses(loggedColum);
 			graphics.setColor(Color.BLUE);
-			graphics.fillOval(19 * loggedColum.getxPos() + 5 + 260, 99 + 19 * loggedColum.getyPos() + 6, 6, 6);
+			graphics.fillOval(19 * loggedColum.getxPos() + 5 + 260,
+					99 + 19 * loggedColum.getyPos() + 6, 6, 6);
 		}
 
 		repaint();
@@ -538,7 +565,8 @@ public class HTMApplet extends Applet implements Runnable {
 					}
 					for (int j = 0; j < patterns.size(); j++) {
 
-						System.arraycopy(patterns.get(j), 0, input, 0, input.length);
+						System.arraycopy(patterns.get(j), 0, input, 0,
+								input.length);
 
 						createSparseDistributedRep();
 						if (i == maxLearning - 1) {
@@ -557,8 +585,10 @@ public class HTMApplet extends Applet implements Runnable {
 				}
 				logging.add(log);
 
-				// amountOfSynapses.setText("" + ((new Integer(amountOfSynapses.getText())) + 1));
-				minimalOverlap.setText("" + ((new Integer(minimalOverlap.getText())) + 1));
+				// amountOfSynapses.setText("" + ((new
+				// Integer(amountOfSynapses.getText())) + 1));
+				minimalOverlap.setText(""
+						+ ((new Integer(minimalOverlap.getText())) + 1));
 				spat.restoreSavedSetup();
 
 				if (minimalOverlap.getText().equals("10")) {
