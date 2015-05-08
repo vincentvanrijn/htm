@@ -6,6 +6,8 @@ package nl.vanrijn.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import nl.vanrijn.model.helper.SegmentUpdate;
 
 public class Cell {
@@ -126,10 +128,11 @@ public class Cell {
 
 	@Override
 	public String toString() {
-		return "cell=" + this.columnIndex + "," + this.getCellIndex() + "," + this.time + ",activeState="
-				+ this.activeState + ",learnState=" + this.learnState + ",predictivestate=" + this.predictiveState
-				+ ",segments.size=" + this.segments.size() + "x,y=" + this.getXpos() + "," + this.getYpos() + " "
-				+ this.segmentUpdateList.size();
+	    return ToStringBuilder.reflectionToString(this);
+//		return "cell=" + this.columnIndex + "," + this.getCellIndex() + "," + this.time + ",activeState="
+//				+ this.activeState + ",learnState=" + this.learnState + ",predictivestate=" + this.predictiveState
+//				+ ",segments.size=" + this.segments.size() + "x,y=" + this.getXpos() + "," + this.getYpos() + " "
+//				+ this.segmentUpdateList.size();
 	}	
 
 	public int getXpos() {

@@ -357,7 +357,7 @@ public class TemporalPooler {
 	 * @return
 	 */
 	// this should only return a segment index. not a segment. the time of the
-	// segment doen't mather!!
+	// segment doen't matter!!
 	public Segment getActiveSegment(int c, int i, final int time, int state) {
 
 		Segment returnValue = null;
